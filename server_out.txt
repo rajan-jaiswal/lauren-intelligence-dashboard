@@ -1,0 +1,2 @@
+✅ MongoDB connected: mongodb://localhost:27017/lauren-dashboard
+🚀 Server running on http://localhost:5000

@@ -1,0 +1,398 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── LIGHT THEME (default) ── */
+:root {
+  --bg:           #eef1f8;
+  --sidebar-bg:   #0d1526;
+  --header-bg:    #0d1526;
+  --card-bg:      #ffffff;
+  --card-bg2:     #f0f2f9;
+  --card-border:  #c8cfe8;
+  --text:         #0f1523;
+  --text-muted:   #3d4a6b;
+  --text-dim:     #7a85a8;
+  --blue:         #1565d8;
+  --blue-lt:      rgba(21,101,216,0.10);
+  --green:        #0e8a3c;
+  --green-lt:     rgba(14,138,60,0.10);
+  --red:          #c8001a;
+  --red-lt:       rgba(200,0,26,0.08);
+  --orange:       #b84d00;
+  --orange-lt:    rgba(184,77,0,0.09);
+  --yellow:       #8a6600;
+  --yellow-lt:    rgba(138,102,0,0.10);
+  --purple:       #6b24c8;
+  --purple-lt:    rgba(107,36,200,0.10);
+  --navy:         #0d1526;
+  --accent:       #1565d8;
+  --feature-bg:   #f0f2f9;
+  --tco-track:    rgba(0,0,0,.08);
+  --modal-overlay: rgba(0,0,0,.45);
+  --font: -apple-system, "Segoe UI", system-ui, sans-serif;
+}
+
+/* ── DARK THEME ── */
+[data-theme="dark"] {
+  --bg:           #12131f;
+  --sidebar-bg:   #0d1526;
+  --header-bg:    #0d1526;
+  --card-bg:      #181b2e;
+  --card-bg2:     #1e2240;
+  --card-border:  #2c3154;
+  --modal-overlay: rgba(0,0,0,.65);
+  --text:         #f0f2fa;
+  --text-muted:   #a8b0c8;
+  --text-dim:     #6b75a0;
+  --blue:         #4a9eff;
+  --blue-lt:      rgba(74,158,255,0.14);
+  --green:        #2dca6e;
+  --green-lt:     rgba(45,202,110,0.13);
+  --red:          #ff5a5a;
+  --red-lt:       rgba(255,90,90,0.12);
+  --orange:       #ff8c42;
+  --orange-lt:    rgba(255,140,66,0.12);
+  --yellow:       #f5c518;
+  --yellow-lt:    rgba(245,197,24,0.12);
+  --purple:       #b47fff;
+  --purple-lt:    rgba(180,127,255,0.12);
+  --navy:         #1a2744;
+  --accent:       #4a9eff;
+  --feature-bg:   rgba(255,255,255,.04);
+  --tco-track:    rgba(255,255,255,.07);
+}
+
+/* ── Global form element theming — fixes light/dark visibility ── */
+input, textarea, select {
+  background: var(--card-bg2);
+  color: var(--text);
+  border: 1px solid var(--card-border);
+  border-radius: 7px;
+  font-family: var(--font);
+  font-size: 13px;
+  transition: border-color .15s;
+}
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+input::placeholder, textarea::placeholder { color: var(--text-dim); }
+select option { background: var(--card-bg); color: var(--text); }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.6;
+  transition: background .2s, color .2s;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root { display: flex; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden; }
+
+/* ── Layout ── */
+.dashboard-layout { display: flex; height: 100%; overflow: hidden; }
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 185px;
+  min-width: 185px;
+  background: #0d1526;
+  display: flex;
+  flex-direction: column;
+  border-right: 2px solid rgba(255,255,255,.13);
+  overflow-y: auto;
+  z-index: 10;
+}
+.sidebar-logo {
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.13);
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+}
+.sidebar-logo .brand-name {
+  font-size: 22px; font-weight: 900; color: #ffffff; letter-spacing: 2px; line-height: 1;
+  text-shadow: 0 0 20px rgba(74,158,255,.4);
+}
+.sidebar-logo .brand-sub {
+  font-size: 9px; color: rgba(255,255,255,.65); letter-spacing: 3.5px; text-transform: uppercase;
+}
+
+.sidebar-nav { flex: 1; padding: 10px 0; }
+.nav-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 10px 14px;
+  font-size: 12.5px; font-weight: 600; color: rgba(255,255,255,.82);
+  cursor: pointer; border-left: 3px solid transparent;
+  transition: all .15s;
+  user-select: none;
+}
+.nav-item:hover  { color: #ffffff; background: rgba(255,255,255,.11); }
+.nav-item.active { color: #ffffff; background: rgba(74,158,255,.28); border-left-color: #4a9eff; font-weight: 700; }
+.nav-item .nav-icon { width: 16px; height: 16px; flex-shrink: 0; opacity: .9; }
+.nav-item.active .nav-icon { opacity: 1; }
+.nav-item:hover  .nav-icon { opacity: 1; }
+.nav-item .nav-label { flex: 1; line-height: 1.3; }
+.nav-item .ai-badge {
+  font-size: 8px; font-weight: 800; background: #4a9eff; color: #fff;
+  padding: 2px 5px; border-radius: 8px; letter-spacing: .3px;
+}
+
+/* ── AI Insights panel ── */
+.ai-insights-box {
+  margin: 8px 10px 14px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 8px;
+  padding: 11px;
+}
+.ai-insights-box .ai-title {
+  font-size: 11px; font-weight: 700; color: #6ab4ff; margin-bottom: 4px;
+  display: flex; align-items: center; gap: 5px;
+}
+.sparkline { width: 100%; height: 36px; }
+.data-health .health-val { color: #2dca6e; font-weight: 800; font-size: 13px; }
+
+/* ── Main Content ── */
+.main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ── Top Header ── */
+.top-header {
+  background: var(--header-bg);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  padding: 11px 22px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.header-title { font-size: 15px; font-weight: 800; color: #fff; letter-spacing: .6px; }
+.header-meta  { display: flex; align-items: center; gap: 10px; font-size: 11px; color: rgba(255,255,255,.6); }
+.header-date  { color: #fff; font-weight: 700; }
+
+.refresh-btn, .theme-btn {
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.18);
+  color: #fff;
+  padding: 5px 11px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 11px; font-weight: 600;
+  display: flex; align-items: center; gap: 5px;
+  transition: background .15s;
+  white-space: nowrap;
+}
+.refresh-btn:hover, .theme-btn:hover { background: rgba(255,255,255,.18); }
+
+/* ── Filter Bar ── */
+.filter-bar {
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--card-border);
+  padding: 7px 22px;
+  display: flex; align-items: center; gap: 18px;
+  flex-shrink: 0;
+}
+.filter-group  { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.filter-label  { color: var(--text-muted); font-weight: 600; white-space: nowrap; font-size: 11px; }
+.filter-select {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--card-border);
+  border-radius: 5px;
+  padding: 5px 26px 5px 10px;
+  font-size: 12px; font-weight: 600;
+  cursor: pointer; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23a8b0c8'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  transition: border-color .15s;
+  max-width: 190px;
+}
+.filter-select:focus { outline: none; border-color: var(--blue); }
+.filter-divider { width: 1px; height: 22px; background: var(--card-border); }
+.competitors-display {
+  font-size: 12px; font-weight: 700; color: var(--blue);
+  background: var(--blue-lt);
+  border: 1px solid var(--blue);
+  border-radius: 5px; padding: 4px 11px;
+  white-space: nowrap;
+}
+
+/* ── Page Content ── */
+.page-content { flex: 1; overflow-y: auto; padding: 16px; background: var(--bg); }
+
+/* ── Cards ── */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 14px;
+}
+.card-title {
+  font-size: 11px; font-weight: 800; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: .9px; margin-bottom: 11px;
+}
+.card-title.green  { color: var(--green); }
+.card-title.red    { color: var(--red); }
+.card-title.blue   { color: var(--blue); }
+.card-title.orange { color: var(--orange); }
+
+/* ── Grids ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+/* ── Table ── */
+.dash-table { width: 100%; border-collapse: collapse; font-size: 12.5px; table-layout: fixed; }
+.dash-table th {
+  color: var(--text-muted); font-weight: 700; padding: 7px 8px;
+  border-bottom: 2px solid var(--card-border); text-align: left; font-size: 11px;
+  text-transform: uppercase; letter-spacing: .5px;
+}
+.dash-table td {
+  padding: 7px 8px; border-bottom: 1px solid var(--card-border);
+  vertical-align: top; font-size: 12.5px; word-break: break-word;
+  color: var(--text);
+}
+.dash-table tr:last-child td { border-bottom: none; }
+.dash-table tr:hover td { background: var(--feature-bg); }
+
+/* ── Badge ── */
+.badge       { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; }
+.badge-blue  { background: var(--blue-lt);  color: var(--blue);  }
+.badge-green { background: var(--green-lt); color: var(--green); }
+
+/* ── Strength / Weakness items ── */
+.sw-item       { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 6px; font-size: 12px; color: var(--text); }
+.sw-icon-green { color: var(--green); flex-shrink: 0; font-size: 12px; font-weight: 800; margin-top: 1px; }
+.sw-icon-red   { color: var(--red);   flex-shrink: 0; font-size: 12px; font-weight: 800; margin-top: 1px; }
+
+/* ── KPI ── */
+.kpi-box   { flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 6px; padding: 11px 12px; text-align: center; }
+.kpi-num   { font-size: 22px; font-weight: 900; line-height: 1; }
+.kpi-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
+
+/* ── Icon box (feature tiles) ── */
+.icon-box {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px; padding: 12px 8px;
+  background: var(--card-bg2);
+  border: 1px solid var(--card-border);
+  border-radius: 7px; text-align: center;
+}
+.icon-box svg  { width: 24px; height: 24px; flex-shrink: 0; }
+.icon-box span { font-size: 11.5px; font-weight: 600; color: var(--text); line-height: 1.3; }
+
+/* ── Product icon badge ── */
+.product-icon-badge {
+  width: 52px; height: 52px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--blue-lt); border: 2px solid var(--blue);
+  flex-shrink: 0;
+}
+.product-icon-badge svg { width: 28px; height: 28px; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 4px; }
+
+/* ── Win rate donut ── */
+.wr-donut     { position: relative; display: inline-block; }
+.wr-donut svg { display: block; }
+.wr-donut .wr-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+/* ── Competitor summary card layout ── */
+.comp-summary-card {
+  border: 1px solid var(--card-border);
+  border-radius: 7px; padding: 11px;
+  background: var(--card-bg2); margin-bottom: 9px;
+}
+.comp-summary-card:last-child { margin-bottom: 0; }
+.comp-summary-card .comp-header  { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.comp-summary-card .comp-name    { font-size: 13px; font-weight: 800; }
+.comp-summary-card .comp-pos     { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 8px; background: var(--blue-lt); color: var(--blue); }
+.comp-summary-card .comp-overview{ font-size: 11.5px; color: var(--text-muted); line-height: 1.55; margin-bottom: 7px; }
+.comp-summary-card .comp-cols    { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.comp-summary-card .col-label    { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 4px; }
+.comp-summary-card .col-item     { font-size: 11px; margin-bottom: 3px; display: flex; align-items: flex-start; gap: 5px; color: var(--text); }
+
+/* ── Section meta rows ── */
+.meta-row {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 6px 0; border-bottom: 1px solid var(--card-border); font-size: 12px;
+}
+.meta-row:last-child { border-bottom: none; }
+.meta-row .meta-icon { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; color: var(--text-muted); }
+.meta-row .meta-label { color: var(--text-muted); font-size: 11px; font-weight: 600; min-width: 108px; }
+.meta-row .meta-value { color: var(--text); font-weight: 600; font-size: 12px; }
+
+/* ── Numbered circle ── */
+.num-circle {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--blue-lt); border: 1px solid var(--blue);
+  color: var(--blue); font-size: 10px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+
+/* ── AWS dashboard specific ── */
+/* In dark mode invert white-background SVGs so they show on dark cards */
+[data-theme="dark"] img[src*="aws"] { filter: brightness(0) invert(1); }
+/* Ensure customer logos are visible in dark mode */
+[data-theme="dark"] .aws-logo-tile img { filter: brightness(0) invert(1); }
+
+/* ─── Product Data Engine — Add Product Page ─────────────────────────────── */
+
+/* Tag chip (competitor names) */
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--blue-lt);
+  border: 1px solid var(--blue);
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* File drop zone */
+.file-drop-zone {
+  border: 2px dashed var(--card-border);
+  border-radius: 10px;
+  padding: 32px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  background: var(--card-bg2);
+}
+.file-drop-zone:hover,
+.file-drop-zone.drag-over {
+  border-color: var(--blue);
+  background: var(--blue-lt);
+}
+
+/* Progress bar */
+.progress-track {
+  height: 8px;
+  border-radius: 8px;
+  background: var(--card-border);
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--blue), var(--purple));
+  transition: width .4s ease;
+}
+
+/* nav-item-add — subtle green tint for the Add Product item */
+.nav-item-add {
+  border-top: 1px solid var(--card-border);
+  margin-top: 4px;
+}
+.nav-item-add .nav-label { color: #2dca6e; }
+
+/* nav-item with admin badge */
+.nav-item[class*="manage"] .nav-label,
+.nav-item .nav-label-admin { color: var(--purple); }

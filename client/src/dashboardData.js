@@ -1,0 +1,979 @@
+// ─────────────────────────────────────────────────────────────────────────
+//  Lauren Intelligence Dashboard — static data
+//  Multi-product: IBM Instana, IBM MQ, IBM Sterling, IBM Turbonomic
+// ─────────────────────────────────────────────────────────────────────────
+
+// ─── IBM INSTANA ──────────────────────────────────────────────────────────
+const INSTANA = {
+  practice: 'IBM',
+  product: 'Instana',
+  competitors: 'Datadog, Dynatrace',
+  dataAsOf: null,
+
+  overview: {
+    logo: '☁',
+    name: 'IBM INSTANA',
+    category: 'Observability / APM',
+    deployment: 'SaaS / Hybrid / On-Prem',
+    targetUsers: 'IT Operations, DevOps, SRE',
+    productLaunch: '2016',
+    marketPosition: 'Leader (Gartner Magic Quadrant)',
+    description:
+      'IBM Instana is an AI-powered observability solution that automatically discovers and monitors modern applications and microservices across hybrid environments.',
+  },
+
+  keyFeatures: [
+    { icon: '🔍', name: 'Automatic Discovery' },
+    { icon: '🧠', name: 'AI Root Cause Analysis' },
+    { icon: '📊', name: 'Trace Analytics' },
+    { icon: '☸',  name: 'Kubernetes Visibility' },
+    { icon: '📈', name: 'Real-time Monitoring' },
+    { icon: '🔔', name: 'Smart Alert Engine' },
+    { icon: '🌐', name: 'Hybrid Monitoring' },
+    { icon: '🔴', name: 'OpenShift Support' },
+  ],
+
+  discoveryQuestions: [
+    'How do you monitor your applications today?',
+    'How long does it take to identify the root cause of an issue?',
+    'Are you using Kubernetes or containerized environments?',
+    'Do you have visibility across hybrid or multi-cloud?',
+    'Are application outages impacting your business or customers?',
+  ],
+
+  recommendedResponses: [
+    'Instana provides end-to-end visibility across the entire stack.',
+    'AI-powered root cause analysis significantly reduces MTTR.',
+    'Instana delivers deep Kubernetes and OpenShift observability.',
+    'Instana offers unified monitoring across hybrid and multi-cloud.',
+    'Instana helps prevent outages and improves business reliability.',
+  ],
+
+  strengths: [
+    'Automatic discovery and mapping',
+    'AI-powered root cause analysis',
+    'Deep OpenShift integration',
+    'Full-stack hybrid visibility',
+    'Enterprise grade scalability',
+    'Strong IBM ecosystem alignment',
+    'Quick time to value',
+  ],
+
+  weaknesses: [
+    'Premium licensing cost',
+    'Advanced reporting complexity',
+    'Learning curve for new users',
+    'Limited customization in some areas',
+    'Strong competition in the market',
+  ],
+
+  caseStudies: [
+    { icon: '🏦', customer: 'Banking Customer',  type: 'Global Bank',    challenge: 'Frequent application outages impacting customers.', result: '40% reduction in incident resolution time.' },
+    { icon: '📡', customer: 'Telecom Customer',  type: 'Global Telecom', challenge: 'High MTTR for critical services.',                  result: '50% faster root cause detection.' },
+    { icon: '⚡', customer: 'Utility Customer',  type: 'Energy Provider',challenge: 'Complex hybrid environment monitoring.',             result: '30% improvement in service availability.' },
+  ],
+
+  keyCustomers: [
+    { logo: '🔴', name: 'Vodafone',         industry: 'Telecom',  color: '#e00000' },
+    { logo: '🩷', name: 'Deutsche Telekom', industry: 'Telecom',  color: '#e2007a' },
+    { logo: '🟢', name: 'KPN',              industry: 'Telecom',  color: '#00a650' },
+    { logo: '🏛',  name: 'Global Bank',      industry: 'Banking',  color: '#3b82d4' },
+    { logo: '🛒', name: 'Retail Enterprise',industry: 'Retail',   color: '#3b82d4' },
+  ],
+
+  competitorSummary: [
+    {
+      name: 'Datadog',   logo: '🐕', color: '#632ca6', marketPosition: 'Leader',
+      overview: 'Cloud-native monitoring platform with vast integrations and observability capabilities.',
+      strengths:  ['Strong SaaS ecosystem', 'Extensive integrations', 'Easy to get started'],
+      weaknesses: ['Cost increases at scale', 'Complex licensing',     'Hybrid can be costly'],
+    },
+    {
+      name: 'Dynatrace', logo: '🔷', color: '#1496ff', marketPosition: 'Leader',
+      overview: 'AI-powered observability platform with full-stack monitoring and automation.',
+      strengths:  ['Advanced AI / Davis AI',  'Excellent automation', 'Deep analytics'],
+      weaknesses: ['Premium pricing',          'Complex setup',        'Resource intensive'],
+    },
+  ],
+
+  featureMatrix: {
+    labels: { product: 'Instana', comp1: 'Datadog', comp2: 'Dynatrace' },
+    rows: [
+      { feature: 'Automatic Discovery',    product: 'green',  comp1: 'yellow', comp2: 'yellow' },
+      { feature: 'AI Root Cause Analysis', product: 'green',  comp1: 'green',  comp2: 'green'  },
+      { feature: 'Kubernetes Visibility',  product: 'green',  comp1: 'green',  comp2: 'yellow' },
+      { feature: 'OpenShift Support',      product: 'green',  comp1: 'yellow', comp2: 'red'    },
+      { feature: 'Hybrid / Multi-cloud',   product: 'green',  comp1: 'yellow', comp2: 'yellow' },
+      { feature: 'Real-time Monitoring',   product: 'green',  comp1: 'green',  comp2: 'green'  },
+      { feature: 'Ease of Use',            product: 'green',  comp1: 'green',  comp2: 'yellow' },
+      { feature: 'TCO (3 Years)',          product: 'green',  comp1: 'yellow', comp2: 'red'    },
+    ],
+  },
+
+  tcoData: {
+    labels: { product: 'Instana', comp1: 'Datadog', comp2: 'Dynatrace' },
+    maxValue: 800,
+    totals: { product: '$450K', comp1: '$620K', comp2: '$590K' },
+    rows: [
+      { component: 'Licensing',      product: '$250K', comp1: '$380K', comp2: '$360K' },
+      { component: 'Implementation', product: '$80K',  comp1: '$70K',  comp2: '$100K' },
+      { component: 'Support',        product: '$60K',  comp1: '$90K',  comp2: '$80K'  },
+      { component: 'Training',       product: '$20K',  comp1: '$30K',  comp2: '$30K'  },
+      { component: 'Infrastructure', product: '$40K',  comp1: '$50K',  comp2: '$70K'  },
+      { component: 'Renewals',       product: '$40K',  comp1: '$50K',  comp2: '$50K'  },
+    ],
+  },
+
+  objectionHandling: [
+    { objection: '"Datadog is easier to deploy."',         response: 'Instana provides automatic discovery and AI-driven insights which reduce manual effort and simplify operations over time.' },
+    { objection: '"Dynatrace has better AI."',             response: 'Dynatrace has strong AI capabilities, however Instana delivers faster root cause with lower complexity and better OpenShift integration.' },
+    { objection: '"Datadog has more integrations."',       response: 'Instana offers all key integrations with strong enterprise focus and unified hybrid visibility.' },
+    { objection: '"Dynatrace offers more automation."',    response: 'Instana provides intelligent automation with simpler operational model and lower TCO.' },
+  ],
+
+  winLoss: {
+    total: 48, won: 28, lost: 20, winRate: 58,
+    competitors: [
+      { label: 'Datadog',   wins: 14, pct: 50, color: '#a855f7' },
+      { label: 'Dynatrace', wins: 8,  pct: 29, color: '#3b82d4' },
+      { label: 'Others',    wins: 6,  pct: 21, color: '#5a6478' },
+    ],
+    topMessages: [
+      'Better OpenShift & Hybrid Visibility',
+      'Lower TCO over 3 years',
+      'Faster Root Cause Analysis',
+      'Stronger IBM Ecosystem Integration',
+    ],
+  },
+
+  aiCoach: {
+    customerSays: '"Datadog is easier to deploy."',
+    suggestedResponse: 'Datadog is strong for cloud-native environments; however Instana provides deeper visibility across hybrid infrastructure, OpenShift environments and offers lower TCO for enterprises.',
+    recommendedCaseStudy: 'Telecom Customer – 50% Faster Root Cause Detection',
+    winProbability: 'HIGH',
+    kvps: ['Lower TCO over 3 years', 'Better OpenShift integration', 'Faster root cause analysis', 'Stronger IBM Ecosystem fit'],
+  },
+};
+
+// ─── IBM MQ ───────────────────────────────────────────────────────────────
+const IBM_MQ = {
+  practice: 'IBM',
+  product: 'IBM MQ',
+  competitors: 'RabbitMQ, Apache Kafka',
+  dataAsOf: null,
+
+  overview: {
+    logo: '📨',
+    name: 'IBM MQ',
+    category: 'Messaging Middleware',
+    deployment: 'On-Prem / Cloud / Hybrid',
+    targetUsers: 'Enterprise Architects, Integration Teams',
+    productLaunch: '1993',
+    marketPosition: 'Leader (Gartner MQ for Enterprise Integration)',
+    description:
+      'IBM MQ is an enterprise messaging solution that ensures reliable, secure message delivery across applications, systems, and services in hybrid and multi-cloud environments.',
+  },
+
+  keyFeatures: [
+    { icon: '🔒', name: 'Guaranteed Message Delivery' },
+    { icon: '🌐', name: 'Multi-cloud Connectivity' },
+    { icon: '⚡', name: 'High Throughput' },
+    { icon: '🛡',  name: 'Enterprise Security' },
+    { icon: '🔄', name: 'Exactly-once Delivery' },
+    { icon: '☸',  name: 'Kubernetes Native' },
+    { icon: '🏗',  name: 'Queue Management' },
+    { icon: '📊', name: 'Monitoring & Alerts' },
+  ],
+
+  discoveryQuestions: [
+    'How do your applications communicate today?',
+    'Have you experienced message loss or delivery failures?',
+    'Do you need guaranteed exactly-once message delivery?',
+    'Are you integrating across cloud and on-premises systems?',
+    'What is your current messaging throughput requirement?',
+  ],
+
+  recommendedResponses: [
+    'IBM MQ guarantees zero message loss with persistent queuing.',
+    'MQ provides transactional exactly-once delivery semantics.',
+    'MQ connects hybrid and multi-cloud environments seamlessly.',
+    'Enterprise-grade security with end-to-end encryption built-in.',
+    'MQ scales to millions of messages per second in production.',
+  ],
+
+  strengths: [
+    '30+ years of enterprise reliability',
+    'Guaranteed message delivery',
+    'Strong IBM ecosystem support',
+    'Certified for financial services',
+    'Robust security and compliance',
+    'Kubernetes-native deployment',
+  ],
+
+  weaknesses: [
+    'Higher cost vs open-source alternatives',
+    'Complex initial configuration',
+    'Steeper learning curve',
+    'Licensing model complexity',
+  ],
+
+  caseStudies: [
+    { icon: '🏦', customer: 'Major Bank',       type: 'Banking',       challenge: 'Mission-critical transaction processing with zero tolerance for message loss.', result: '99.999% message delivery reliability achieved.' },
+    { icon: '✈',  customer: 'Airline Company',  type: 'Transportation', challenge: 'Real-time reservation system integration across 50+ systems.',                 result: 'Processing 2M+ messages/day with zero loss.' },
+    { icon: '🏥', customer: 'Healthcare Group', type: 'Healthcare',     challenge: 'HIPAA-compliant patient data exchange across 30 hospitals.',                    result: '100% compliance with HIPAA messaging standards.' },
+  ],
+
+  keyCustomers: [
+    { logo: '🏦', name: 'HSBC',         industry: 'Banking',       color: '#cc0000' },
+    { logo: '✈',  name: 'British Airways',industry: 'Aviation',    color: '#2153a0' },
+    { logo: '🏥', name: 'NHS',           industry: 'Healthcare',   color: '#005eb8' },
+    { logo: '🏛',  name: 'NYSE',          industry: 'Finance',      color: '#3b82d4' },
+    { logo: '📱', name: 'Vodafone',      industry: 'Telecom',      color: '#e00000' },
+  ],
+
+  competitorSummary: [
+    {
+      name: 'RabbitMQ', logo: '🐰', color: '#ff6600', marketPosition: 'Challenger',
+      overview: 'Open-source message broker with AMQP support and plugin ecosystem.',
+      strengths:  ['Free / open-source', 'Easy to set up', 'Good community'],
+      weaknesses: ['No guaranteed delivery at enterprise scale', 'Limited support', 'Complex clustering'],
+    },
+    {
+      name: 'Apache Kafka', logo: '⚡', color: '#231f20', marketPosition: 'Leader',
+      overview: 'Distributed event streaming platform for high-throughput data pipelines.',
+      strengths:  ['Extremely high throughput', 'Scalable architecture', 'Large ecosystem'],
+      weaknesses: ['Not a traditional message queue', 'Complex operations', 'No native exactly-once across versions'],
+    },
+  ],
+
+  featureMatrix: {
+    labels: { product: 'IBM MQ', comp1: 'RabbitMQ', comp2: 'Kafka' },
+    rows: [
+      { feature: 'Guaranteed Delivery',    product: 'green',  comp1: 'yellow', comp2: 'yellow' },
+      { feature: 'Enterprise Security',    product: 'green',  comp1: 'red',    comp2: 'yellow' },
+      { feature: 'Exactly-once Semantics', product: 'green',  comp1: 'yellow', comp2: 'yellow' },
+      { feature: 'High Throughput',        product: 'green',  comp1: 'yellow', comp2: 'green'  },
+      { feature: 'Hybrid Connectivity',    product: 'green',  comp1: 'yellow', comp2: 'yellow' },
+      { feature: 'Vendor Support / SLA',   product: 'green',  comp1: 'red',    comp2: 'yellow' },
+      { feature: 'Compliance Certs',       product: 'green',  comp1: 'red',    comp2: 'yellow' },
+      { feature: 'TCO (3 Years)',          product: 'yellow', comp1: 'green',  comp2: 'yellow' },
+    ],
+  },
+
+  tcoData: {
+    labels: { product: 'IBM MQ', comp1: 'RabbitMQ', comp2: 'Kafka' },
+    maxValue: 700,
+    totals: { product: '$380K', comp1: '$220K', comp2: '$310K' },
+    rows: [
+      { component: 'Licensing',      product: '$200K', comp1: '$0K',   comp2: '$0K'   },
+      { component: 'Implementation', product: '$60K',  comp1: '$80K',  comp2: '$100K' },
+      { component: 'Support',        product: '$50K',  comp1: '$70K',  comp2: '$90K'  },
+      { component: 'Training',       product: '$20K',  comp1: '$30K',  comp2: '$40K'  },
+      { component: 'Infrastructure', product: '$30K',  comp1: '$20K',  comp2: '$50K'  },
+      { component: 'Operations',     product: '$20K',  comp1: '$20K',  comp2: '$30K'  },
+    ],
+  },
+
+  objectionHandling: [
+    { objection: '"RabbitMQ is free, why pay for MQ?"',    response: 'IBM MQ total cost of ownership includes support, compliance and reliability savings that far outweigh open-source costs at enterprise scale.' },
+    { objection: '"Kafka has better throughput."',          response: 'Kafka excels at streaming but IBM MQ provides guaranteed delivery with exactly-once semantics critical for financial and healthcare workloads.' },
+    { objection: '"RabbitMQ is easier to set up."',        response: 'IBM MQ provides certified enterprise support, 30 years of reliability, and zero-touch operations that save far more time long-term.' },
+    { objection: '"We want open-source flexibility."',     response: 'IBM MQ is available as a container on OpenShift and integrates with open-source tooling while providing enterprise SLAs.' },
+  ],
+
+  winLoss: {
+    total: 36, won: 22, lost: 14, winRate: 61,
+    competitors: [
+      { label: 'RabbitMQ', wins: 12, pct: 55, color: '#ff6600' },
+      { label: 'Kafka',    wins: 7,  pct: 32, color: '#3b82d4' },
+      { label: 'Others',   wins: 3,  pct: 13, color: '#5a6478' },
+    ],
+    topMessages: [
+      'Guaranteed enterprise message delivery',
+      'Financial services compliance certification',
+      'Zero message loss at scale',
+      'Full IBM enterprise support ecosystem',
+    ],
+  },
+
+  aiCoach: {
+    customerSays: '"RabbitMQ is free and good enough for us."',
+    suggestedResponse: 'RabbitMQ works well for simple use cases, but IBM MQ provides the guaranteed delivery, compliance certifications, and enterprise SLAs that mission-critical workloads require at scale.',
+    recommendedCaseStudy: 'Major Bank – 99.999% Message Delivery Reliability',
+    winProbability: 'HIGH',
+    kvps: ['Zero message loss guarantee', 'Financial services certification', 'Enterprise SLA and support', 'Exactly-once delivery'],
+  },
+};
+
+// ─── IBM STERLING ─────────────────────────────────────────────────────────
+const IBM_STERLING = {
+  practice: 'IBM',
+  product: 'IBM Sterling',
+  competitors: 'SAP Ariba, OpenText',
+  dataAsOf: null,
+
+  overview: {
+    logo: '🔗',
+    name: 'IBM STERLING',
+    category: 'Supply Chain & B2B Integration',
+    deployment: 'SaaS / On-Prem / Hybrid',
+    targetUsers: 'Supply Chain, Procurement, IT Ops',
+    productLaunch: '2010',
+    marketPosition: 'Leader (Gartner B2B Integration)',
+    description:
+      'IBM Sterling provides end-to-end supply chain visibility and B2B integration, connecting trading partners and enabling intelligent order management and fulfilment.',
+  },
+
+  keyFeatures: [
+    { icon: '🔗', name: 'B2B Partner Integration' },
+    { icon: '📦', name: 'Order Management' },
+    { icon: '🌐', name: 'Supply Chain Visibility' },
+    { icon: '🔄', name: 'EDI & API Connectivity' },
+    { icon: '🤖', name: 'AI-Driven Insights' },
+    { icon: '🏗',  name: 'Inventory Optimization' },
+    { icon: '🚚', name: 'Fulfillment Automation' },
+    { icon: '📊', name: 'Real-time Analytics' },
+  ],
+
+  discoveryQuestions: [
+    'How do you currently connect with your trading partners?',
+    'Do you have real-time visibility across your supply chain?',
+    'How do you manage EDI and API-based integrations today?',
+    'Are order fulfilment delays impacting customer satisfaction?',
+    'Do you have a single view of inventory across all channels?',
+  ],
+
+  recommendedResponses: [
+    'Sterling connects to 1M+ trading partners out of the box.',
+    'Real-time supply chain visibility reduces disruption risk.',
+    'Sterling automates EDI, API and B2B transactions end-to-end.',
+    'AI-driven insights optimise inventory and fulfilment.',
+    'Sterling reduces B2B integration costs by up to 40%.',
+  ],
+
+  strengths: [
+    '1M+ pre-built trading partner connections',
+    'End-to-end supply chain visibility',
+    'Strong EDI and API support',
+    'AI-driven demand forecasting',
+    'Proven at Fortune 500 scale',
+    'Deep IBM ecosystem integration',
+  ],
+
+  weaknesses: [
+    'Complex implementation projects',
+    'Higher cost for smaller enterprises',
+    'Requires specialist expertise',
+    'Long time-to-value for large deployments',
+  ],
+
+  caseStudies: [
+    { icon: '🛒', customer: 'Global Retailer',   type: 'Retail',        challenge: 'Supply chain disruptions causing 15% revenue loss.',          result: '35% reduction in supply chain disruptions.' },
+    { icon: '🏭', customer: 'Auto Manufacturer', type: 'Manufacturing',  challenge: 'Manual EDI processing causing delays across 500 suppliers.',  result: '60% reduction in order processing time.' },
+    { icon: '💊', customer: 'Pharma Company',    type: 'Life Sciences',  challenge: 'Lack of real-time visibility across global distribution.',     result: '25% improvement in on-time delivery.' },
+  ],
+
+  keyCustomers: [
+    { logo: '🛒', name: 'Walmart',         industry: 'Retail',        color: '#0071ce' },
+    { logo: '🏭', name: 'Ford',            industry: 'Manufacturing', color: '#003087' },
+    { logo: '💊', name: 'Pfizer',          industry: 'Life Sciences', color: '#0093d0' },
+    { logo: '📦', name: 'Amazon Logistics',industry: 'Logistics',     color: '#ff9900' },
+    { logo: '✈',  name: 'Air France',      industry: 'Aviation',      color: '#002395' },
+  ],
+
+  competitorSummary: [
+    {
+      name: 'SAP Ariba', logo: '💼', color: '#0070f2', marketPosition: 'Leader',
+      overview: 'Cloud procurement and supply chain network with strong SAP ERP integration.',
+      strengths:  ['Strong SAP ecosystem', 'Large supplier network', 'Procurement depth'],
+      weaknesses: ['Very expensive', 'Complex customization', 'Slow implementation'],
+    },
+    {
+      name: 'OpenText', logo: '📄', color: '#7b2d8b', marketPosition: 'Challenger',
+      overview: 'Enterprise information management and B2B integration platform.',
+      strengths:  ['Good EDI capabilities', 'Document management', 'Flexible deployment'],
+      weaknesses: ['Limited AI capabilities', 'Complex UX', 'Weaker partner network'],
+    },
+  ],
+
+  featureMatrix: {
+    labels: { product: 'Sterling', comp1: 'SAP Ariba', comp2: 'OpenText' },
+    rows: [
+      { feature: 'Partner Network Size',    product: 'green',  comp1: 'green',  comp2: 'yellow' },
+      { feature: 'AI-driven Insights',      product: 'green',  comp1: 'yellow', comp2: 'red'    },
+      { feature: 'EDI / API Support',       product: 'green',  comp1: 'yellow', comp2: 'green'  },
+      { feature: 'Order Management',        product: 'green',  comp1: 'green',  comp2: 'yellow' },
+      { feature: 'Supply Chain Visibility', product: 'green',  comp1: 'yellow', comp2: 'yellow' },
+      { feature: 'Hybrid Deployment',       product: 'green',  comp1: 'yellow', comp2: 'green'  },
+      { feature: 'Implementation Speed',    product: 'yellow', comp1: 'red',    comp2: 'yellow' },
+      { feature: 'TCO (3 Years)',           product: 'green',  comp1: 'red',    comp2: 'yellow' },
+    ],
+  },
+
+  tcoData: {
+    labels: { product: 'Sterling', comp1: 'SAP Ariba', comp2: 'OpenText' },
+    maxValue: 900,
+    totals: { product: '$480K', comp1: '$750K', comp2: '$560K' },
+    rows: [
+      { component: 'Licensing',      product: '$260K', comp1: '$500K', comp2: '$300K' },
+      { component: 'Implementation', product: '$90K',  comp1: '$120K', comp2: '$100K' },
+      { component: 'Support',        product: '$60K',  comp1: '$70K',  comp2: '$80K'  },
+      { component: 'Training',       product: '$20K',  comp1: '$30K',  comp2: '$30K'  },
+      { component: 'Infrastructure', product: '$30K',  comp1: '$20K',  comp2: '$30K'  },
+      { component: 'Renewals',       product: '$20K',  comp1: '$10K',  comp2: '$20K'  },
+    ],
+  },
+
+  objectionHandling: [
+    { objection: '"SAP Ariba is better integrated with our SAP."', response: 'Sterling integrates with SAP and all major ERPs while providing broader B2B partner connectivity and superior AI-driven supply chain insights.' },
+    { objection: '"OpenText is cheaper."',                          response: 'Sterling delivers a lower total cost of ownership with faster ROI driven by AI automation and the world\'s largest B2B trading partner network.' },
+    { objection: '"Implementation is too complex."',               response: 'IBM\'s certified partner network accelerates deployments with pre-built connectors for 1M+ trading partners, reducing implementation time significantly.' },
+    { objection: '"We are already using SAP."',                    response: 'Sterling complements SAP by extending supply chain visibility and B2B connectivity beyond what SAP Ariba provides natively.' },
+  ],
+
+  winLoss: {
+    total: 42, won: 26, lost: 16, winRate: 62,
+    competitors: [
+      { label: 'SAP Ariba', wins: 16, pct: 62, color: '#0070f2' },
+      { label: 'OpenText',  wins: 7,  pct: 27, color: '#7b2d8b' },
+      { label: 'Others',    wins: 3,  pct: 11, color: '#5a6478' },
+    ],
+    topMessages: [
+      'World\'s largest B2B trading partner network',
+      'AI-driven supply chain visibility',
+      'Lower TCO vs SAP Ariba',
+      'End-to-end order fulfilment automation',
+    ],
+  },
+
+  aiCoach: {
+    customerSays: '"We are already heavily invested in SAP Ariba."',
+    suggestedResponse: 'Sterling complements SAP Ariba by providing superior B2B connectivity, AI-driven supply chain insights, and a 1M+ trading partner network that Ariba cannot match, at significantly lower TCO.',
+    recommendedCaseStudy: 'Global Retailer – 35% Reduction in Supply Chain Disruptions',
+    winProbability: 'MEDIUM',
+    kvps: ['1M+ pre-built partner connections', 'Lower TCO vs SAP Ariba', 'AI-driven supply chain insights', 'Faster fulfilment automation'],
+  },
+};
+
+// ─── IBM TURBONOMIC ───────────────────────────────────────────────────────
+const IBM_TURBONOMIC = {
+  practice: 'IBM',
+  product: 'IBM Turbonomic',
+  competitors: 'VMware Aria, Flexera',
+  dataAsOf: null,
+
+  overview: {
+    logo: '⚙',
+    name: 'IBM TURBONOMIC',
+    category: 'Application Resource Management',
+    deployment: 'SaaS / On-Prem / Hybrid',
+    targetUsers: 'Cloud FinOps, Platform Engineering, IT Ops',
+    productLaunch: '2009',
+    marketPosition: 'Leader (Gartner ARM)',
+    description:
+      'IBM Turbonomic uses AI to continuously optimise application performance and cloud costs by automatically right-sizing resources across on-premises, cloud, and hybrid environments.',
+  },
+
+  keyFeatures: [
+    { icon: '🤖', name: 'AI-driven Resource Automation' },
+    { icon: '💰', name: 'Cloud Cost Optimisation' },
+    { icon: '📈', name: 'Performance Assurance' },
+    { icon: '☁',  name: 'Multi-cloud Support' },
+    { icon: '☸',  name: 'Kubernetes Rightsizing' },
+    { icon: '📊', name: 'FinOps Analytics' },
+    { icon: '🔄', name: 'Continuous Automation' },
+    { icon: '🔍', name: 'Workload Placement' },
+  ],
+
+  discoveryQuestions: [
+    'How do you manage cloud costs across your environments?',
+    'Are you experiencing performance issues during peak demand?',
+    'How do you right-size VMs and containers today?',
+    'What is your current cloud waste as a % of spend?',
+    'Do you have a FinOps practice for continuous cost governance?',
+  ],
+
+  recommendedResponses: [
+    'Turbonomic reduces cloud waste by 30–40% on average.',
+    'AI ensures performance SLAs are met while minimising cost.',
+    'Continuous automation eliminates manual right-sizing effort.',
+    'Full visibility and control across AWS, Azure, GCP and on-prem.',
+    'Kubernetes-native rightsizing reduces container cloud spend.',
+  ],
+
+  strengths: [
+    'AI-driven continuous automation',
+    'Proven 30-40% cloud cost reduction',
+    'No manual tuning required',
+    'Multi-cloud and hybrid support',
+    'Deep Kubernetes integration',
+    'Performance guaranteed while saving cost',
+  ],
+
+  weaknesses: [
+    'Requires time to build AI models',
+    'Complex in very large environments',
+    'Learning curve for FinOps teams',
+    'Premium licensing cost',
+  ],
+
+  caseStudies: [
+    { icon: '🏦', customer: 'Major Insurance Co.', type: 'Insurance',     challenge: 'Cloud spend growing 40% YoY with poor visibility.',                     result: '38% reduction in cloud costs in 6 months.' },
+    { icon: '🛒', customer: 'E-commerce Platform', type: 'E-commerce',    challenge: 'Application performance issues during peak shopping seasons.',           result: 'Zero performance incidents during peak with 25% lower spend.' },
+    { icon: '🏥', customer: 'Hospital Network',    type: 'Healthcare',    challenge: 'Uncontrolled hybrid cloud costs across 20 data centres.',                result: '32% cost reduction while maintaining 99.99% uptime.' },
+  ],
+
+  keyCustomers: [
+    { logo: '🏦', name: 'AXA',         industry: 'Insurance',   color: '#00008f' },
+    { logo: '🛒', name: 'Best Buy',    industry: 'Retail',      color: '#003b8e' },
+    { logo: '🏥', name: 'Mayo Clinic', industry: 'Healthcare',  color: '#005eb8' },
+    { logo: '✈',  name: 'Delta Air',  industry: 'Aviation',    color: '#c01933' },
+    { logo: '💻', name: 'Lenovo',     industry: 'Technology',  color: '#e2231a' },
+  ],
+
+  competitorSummary: [
+    {
+      name: 'VMware Aria', logo: '🟩', color: '#607078', marketPosition: 'Challenger',
+      overview: 'VMware\'s cloud management platform for cost visibility and governance.',
+      strengths:  ['Strong VMware ecosystem', 'Good cost visibility', 'Familiar to VMware teams'],
+      weaknesses: ['Limited automation', 'Weaker multi-cloud', 'Dependent on Broadcom roadmap'],
+    },
+    {
+      name: 'Flexera', logo: '🔵', color: '#1e4f8c', marketPosition: 'Challenger',
+      overview: 'IT asset management and cloud cost management platform.',
+      strengths:  ['Strong ITAM capabilities', 'Good license management', 'Cloud cost visibility'],
+      weaknesses: ['Limited AI automation', 'Weak performance assurance', 'Not Kubernetes-native'],
+    },
+  ],
+
+  featureMatrix: {
+    labels: { product: 'Turbonomic', comp1: 'VMware Aria', comp2: 'Flexera' },
+    rows: [
+      { feature: 'AI Automation',           product: 'green',  comp1: 'yellow', comp2: 'red'    },
+      { feature: 'Cost Optimisation',       product: 'green',  comp1: 'green',  comp2: 'green'  },
+      { feature: 'Performance Assurance',   product: 'green',  comp1: 'yellow', comp2: 'red'    },
+      { feature: 'Kubernetes Rightsizing',  product: 'green',  comp1: 'yellow', comp2: 'red'    },
+      { feature: 'Multi-cloud Support',     product: 'green',  comp1: 'yellow', comp2: 'green'  },
+      { feature: 'Continuous Automation',   product: 'green',  comp1: 'red',    comp2: 'red'    },
+      { feature: 'FinOps Analytics',        product: 'green',  comp1: 'yellow', comp2: 'green'  },
+      { feature: 'TCO (3 Years)',           product: 'green',  comp1: 'yellow', comp2: 'yellow' },
+    ],
+  },
+
+  tcoData: {
+    labels: { product: 'Turbonomic', comp1: 'VMware Aria', comp2: 'Flexera' },
+    maxValue: 700,
+    totals: { product: '$360K', comp1: '$490K', comp2: '$420K' },
+    rows: [
+      { component: 'Licensing',      product: '$190K', comp1: '$300K', comp2: '$250K' },
+      { component: 'Implementation', product: '$60K',  comp1: '$80K',  comp2: '$70K'  },
+      { component: 'Support',        product: '$50K',  comp1: '$60K',  comp2: '$50K'  },
+      { component: 'Training',       product: '$20K',  comp1: '$20K',  comp2: '$20K'  },
+      { component: 'Infrastructure', product: '$20K',  comp1: '$20K',  comp2: '$20K'  },
+      { component: 'Renewals',       product: '$20K',  comp1: '$10K',  comp2: '$10K'  },
+    ],
+  },
+
+  objectionHandling: [
+    { objection: '"We use VMware Aria for cost management."',    response: 'VMware Aria provides visibility but Turbonomic goes further with AI-driven continuous automation that actually acts to reduce cost and guarantee performance.' },
+    { objection: '"Flexera already manages our ITAM."',          response: 'Flexera is strong for ITAM but Turbonomic uniquely combines cloud cost optimisation with performance assurance and Kubernetes-native rightsizing.' },
+    { objection: '"We don\'t want automation touching production."', response: 'Turbonomic operates in recommendation-only mode first, building trust before automation is enabled — giving full control at every step.' },
+    { objection: '"Cloud costs aren\'t our priority right now."', response: 'Average enterprise customers save 30-40% on cloud spend — that is typically $1M+ per year which funds strategic technology investments.' },
+  ],
+
+  winLoss: {
+    total: 38, won: 25, lost: 13, winRate: 66,
+    competitors: [
+      { label: 'VMware Aria', wins: 15, pct: 60, color: '#607078' },
+      { label: 'Flexera',     wins: 7,  pct: 28, color: '#1e4f8c' },
+      { label: 'Others',      wins: 3,  pct: 12, color: '#5a6478' },
+    ],
+    topMessages: [
+      'AI-driven automation, not just visibility',
+      '30–40% average cloud cost reduction',
+      'Performance guaranteed while saving cost',
+      'Kubernetes-native rightsizing capability',
+    ],
+  },
+
+  aiCoach: {
+    customerSays: '"We are already using VMware Aria for cloud cost management."',
+    suggestedResponse: 'VMware Aria provides good visibility, but Turbonomic is the only solution that combines AI-driven automation with performance assurance — it acts autonomously to save cost while guaranteeing SLAs.',
+    recommendedCaseStudy: 'E-commerce Platform – Zero Performance Incidents with 25% Lower Spend',
+    winProbability: 'HIGH',
+    kvps: ['AI-driven automation (not just reporting)', '30-40% cloud cost reduction', 'Performance + cost in one platform', 'Kubernetes-native rightsizing'],
+  },
+};
+
+// ─── AWS ──────────────────────────────────────────────────────────────────
+const AWS_DASHBOARD = {
+  practice: 'AWS',
+  product: 'AWS',
+  competitors: 'Microsoft Azure, Google Cloud, Oracle Cloud',
+  dataAsOf: null,
+  isAwsDashboard: true,
+
+  // Section 1 – Overview
+  overview: {
+    name: 'AWS',
+    category: 'Cloud Platform',
+    position: 'Global Cloud Leader',
+    services: '240+ Cloud Services',
+    regions: '33 Regions, 105 AZs in 245+ Countries',
+    targetCustomers: 'Startups | SMB | Enterprise | Public Sector',
+    coreFocusAreas: 'Compute | Storage | Database | AI | Analytics | Security | Networking | Migration',
+    description: 'AWS is the world\'s leading cloud platform, helping organisations innovate faster, reduce operational complexity, improve security and scale globally.',
+    logoPath: '/icons/aws.svg',
+  },
+
+  // Section 2 – Core Capabilities (8 tiles)
+  coreCapabilities: [
+    { name: 'Cloud Infrastructure',       icon: 'cloud' },
+    { name: 'AI & Generative AI',          icon: 'ai' },
+    { name: 'Security & Compliance',       icon: 'shield' },
+    { name: 'Data & Analytics',            icon: 'chart' },
+    { name: 'Application Modernization',   icon: 'rocket' },
+    { name: 'DevOps',                      icon: 'devops' },
+    { name: 'Global Infrastructure',       icon: 'globe' },
+    { name: 'Cost Optimization',           icon: 'dollar' },
+  ],
+
+  // Section 3 – Discovery Questions
+  discoveryQuestions: [
+    {
+      question: 'What are your top business priorities over the next 12 months?',
+      answer: 'AWS accelerates growth through faster delivery, cost efficiency, and scalability — aligning cloud investment to business outcomes.',
+    },
+    {
+      question: 'Where are your workloads running today?',
+      answer: 'AWS supports any starting point — on-prem, hybrid or multi-cloud — with proven migration tools and a phased approach to minimise risk.',
+    },
+    {
+      question: 'Are you currently evaluating AI or GenAI use cases?',
+      answer: 'AWS offers the broadest AI portfolio — Amazon Bedrock, SageMaker, and Rekognition — with ready-to-deploy GenAI solutions for every industry.',
+    },
+    {
+      question: 'Is cloud cost optimisation a priority?',
+      answer: 'AWS Reserved Instances, Savings Plans, and Lauren\'s FinOps practice can reduce cloud spend by 30–40% within 6 months.',
+    },
+    {
+      question: 'What are your biggest security or compliance challenges?',
+      answer: 'AWS provides 300+ security services, GDPR, ISO 27001, SOC 2 compliance, and Security Hub for continuous posture management.',
+    },
+    {
+      question: 'Are you modernising legacy applications?',
+      answer: 'AWS Mainframe Modernisation, containers (EKS), and serverless (Lambda) let you modernise incrementally with zero downtime.',
+    },
+    {
+      question: 'Do you have a centralised data strategy?',
+      answer: 'AWS Lake Formation, Redshift, and Glue create a unified data platform for analytics, ML, and real-time insights at any scale.',
+    },
+  ],
+
+  // Section 4 – Recommended Responses
+  recommendedResponses: [
+    'Cost Optimisation Assessment',
+    'Reserved Instances / Savings Plans',
+    'AWS Billing Partner & Lauren FinOps',
+    'Amazon Bedrock / SageMaker',
+    'AI Strategy Workshop',
+    'Lauren AI Practice',
+    'Security Hub / GuardDuty / IAM',
+    'AWS Well-Architected Framework',
+    'AWS Security Assessment',
+    'AWS Migration Framework',
+    'Landing Zone / Phased Migration',
+    'Lauren Migration Factory',
+    'Modernise with Containers, Serverless',
+    'Database & Analytics Services',
+    'Lauren Modernisation Practice',
+  ],
+  aiCoach: {
+    customerProfile: 'Manufacturing',
+    recommendedServices: ['EC2, EKS, RDS', 'SageMaker, Bedrock', 'IoT Core, Kinesis', 'QuickSight, S3'],
+    laurenServices: ['Cloud Migration', 'Managed Services', 'FinOps & Cost Optimisation', 'AI & Data Solutions'],
+    painPoints: ['ERP modernisation', 'Plant visibility', 'Cost optimisation', 'Data-driven decisions'],
+    kvps: ['Operational efficiency', 'Scalability & reliability', 'Innovation with AI/ML', 'Lower total cost of ownership'],
+    customerSays: '"We want to reduce cloud costs."',
+    suggestedResponse: 'AWS provides more services, greater scale and better long-term value. Focus on Reserved Instances, Savings Plans and our FinOps practice to reduce spend by 30-40%.',
+    recommendedCaseStudy: 'Manufacturing Customer – 30% Increase in Operational Efficiency with AWS IoT & ML',
+    winProbability: 'HIGH',
+  },
+
+  // Section 5 – Lauren Value Proposition
+  laurenValueProposition: [
+    { col: 1, items: ['Cloud Consulting & Strategy', 'Migration & Modernisation', 'Managed Services 24x7', 'FinOps & Cost Optimisation'] },
+    { col: 2, items: ['AI & Data Solutions', 'DevOps & Automation', '100+ AWS Certified Professionals', 'Multi-region Delivery Model'] },
+  ],
+  footer: '32+ Years of Excellence  •  1000+ Customers  •  India | Middle East | USA',
+
+  // Section 6 – Strengths & Weaknesses
+  strengths: [
+    'Largest & most mature cloud platform',
+    'Broadest and deepest service portfolio',
+    'Global infrastructure & reach',
+    'Industry-leading security & compliance',
+    'Continuous innovation & new services',
+    'Strong partner ecosystem',
+    'AI/ML leadership & capabilities',
+    'High reliability & scalability',
+  ],
+  weaknesses: [
+    'Pricing can become complex',
+    'Learning curve for new users',
+    'Requires governance & best practices',
+    'Multi-service architecture can be complex',
+    'Dependence on internet connectivity',
+    'Change management required',
+  ],
+
+  // Section 7 – Competitive Snapshot
+  competitorSummary: [
+    {
+      name: 'Microsoft Azure',
+      logo: '/icons/azure.svg',
+      color: '#0078d4',
+      overview: 'Strong enterprise presence with hybrid capabilities',
+      strengths: ['Hybrid solutions', 'Microsoft ecosystem', 'Enterprise agreements'],
+      weaknesses: ['Complex pricing', 'Service sprawl'],
+      bestFit: 'Enterprises with Microsoft workloads',
+    },
+    {
+      name: 'Google Cloud',
+      logo: '/icons/gcloud.svg',
+      color: '#4285f4',
+      overview: 'Strong in data, analytics & AI/ML',
+      strengths: ['Data & analytics capabilities', 'AI/ML capabilities', 'Kubernetes (GKE)', 'Fewer regions'],
+      weaknesses: ['Smaller partner ecosystem', 'Fewer regions'],
+      bestFit: 'Data-driven orgs, AI/ML native workloads',
+    },
+    {
+      name: 'Oracle Cloud',
+      logo: '/icons/oracle.svg',
+      color: '#c74634',
+      overview: 'Strong in database & enterprise apps',
+      strengths: ['Oracle DB expertise', 'Licensed apps', 'Dedicated regions'],
+      weaknesses: ['Limited services', 'Innovation pace'],
+      bestFit: 'Oracle-centric workloads',
+    },
+    {
+      name: 'IBM Cloud',
+      logo: '/icons/ibm.svg',
+      color: '#1f70c1',
+      overview: 'Strong in hybrid & security',
+      strengths: ['Hybrid cloud', 'Security & compliance', 'Industry solutions'],
+      weaknesses: ['Limited global infrastructure', 'Fewer services'],
+      bestFit: 'Regulated industries, Legacy workloads',
+    },
+  ],
+
+  // Section 8 – Feature Comparison Matrix
+  featureMatrix: {
+    labels: { product: 'AWS', comp1: 'Microsoft Azure', comp2: 'Google Cloud' },
+    rows: [
+      { feature: 'Global Regions',          product: 'green', comp1: 'yellow', comp2: 'red'    },
+      { feature: 'AI / ML Services',         product: 'green', comp1: 'green',  comp2: 'green'  },
+      { feature: 'Compute Services',         product: 'green', comp1: 'green',  comp2: 'yellow' },
+      { feature: 'Storage Services',         product: 'green', comp1: 'green',  comp2: 'yellow' },
+      { feature: 'Containers / Kubernetes',  product: 'green', comp1: 'yellow', comp2: 'green'  },
+      { feature: 'Database Services',        product: 'green', comp1: 'yellow', comp2: 'yellow' },
+      { feature: 'Migration & Transfer',     product: 'green', comp1: 'yellow', comp2: 'red'    },
+      { feature: 'Marketplace Ecosystem',    product: 'green', comp1: 'yellow', comp2: 'yellow' },
+      { feature: 'Security & Compliance',    product: 'green', comp1: 'green',  comp2: 'yellow' },
+      { feature: 'Hybrid Cloud',             product: 'yellow',comp1: 'green',  comp2: 'yellow' },
+      { feature: 'Pricing Transparency',     product: 'yellow',comp1: 'yellow', comp2: 'green'  },
+    ],
+  },
+
+  // Section 9 – Industry Solutions & Customer Outcomes
+  industrySolutions: [
+    {
+      industry: 'Manufacturing',
+      icon: 'factory',
+      challenge: 'Operational inefficiencies & legacy systems',
+      awsSolution: 'IoT Analytics, ML, AWS IoT Core, SageMaker',
+      laurenServices: 'Modernisation, IoT Analytics, Managed Services',
+      outcome: '30% increase in operational efficiency',
+    },
+    {
+      industry: 'Banking & FS',
+      icon: 'bank',
+      challenge: 'Compliance, security & customer experience',
+      awsSolution: 'Security, Data Lake, Analytics, ML, RDS',
+      laurenServices: 'Cloud Migration, Security Assessment, DevOps',
+      outcome: '25% faster time to market',
+    },
+    {
+      industry: 'Healthcare & Life Sciences',
+      icon: 'health',
+      challenge: 'Data silos & compliance',
+      awsSolution: 'HIPAA workloads, Analytics, AI/ML, Storage',
+      laurenServices: 'Migration, Data Platform, Managed Services',
+      outcome: 'Improved patient outcomes & compliance',
+    },
+    {
+      industry: 'Retail & E-commerce',
+      icon: 'retail',
+      challenge: 'Personalisation & scalability',
+      awsSolution: 'Analytics, AI/ML, Serverless, DynamoDB',
+      laurenServices: 'Application Modernisation, DevOps, Managed Services',
+      outcome: '20% increase in conversion rate',
+    },
+    {
+      industry: 'Telecom',
+      icon: 'telecom',
+      challenge: 'Network complexity & customer churn',
+      awsSolution: '5G Analytics, ML, Edge, Containers',
+      laurenServices: 'Cloud Native, DevOps, Managed Services',
+      outcome: 'Reduced churn & better experience',
+    },
+    {
+      industry: 'Public Sector',
+      icon: 'govt',
+      challenge: 'Legacy & security constraints',
+      awsSolution: 'Secure Cloud, GovCloud, Analytics, AI',
+      laurenServices: 'Migration, Security, Managed Services',
+      outcome: 'Cost savings & improved citizen services',
+    },
+  ],
+
+  // Section 10 – Trusted By Thousands
+  keyCustomers: [
+    { name: 'Netflix',    logo: '/icons/netflix.svg',    color: '#e50914', industry: 'Media' },
+    { name: 'BMW',        logo: '/icons/bmw.svg',        color: '#1c69d4', industry: 'Automotive' },
+    { name: 'Airbnb',     logo: '/icons/airbnb.svg',     color: '#ff5a5f', industry: 'Travel' },
+    { name: 'F1',         logo: '/icons/f1.svg',         color: '#e10600', industry: 'Sports' },
+    { name: 'Samsung',    logo: null,                    color: '#1428a0', industry: 'Technology' },
+    { name: 'Adobe',      logo: '/icons/adobe.svg',      color: '#ff0000', industry: 'Software' },
+    { name: 'Philips',    logo: '/icons/philips.svg',    color: '#0b5ed7', industry: 'Healthcare' },
+    { name: 'Capital One',logo: '/icons/capitalone.svg', color: '#cc2427', industry: 'Banking' },
+    { name: 'Siemens',    logo: null,                    color: '#009999', industry: 'Industrial' },
+    { name: 'Intuit',     logo: null,                    color: '#236cff', industry: 'Fintech' },
+  ],
+
+  // Section 11 – Business Value Delivered
+  businessValue: [
+    { metric: '40%',    label: 'Lower Infrastructure Cost',      icon: 'cost',    color: 'var(--green)' },
+    { metric: '70%',    label: 'Faster Time to Market',          icon: 'speed',   color: 'var(--blue)' },
+    { metric: '99.99%', label: 'High Availability & Reliability', icon: 'shield',  color: 'var(--purple)' },
+    { metric: '3x',     label: 'Increase in Innovation',         icon: 'rocket',  color: 'var(--orange)' },
+    { metric: '50%',    label: 'Improved Operational Efficiency', icon: 'ops',     color: 'var(--green)' },
+  ],
+
+  // Section 12 – Objection Handling
+  objectionHandling: [
+    { objection: '"Azure is cheaper."',              response: 'We focus on TCO, not just list pricing. AWS provides more services, greater scale and better long-term value.' },
+    { objection: '"We don\'t want vendor lock-in."', response: 'AWS supports open standards, containers, Kubernetes and offers multi-cloud and hybrid architectures to avoid lock-in.' },
+    { objection: '"Our workloads are on-prem."',     response: 'We follow a proven migration framework with assessment, phased migration and hybrid options to minimise risk.' },
+    { objection: '"We don\'t have cloud expertise."',response: 'Lauren provides end-to-end consulting, migration and managed services with 24x7 support and governance.' },
+    { objection: '"Security is a concern."',         response: 'AWS is the most secure cloud with 300+ security services and compliance with global standards including GDPR, ISO, SOC.' },
+  ],
+
+  // Section 14 – Win / Loss
+  winLoss: {
+    total: 128,
+    won: 72,
+    lost: 56,
+    winRate: 56,
+    competitors: [
+      { label: 'Microsoft Azure', wins: 49, pct: 49, color: '#0078d4' },
+      { label: 'Google Cloud',    wins: 26, pct: 26, color: '#4285f4' },
+      { label: 'Oracle Cloud',    wins: 15, pct: 15, color: '#c74634' },
+      { label: 'Others',          wins: 10, pct: 10, color: '#5a6478' },
+    ],
+    topWinReasons: [
+      'Better solution fit',
+      'Strong AWS capabilities',
+      'Trusted & partnership',
+      'Competitive TCO',
+    ],
+    topLossReasons: [
+      'Pricing concerns',
+      'Existing relationship',
+      'Lack of cloud maturity',
+      'Complex decision process',
+    ],
+    topMessages: [
+      'Better solution fit',
+      'Strong AWS capabilities',
+      'Trusted partnership',
+      'Competitive TCO',
+    ],
+  },
+
+  // Section 15 – Executive Messaging
+  executiveMessaging: [
+    {
+      role: 'CIO',
+      color: '#4a9eff',
+      points: ['Modernise IT landscape', 'Improve agility & resilience', 'Drive digital transformation'],
+    },
+    {
+      role: 'CTO',
+      color: '#b47fff',
+      points: ['Build modern applications', 'Leverage containers & serverless', 'Accelerate innovation', 'Developer productivity'],
+    },
+    {
+      role: 'CISO',
+      color: '#ff5a5a',
+      points: ['Strengthen security posture', 'Ensure compliance', 'Reduce risk', 'Govern & protect data'],
+    },
+    {
+      role: 'CFO',
+      color: '#2dca6e',
+      points: ['Optimise cloud spend', 'Improve ROI', 'FinOps & cost transparency'],
+    },
+    {
+      role: 'CEO',
+      color: '#ff8c42',
+      points: ['Drive business growth', 'Enhance customer experience', 'Lead with innovation'],
+    },
+  ],
+
+  // TCO data (reused for compatibility)
+  tcoData: {
+    labels: { product: 'AWS', comp1: 'Microsoft Azure', comp2: 'Google Cloud' },
+    maxValue: 800,
+    totals: { product: '$420K', comp1: '$580K', comp2: '$510K' },
+    rows: [
+      { component: 'Licensing',      product: '$220K', comp1: '$340K', comp2: '$280K' },
+      { component: 'Implementation', product: '$75K',  comp1: '$90K',  comp2: '$85K'  },
+      { component: 'Support',        product: '$55K',  comp1: '$85K',  comp2: '$75K'  },
+      { component: 'Training',       product: '$20K',  comp1: '$25K',  comp2: '$20K'  },
+      { component: 'Infrastructure', product: '$30K',  comp1: '$40K',  comp2: '$50K'  },
+    ],
+  },
+
+  keyFeatures: [
+    { name: 'Cloud Infrastructure' },
+    { name: 'AI & Generative AI' },
+    { name: 'Security & Compliance' },
+    { name: 'Data & Analytics' },
+    { name: 'Application Modernization' },
+    { name: 'DevOps' },
+    { name: 'Global Infrastructure' },
+    { name: 'Cost Optimization' },
+  ],
+};
+
+// ─── Registry ────────────────────────────────────────────────────────────
+export const ALL_PRODUCTS = {
+  'IBM/Instana':    INSTANA,
+  'IBM/IBM MQ':     IBM_MQ,
+  'IBM/IBM Sterling':   IBM_STERLING,
+  'IBM/IBM Turbonomic': IBM_TURBONOMIC,
+  'AWS/AWS': AWS_DASHBOARD,
+};
+
+export const PRACTICES = ['IBM', 'AWS'];
+export const PRODUCTS_BY_PRACTICE = {
+  IBM: ['Instana', 'IBM MQ', 'IBM Sterling', 'IBM Turbonomic'],
+  AWS: ['AWS'],
+};
+
+export function getProductData(practice, product) {
+  return ALL_PRODUCTS[`${practice}/${product}`] || null;
+}
+
+// Default export for backward compat
+export const DASHBOARD_DATA = INSTANA;
