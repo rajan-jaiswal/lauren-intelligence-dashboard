@@ -596,39 +596,63 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
   // ─────────────────────────────────────────────────────────────────────────────
   const practiceOptions = Object.keys(practices).length ? Object.keys(practices) : ['IBM', 'AWS'];
 
+  const isEditing = !!editDoc?._id;
+
   return (
     <div style={{ padding: '24px 32px', maxWidth: 920, margin: '0 auto' }}>
 
-      {/* Header */}
-      <div style={{ marginBottom: 22 }}>
-        <div style={{ fontSize: 19, fontWeight: 800, color: 'var(--text)' }}>
-          {editDoc ? `✏️ Edit: ${editDoc.product}` : '✏️ Manual Product Entry'}
+      {/* ── Sticky save bar — always visible while scrolling tabs ── */}
+      <div style={{
+        position: 'sticky', top: 0, zIndex: 100,
+        background: 'var(--card-bg)',
+        border: '1px solid var(--card-border)',
+        borderRadius: 10,
+        padding: '12px 18px',
+        marginBottom: 20,
+        display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.10)',
+      }}>
+        {/* Product identity */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            {isEditing ? (
+              <>
+                <span style={{ background: 'var(--orange-lt)', color: 'var(--orange)', fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: .6, flexShrink: 0 }}>Editing</span>
+                {overview.logo || editDoc?.overview?.logo || '📦'} {productName || editDoc.product}
+              </>
+            ) : (
+              <>✏️ New Product</>
+            )}
+          </div>
+          {isEditing && (
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
+              Changes will overwrite the existing product · {practice}
+            </div>
+          )}
         </div>
-        <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
-          Fill in all fields manually, upload files, or let AI fill any missing data.
+
+        {/* Buttons */}
+        <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+          {onSaved && (
+            <button type="button" onClick={() => onSaved(null, null)} style={{
+              padding: '8px 14px', borderRadius: 7, cursor: 'pointer', fontSize: 12, fontWeight: 600,
+              border: '1px solid var(--card-border)', background: 'transparent', color: 'var(--text-muted)',
+            }}>← Back</button>
+          )}
+          <button type="button" onClick={handleAiFill} disabled={saving || filling} style={{
+            padding: '8px 16px', borderRadius: 7, border: 'none', cursor: saving || filling ? 'not-allowed' : 'pointer',
+            background: filling ? 'var(--card-border)' : 'var(--purple)',
+            color: filling ? 'var(--text-muted)' : '#fff', fontSize: 12, fontWeight: 700, opacity: filling ? 0.7 : 1,
+          }}>{filling ? '⏳ AI Working...' : '✨ AI Fill Gaps'}</button>
+
+          <button type="button" onClick={handleSave} disabled={saving || filling} style={{
+            padding: '8px 22px', borderRadius: 7, border: 'none', cursor: saving || filling ? 'not-allowed' : 'pointer',
+            background: saving ? 'var(--card-border)' : isEditing ? 'var(--green)' : 'var(--blue)',
+            color: saving ? 'var(--text-muted)' : '#fff', fontSize: 13, fontWeight: 800, opacity: saving ? 0.7 : 1,
+          }}>
+            {saving ? '⏳ Saving...' : isEditing ? '💾 Save Changes' : '💾 Save Product'}
+          </button>
         </div>
-      </div>
-
-      {/* Action bar */}
-      <div style={{ display: 'flex', gap: 10, marginBottom: 22, flexWrap: 'wrap' }}>
-        <button type="button" onClick={handleSave} disabled={saving || filling} style={{
-          padding: '9px 20px', borderRadius: 8, border: 'none', cursor: 'pointer',
-          background: saving ? 'var(--card-border)' : 'var(--blue)',
-          color: saving ? 'var(--text-muted)' : '#fff', fontSize: 13, fontWeight: 700,
-        }}>{saving ? '⏳ Saving...' : '💾 Save Product'}</button>
-
-        <button type="button" onClick={handleAiFill} disabled={saving || filling} style={{
-          padding: '9px 20px', borderRadius: 8, border: 'none', cursor: 'pointer',
-          background: filling ? 'var(--card-border)' : 'var(--purple)',
-          color: filling ? 'var(--text-muted)' : '#fff', fontSize: 13, fontWeight: 700,
-        }}>{filling ? '⏳ AI Filling...' : '✨ AI Fill Missing Fields'}</button>
-
-        {onSaved && (
-          <button type="button" onClick={() => onSaved(null, null)} style={{
-            padding: '9px 16px', borderRadius: 8, cursor: 'pointer', fontSize: 13,
-            border: '1px solid var(--card-border)', background: 'var(--card-bg2)', color: 'var(--text)',
-          }}>← Back</button>
-        )}
       </div>
 
       {/* Progress */}
@@ -893,14 +917,14 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
       {/* Bottom save button */}
       <div style={{ marginTop: 24, display: 'flex', gap: 10 }}>
         <button type="button" onClick={handleSave} disabled={saving || filling} style={{
-          flex: 1, padding: '12px 0', borderRadius: 9, border: 'none', cursor: 'pointer',
-          background: saving ? 'var(--card-border)' : 'var(--blue)',
-          color: saving ? 'var(--text-muted)' : '#fff', fontSize: 14, fontWeight: 800,
-        }}>{saving ? '⏳ Saving...' : '💾 Save Product'}</button>
+          flex: 1, padding: '13px 0', borderRadius: 9, border: 'none', cursor: saving || filling ? 'not-allowed' : 'pointer',
+          background: saving ? 'var(--card-border)' : isEditing ? 'var(--green)' : 'var(--blue)',
+          color: saving ? 'var(--text-muted)' : '#fff', fontSize: 14, fontWeight: 800, opacity: saving ? 0.7 : 1,
+        }}>{saving ? '⏳ Saving...' : isEditing ? '💾 Save Changes to Existing Product' : '💾 Save New Product'}</button>
         <button type="button" onClick={handleAiFill} disabled={saving || filling} style={{
-          flex: 1, padding: '12px 0', borderRadius: 9, border: 'none', cursor: 'pointer',
+          flex: 1, padding: '13px 0', borderRadius: 9, border: 'none', cursor: saving || filling ? 'not-allowed' : 'pointer',
           background: filling ? 'var(--card-border)' : 'var(--purple)',
-          color: filling ? 'var(--text-muted)' : '#fff', fontSize: 14, fontWeight: 800,
+          color: filling ? 'var(--text-muted)' : '#fff', fontSize: 14, fontWeight: 800, opacity: filling ? 0.7 : 1,
         }}>{filling ? '⏳ AI Filling...' : '✨ AI Fill Missing & Save'}</button>
       </div>
     </div>
