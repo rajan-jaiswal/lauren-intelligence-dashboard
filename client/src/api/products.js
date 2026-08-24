@@ -77,9 +77,17 @@ export async function createPractice(practiceName, pin) {
   return data;
 }
 
-/** POST fully-manual product data */
+/** Save manual product data.
+ *  - If productData._id exists → PUT /products/:id  (update in-place, never duplicates)
+ *  - Otherwise              → POST /products/manual (create new)
+ */
 export async function saveManualProduct(productData, pin) {
-  const { data } = await axios.post(`${API_BASE}/products/manual`, { ...productData, pin });
+  const { _id, ...rest } = productData;
+  if (_id) {
+    const { data } = await axios.put(`${API_BASE}/products/${_id}`, { ...rest, pin });
+    return data;
+  }
+  const { data } = await axios.post(`${API_BASE}/products/manual`, { ...rest, pin });
   return data;
 }
 

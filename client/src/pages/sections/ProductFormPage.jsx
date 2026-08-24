@@ -511,6 +511,8 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
   // ── Build product document from form state ─────────────────────────────────
   function buildDoc() {
     return {
+      // Include _id when editing so saveManualProduct uses PUT instead of POST
+      ...(editDoc?._id ? { _id: editDoc._id } : {}),
       practice,
       product: productName,
       competitors,
