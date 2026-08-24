@@ -174,6 +174,17 @@ const MODEL_PRIORITY = [
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+// ─── Hard timeout wrapper — Gemini can hang; this prevents silent freezes ────
+function withTimeout(promise, ms, label) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`Timeout after ${ms / 1000}s waiting for ${label}`)), ms);
+    promise.then(
+      (val) => { clearTimeout(timer); resolve(val); },
+      (err) => { clearTimeout(timer); reject(err); }
+    );
+  });
+}
+
 async function generateWithFallback(prompt) {
   let lastErr;
   for (const modelName of MODEL_PRIORITY) {
@@ -181,13 +192,19 @@ async function generateWithFallback(prompt) {
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
         const model = genAI.getGenerativeModel({ model: modelName });
-        const result = await model.generateContent(prompt);
+        // 90-second hard timeout per attempt — prevents silent hangs on Render
+        const result = await withTimeout(
+          model.generateContent(prompt),
+          90000,
+          modelName
+        );
         return result.response.text();
       } catch (err) {
         const isTransient = err.message && (
           err.message.includes('503') ||
           err.message.includes('429') ||
-          err.message.includes('UNAVAILABLE')
+          err.message.includes('UNAVAILABLE') ||
+          err.message.includes('Timeout')
         );
         const isNotFound = err.message && (
           err.message.includes('404') ||
@@ -196,25 +213,22 @@ async function generateWithFallback(prompt) {
         );
 
         if (isNotFound) {
-          // Model doesn't exist — skip immediately to next model
           lastErr = err;
           break;
         }
 
         if (isTransient && attempt === 1) {
-          // Wait 2 s before retrying the same model once
           await sleep(2000);
           lastErr = err;
           continue;
         }
 
         if (isTransient) {
-          // Second attempt also failed — move to next model
           lastErr = err;
           break;
         }
 
-        throw err; // non-transient error — bubble up immediately
+        throw err;
       }
     }
   }
@@ -223,13 +237,12 @@ async function generateWithFallback(prompt) {
 
 // ─── Main product generation ─────────────────────────────────────────────────
 async function generateProductData(productName, practice, description, competitorNames, rawData, jobId) {
-  // model is resolved dynamically via fallback chain
 
   const STAGES = [
-    { percent: 10, stage: 'building_prompt',      message: 'Building AI prompt...' },
-    { percent: 30, stage: 'calling_gemini',        message: 'Calling Gemini AI...' },
-    { percent: 70, stage: 'parsing_response',      message: 'Parsing AI response...' },
-    { percent: 90, stage: 'saving_to_database',    message: 'Saving to database...' },
+    { percent: 10, stage: 'building_prompt',   message: 'Building AI prompt...' },
+    { percent: 25, stage: 'calling_gemini',    message: 'Calling Gemini AI...' },
+    { percent: 70, stage: 'parsing_response',  message: 'Parsing AI response...' },
+    { percent: 90, stage: 'saving_to_database',message: 'Saving to database...' },
   ];
 
   if (jobId) sse.broadcast('ai_progress', { jobId, ...STAGES[0] });
@@ -238,7 +251,24 @@ async function generateProductData(productName, practice, description, competito
 
   if (jobId) sse.broadcast('ai_progress', { jobId, ...STAGES[1] });
 
-  const text = await generateWithFallback(prompt);
+  // Emit incremental ticks while Gemini is thinking so the bar visibly moves
+  let tickPercent = 25;
+  let tickTimer = null;
+  if (jobId) {
+    tickTimer = setInterval(() => {
+      if (tickPercent < 65) {
+        tickPercent += 5;
+        sse.broadcast('ai_progress', { jobId, percent: tickPercent, stage: 'calling_gemini', message: 'Gemini is generating your product data...' });
+      }
+    }, 4000); // nudge +5% every 4 s while waiting
+  }
+
+  let text;
+  try {
+    text = await generateWithFallback(prompt);
+  } finally {
+    if (tickTimer) clearInterval(tickTimer);
+  }
 
   if (jobId) sse.broadcast('ai_progress', { jobId, ...STAGES[2] });
 

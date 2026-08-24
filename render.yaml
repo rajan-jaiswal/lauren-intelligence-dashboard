@@ -5,13 +5,22 @@ services:
     rootDir: server
     buildCommand: npm install
     startCommand: node index.js
+    # Prevent Render free tier from spinning down — keep at least 1 instance awake
+    # Note: on free tier this won't prevent spin-down but the self-ping in index.js
+    # will keep the process warm after first boot.
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 5000
-      # Set these in the Render dashboard → Environment tab:
-      # MONGO_URI        — your MongoDB Atlas connection string
-      # GEMINI_API_KEY   — your Google Gemini API key
-      # ADMIN_PIN        — your admin PIN
-      # FRONTEND_URL     — your Vercel frontend URL e.g. https://lauren-intelligence-dashboard.vercel.app
+      # Render automatically sets RENDER_EXTERNAL_URL — used for self-ping keep-alive
+      - key: RENDER_EXTERNAL_URL
+        fromService:
+          type: web
+          name: lauren-dashboard-api
+          property: host
+      # Set these manually in the Render dashboard → Environment tab:
+      # MONGO_URI       — MongoDB Atlas connection string
+      # GEMINI_API_KEY  — Google Gemini API key
+      # ADMIN_PIN       — Admin PIN (e.g. Lauren@2025)
+      # FRONTEND_URL    — Vercel frontend URL (e.g. https://lauren-intelligence-dashboard.vercel.app)

@@ -32,15 +32,24 @@ router.post('/verify-pin', (req, res) => {
 
 // ─── SSE — Real-time event stream ─────────────────────────────────────────────
 router.get('/events', (req, res) => {
+  // Explicit CORS header needed for EventSource (browser doesn't send preflight)
+  const origin = req.headers.origin || '';
+  if (origin) res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
   res.setHeader('Connection', 'keep-alive');
   res.setHeader('X-Accel-Buffering', 'no');
+  res.setHeader('Transfer-Encoding', 'chunked');
   res.flushHeaders();
 
+  // Send initial connected event so client knows the stream is live
+  try { res.write('event: connected\ndata: {"status":"ok"}\n\n'); } catch (_) {}
+
+  // Heartbeat every 20 s — keeps Render + proxy connections alive
   const heartbeat = setInterval(() => {
     try { res.write(': heartbeat\n\n'); } catch (_) { clearInterval(heartbeat); }
-  }, 25000);
+  }, 20000);
 
   sse.addClient(res);
   req.on('close', () => { clearInterval(heartbeat); sse.removeClient(res); });

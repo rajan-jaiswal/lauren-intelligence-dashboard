@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const http = require('http');
+const https = require('https');
 
 const productsRouter = require('./routes/products');
 
@@ -48,6 +50,22 @@ mongoose
     console.log('✅ MongoDB connected:', process.env.MONGO_URI);
     app.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
+      // ── Keep-alive self-ping — prevents Render free tier cold starts ──────────
+      // Render spins down the server after 15 min of inactivity.
+      // Pinging ourselves every 10 min keeps the process warm so the first
+      // request after a long idle period doesn't take 30+ seconds.
+      if (process.env.NODE_ENV === 'production' && process.env.RENDER_EXTERNAL_URL) {
+        const pingUrl = `${process.env.RENDER_EXTERNAL_URL}/api/health`;
+        const transport = pingUrl.startsWith('https') ? https : http;
+        setInterval(() => {
+          transport.get(pingUrl, (res) => {
+            console.log(`[keep-alive] ping → ${res.statusCode}`);
+          }).on('error', (err) => {
+            console.warn('[keep-alive] ping failed:', err.message);
+          });
+        }, 10 * 60 * 1000); // every 10 minutes
+        console.log(`[keep-alive] self-ping active → ${pingUrl}`);
+      }
     });
   })
   .catch((err) => {

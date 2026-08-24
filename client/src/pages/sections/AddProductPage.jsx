@@ -1,6 +1,6 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useSSE } from '../../hooks/useSSE.js';
-import { uploadProduct, generateCompetitor, verifyPin } from '../../api/products.js';
+import { uploadProduct, generateCompetitor, verifyPin, fetchProduct } from '../../api/products.js';
 import { useData } from '../../context/DataContext.jsx';
 
 // ─── PIN Gate ─────────────────────────────────────────────────────────────────
@@ -192,18 +192,80 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
   const fileInputRef = useRef(null);
 
   // Generation state
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [progress, setProgress] = useState(null);   // { percent, stage, message }
-  const [competitorStates, setCompetitorStates] = useState({});  // { name: { status, profile, jobId, progress } }
-  const [success, setSuccess] = useState(null);    // { practice, product }
-  const [formError, setFormError] = useState('');
+  const [isSubmitting, setIsSubmitting]     = useState(false);
+  const [progress, setProgress]             = useState(null);
+  const [competitorStates, setCompetitorStates] = useState({});
+  const [success, setSuccess]               = useState(null);
+  const [formError, setFormError]           = useState('');
+  const submittedRef    = useRef(null);   // { practice, product } set on submit
+  const sseReceivedRef  = useRef(false);  // flips true when first SSE event arrives
+  const tickTimerRef    = useRef(null);   // client-side fake progress ticker
+  const pollTimerRef    = useRef(null);   // DB-poll fallback timer
+
+  // ── Client-side fake progress animation ──────────────────────────────────
+  // Smoothly nudges the bar forward so it never looks frozen, even before
+  // the first SSE event arrives from Render.
+  function startFakeTicks(startPercent) {
+    clearInterval(tickTimerRef.current);
+    let pct = startPercent;
+    tickTimerRef.current = setInterval(() => {
+      pct = Math.min(pct + 2, 68); // never exceed 68 — real events take it to 70+
+      setProgress(prev => {
+        // Only update if real SSE hasn't overtaken our fake value
+        if (!prev || prev.percent < pct) {
+          return { percent: pct, stage: prev?.stage || 'calling_gemini', message: prev?.message || 'AI is generating your product data...' };
+        }
+        return prev;
+      });
+    }, 3000); // +2% every 3 s
+  }
+
+  function stopFakeTicks() {
+    clearInterval(tickTimerRef.current);
+    tickTimerRef.current = null;
+  }
+
+  // ── DB poll fallback — if SSE never fires (network issue), check DB directly ─
+  // After 3 minutes we assume SSE silently dropped and check if the product
+  // was actually saved to the DB. If yes, treat it as success.
+  function startPollFallback() {
+    clearTimeout(pollTimerRef.current);
+    pollTimerRef.current = setTimeout(async () => {
+      if (!submittedRef.current || success) return;
+      try {
+        const doc = await fetchProduct(submittedRef.current.practice, submittedRef.current.product);
+        if (doc) {
+          stopFakeTicks();
+          setProgress({ percent: 100, stage: 'complete', message: 'Product saved! (SSE fallback)' });
+          setIsSubmitting(false);
+          setSuccess({ practice: doc.practice, product: doc.product });
+        } else {
+          setFormError('Generation is taking longer than expected. Please check Manage Practices in a minute.');
+          setIsSubmitting(false);
+          stopFakeTicks();
+        }
+      } catch (_) {
+        setFormError('Could not verify generation status. Check Manage Practices page.');
+        setIsSubmitting(false);
+        stopFakeTicks();
+      }
+    }, 3 * 60 * 1000); // 3 minutes
+  }
+
+  // Cleanup timers on unmount
+  useEffect(() => () => { stopFakeTicks(); clearTimeout(pollTimerRef.current); }, []);
 
   // SSE event handlers
   useSSE({
     ai_progress: (data) => {
+      sseReceivedRef.current = true;
+      stopFakeTicks(); // real event arrived — stop fake ticks
       setProgress(data);
     },
     product_added: (data) => {
+      sseReceivedRef.current = true;
+      stopFakeTicks();
+      clearTimeout(pollTimerRef.current);
       setIsSubmitting(false);
       setSuccess({ practice: data.practice, product: data.product });
     },
@@ -278,6 +340,8 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
     e.preventDefault();
     if (!productName.trim()) { setFormError('Product name is required.'); return; }
     setFormError('');
+    sseReceivedRef.current = false;
+    submittedRef.current = { practice, product: productName.trim() };
     setIsSubmitting(true);
     setProgress({ percent: 0, stage: 'preparing', message: 'Preparing submission...' });
 
@@ -287,14 +351,17 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
     formData.append('practice', practice);
     formData.append('description', description);
     formData.append('competitors', competitors.join(','));
-    // append every file under the field name "files"
     files.forEach((f) => formData.append('files', f));
 
     try {
       await uploadProduct(formData);
-      // Success will arrive via SSE product_added event
+      // Job accepted (202) — start fake progress ticks and DB-poll safety net
+      startFakeTicks(5);
+      startPollFallback();
+      // Real completion arrives via SSE product_added event
     } catch (err) {
-      // Check if it's a 401 (wrong PIN)
+      stopFakeTicks();
+      clearTimeout(pollTimerRef.current);
       if (err?.response?.status === 401) {
         setPinError('Incorrect PIN. Please try again.');
         setPin(null);
