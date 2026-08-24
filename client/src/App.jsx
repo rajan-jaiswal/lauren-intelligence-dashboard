@@ -342,11 +342,20 @@ function AppInner() {
 
   const { practices, loading, getProductData, invalidateProduct, addProductToList, addPracticeToList, removeProductFromList } = useData();
 
-  // SSE — listen for real-time product additions
+  // SSE — listen for real-time product additions/updates
   useSSE({
     product_added: ({ practice: p, product: prod }) => {
       addProductToList(p, prod);
       invalidateProduct(p, prod);
+      // If the currently displayed product was just updated, reload its data
+      if (p === practice && prod === product) {
+        setData(null); // triggers the loading effect which re-fetches fresh data
+        setDataLoading(true);
+        getProductData(p, prod).then(d => {
+          if (d) setData(d);
+          setDataLoading(false);
+        });
+      }
     },
   });
 
@@ -530,8 +539,17 @@ function AppInner() {
           defaultPractice={formArgs?.defaultPractice || practice}
           practices={practices}
           onSaved={(p, prod) => {
-            if (p && prod) { addProductToList(p, prod); }
-            setActiveNav('manage-practice');
+            if (p && prod) {
+              // Always invalidate cache so the dashboard re-fetches fresh data
+              invalidateProduct(p, prod);
+              // Add to list only if it's a new product (won't duplicate existing)
+              addProductToList(p, prod);
+              // Switch the dashboard to show the saved/edited product immediately
+              setPractice(p);
+              setProduct(prod);
+            }
+            // Go back to the dashboard overview showing the updated product
+            setActiveNav('overview');
           }}
         />
       );
