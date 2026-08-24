@@ -1,1 +1,25 @@
+﻿# Dependencies
 node_modules
+**/node_modules
+
+# Environment variables — NEVER commit real credentials
+.env
+.env.local
+.env.production.local
+server/.env
+client/.env.local
+
+# Build output
+client/dist
+client/build
+
+# Logs
+*.log
+server_out.txt
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Vite cache
+.vite

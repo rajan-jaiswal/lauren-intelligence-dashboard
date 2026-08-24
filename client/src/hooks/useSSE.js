@@ -1,5 +1,10 @@
 import { useEffect, useRef, useCallback } from 'react';
 
+// Resolve the SSE endpoint against the same base URL used by all API calls.
+// In production (Vercel → Render), VITE_API_URL is set to the Render backend URL
+// so EventSource must point there too — NOT to the Vercel frontend.
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
+
 /**
  * React hook that connects to the server SSE stream and calls handlers
  * when events arrive.
@@ -14,7 +19,7 @@ export function useSSE(handlers, enabled = true) {
   const connect = useCallback(() => {
     if (!enabled) return null;
 
-    const es = new EventSource('/api/events');
+    const es = new EventSource(`${API_BASE}/events`);
 
     es.onopen = () => {
       console.log('[SSE] Connected');

@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: lauren-dashboard-api
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      # Set these in the Render dashboard → Environment tab:
+      # MONGO_URI        — your MongoDB Atlas connection string
+      # GEMINI_API_KEY   — your Google Gemini API key
+      # ADMIN_PIN        — your admin PIN
+      # FRONTEND_URL     — your Vercel frontend URL e.g. https://lauren-intelligence-dashboard.vercel.app
