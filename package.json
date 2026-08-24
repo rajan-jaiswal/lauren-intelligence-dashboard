@@ -1,0 +1,14 @@
+{
+  "name": "lauren-intelligence-dashboard",
+  "version": "1.0.0",
+  "description": "Lauren Intelligence Dashboard — root workspace scripts",
+  "scripts": {
+    "dev": "concurrently --kill-others-on-fail --names \"server,client\" --prefix-colors \"cyan,magenta\" \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "server": "npm run dev --prefix server",
+    "client": "npm run dev --prefix client"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.1.14"
+  }
+}

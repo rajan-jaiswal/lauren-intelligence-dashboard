@@ -63,21 +63,27 @@ export default function ProductDetailsPage({ data }) {
       <div className="grid-2">
         <div className="card">
           <div className="card-title">DISCOVERY QUESTIONS</div>
-          {(discoveryQuestions || []).map((q, i) => (
-            <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'flex-start', padding: '8px 10px', background: 'var(--card-bg2)', border: '1px solid var(--card-border)', borderRadius: 6 }}>
-              <span style={{ background: 'var(--blue-lt)', color: 'var(--blue)', border: '1px solid var(--blue)', borderRadius: '50%', width: 20, height: 20, fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>{i + 1}</span>
-              <span style={{ fontSize: 12.5, lineHeight: 1.5, color: 'var(--text)' }}>{q}</span>
-            </div>
-          ))}
+          {(discoveryQuestions || []).map((q, i) => {
+            const text = typeof q === 'string' ? q : (q?.question || q?.text || JSON.stringify(q));
+            return (
+              <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'flex-start', padding: '8px 10px', background: 'var(--card-bg2)', border: '1px solid var(--card-border)', borderRadius: 6 }}>
+                <span style={{ background: 'var(--blue-lt)', color: 'var(--blue)', border: '1px solid var(--blue)', borderRadius: '50%', width: 20, height: 20, fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>{i + 1}</span>
+                <span style={{ fontSize: 12.5, lineHeight: 1.5, color: 'var(--text)' }}>{text}</span>
+              </div>
+            );
+          })}
         </div>
         <div className="card">
           <div className="card-title green">RECOMMENDED RESPONSES</div>
-          {(recommendedResponses || []).map((r, i) => (
-            <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'flex-start', padding: '8px 10px', background: 'var(--green-lt)', border: '1px solid rgba(45,202,110,.25)', borderRadius: 6 }}>
-              <CheckIcon size={14} />
-              <span style={{ fontSize: 12.5, lineHeight: 1.5, color: 'var(--text)' }}>{r}</span>
-            </div>
-          ))}
+          {(recommendedResponses || []).map((r, i) => {
+            const text = typeof r === 'string' ? r : (r?.answer || r?.response || r?.text || JSON.stringify(r));
+            return (
+              <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'flex-start', padding: '8px 10px', background: 'var(--green-lt)', border: '1px solid rgba(45,202,110,.25)', borderRadius: 6 }}>
+                <CheckIcon size={14} />
+                <span style={{ fontSize: 12.5, lineHeight: 1.5, color: 'var(--text)' }}>{text}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
 

@@ -285,21 +285,27 @@ export default function OverviewPage({ data }) {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, height: '100%' }}>
           <div className="card">
             <div className="card-title" style={{ textTransform: 'uppercase', letterSpacing: 1 }}>DISCOVERY QUESTIONS</div>
-            {(discoveryQuestions || []).map((q, i) => (
-              <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'flex-start' }}>
-                <span className="num-circle">{i + 1}</span>
-                <span style={{ fontSize: 11.5, color: 'var(--text)', lineHeight: 1.5 }}>{q}</span>
-              </div>
-            ))}
+            {(discoveryQuestions || []).map((q, i) => {
+              const text = typeof q === 'string' ? q : (q?.question || q?.text || JSON.stringify(q));
+              return (
+                <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'flex-start' }}>
+                  <span className="num-circle">{i + 1}</span>
+                  <span style={{ fontSize: 11.5, color: 'var(--text)', lineHeight: 1.5 }}>{text}</span>
+                </div>
+              );
+            })}
           </div>
           <div className="card">
             <div className="card-title green" style={{ textTransform: 'uppercase', letterSpacing: 1 }}>RECOMMENDED RESPONSES</div>
-            {(recommendedResponses || []).map((r, i) => (
-              <div key={i} style={{ display: 'flex', gap: 7, marginBottom: 8, alignItems: 'flex-start' }}>
-                <CheckIcon color="var(--green)" size={13} />
-                <span style={{ fontSize: 11.5, color: 'var(--text)', lineHeight: 1.5 }}>{r}</span>
-              </div>
-            ))}
+            {(recommendedResponses || []).map((r, i) => {
+              const text = typeof r === 'string' ? r : (r?.answer || r?.response || r?.text || JSON.stringify(r));
+              return (
+                <div key={i} style={{ display: 'flex', gap: 7, marginBottom: 8, alignItems: 'flex-start' }}>
+                  <CheckIcon color="var(--green)" size={13} />
+                  <span style={{ fontSize: 11.5, color: 'var(--text)', lineHeight: 1.5 }}>{text}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

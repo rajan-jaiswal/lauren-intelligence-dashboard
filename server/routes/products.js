@@ -1,11 +1,12 @@
-const express = require('express');
-const multer  = require('multer');
-const router  = express.Router();
+const express         = require('express');
+const multer          = require('multer');
+const router          = express.Router();
 
-const Product    = require('../models/Product');
-const sse        = require('../utils/sseEmitter');
-const gemini     = require('../services/gemini');
-const fileParser = require('../services/fileParser');
+const Product          = require('../models/Product');
+const sse              = require('../utils/sseEmitter');
+const gemini           = require('../services/gemini');
+const fileParser       = require('../services/fileParser');
+const normalizeProduct = require('../utils/normalizeProduct');
 
 // multer — memory storage, 10 MB per file, up to 20 files at once
 const upload = multer({
@@ -127,14 +128,14 @@ router.post('/products/ai-fill', async (req, res) => {
     const competitorNames = (req.body.competitors || existing?.competitors || '')
       .split(',').map(s => s.trim()).filter(Boolean);
 
-    const generated = await gemini.generateProductData(
+    const generated = normalizeProduct(await gemini.generateProductData(
       existing?.product || productName,
       existing?.practice || practice,
       existing?.overview?.description || '',
       competitorNames,
       null,
       jobId
-    );
+    ));
 
     function mergeDeep(target, source) {
       if (!target) return source;
@@ -192,7 +193,7 @@ router.post('/products/upload', uploadMany, async (req, res) => {
   try {
     const competitorList = competitors ? competitors.split(',').map(s => s.trim()).filter(Boolean) : [];
     const geminiRawData  = rawData ? { ...rawData, text: rawData.combined } : null;
-    const generated = await gemini.generateProductData(productName, practice, description || '', competitorList, geminiRawData, jobId);
+    const generated = normalizeProduct(await gemini.generateProductData(productName, practice, description || '', competitorList, geminiRawData, jobId));
 
     const docData = {
       ...generated,
