@@ -26,7 +26,6 @@ const FeatureIcons = {
   'Smart Alert Engine':            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zm0 16a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>,
   'Hybrid Monitoring':             <svg viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd"/></svg>,
   'OpenShift Support':             <svg viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/></svg>,
-  // IBM MQ
   'Guaranteed Message Delivery':   <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>,
   'Multi-cloud Connectivity':      <svg viewBox="0 0 20 20" fill="currentColor"><path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z"/></svg>,
   'High Throughput':               <svg viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd"/></svg>,
@@ -35,7 +34,6 @@ const FeatureIcons = {
   'Kubernetes Native':             <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 14A6 6 0 1110 4a6 6 0 010 12z"/></svg>,
   'Queue Management':              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1z"/></svg>,
   'Monitoring & Alerts':           <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zm0 16a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>,
-  // Sterling
   'B2B Partner Integration':       <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/></svg>,
   'Order Management':              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/><path d="M16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg>,
   'Supply Chain Visibility':       <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/></svg>,
@@ -44,7 +42,6 @@ const FeatureIcons = {
   'Inventory Optimization':        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fillRule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clipRule="evenodd"/></svg>,
   'Fulfillment Automation':        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/><path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1v-1h3.05a2.5 2.5 0 014.9 0H19a1 1 0 001-1V5a1 1 0 00-1-1H3z"/></svg>,
   'Real-time Analytics':           <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>,
-  // Turbonomic
   'AI-driven Resource Automation': <svg viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/></svg>,
   'Cloud Cost Optimisation':       <svg viewBox="0 0 20 20" fill="currentColor"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd"/></svg>,
   'Performance Assurance':         <svg viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/></svg>,
@@ -63,36 +60,18 @@ function getFeatureIcon(name) {
   );
 }
 
-// ── Customer initials badge ───────────────────────────────────────────────
-function CustomerBadge({ name, color }) {
+// ── Initials badge (customers & competitors) ─────────────────────────────
+function InitialsBadge({ name, color, size = 40, fontSize = 13, radius = 8 }) {
   const words = (name || '').split(' ').filter(Boolean);
   const initials = words.length >= 2
     ? (words[0][0] + words[1][0]).toUpperCase()
     : (name || '--').slice(0, 2).toUpperCase();
   return (
     <div style={{
-      width: 40, height: 40, borderRadius: 8, flexShrink: 0,
+      width: size, height: size, borderRadius: radius, flexShrink: 0,
       background: `${color}22`, border: `1.5px solid ${color}55`,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontSize: 13, fontWeight: 900, color, letterSpacing: .5,
-    }}>
-      {initials}
-    </div>
-  );
-}
-
-// ── Competitor brand badge ────────────────────────────────────────────────
-function CompetitorBadge({ name, color }) {
-  const words = (name || '').split(' ').filter(Boolean);
-  const initials = words.length >= 2
-    ? (words[0][0] + words[1][0]).toUpperCase()
-    : (name || '--').slice(0, 2).toUpperCase();
-  return (
-    <div style={{
-      width: 34, height: 34, borderRadius: 7, flexShrink: 0,
-      background: `${color}20`, border: `1.5px solid ${color}55`,
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontSize: 11, fontWeight: 900, color, letterSpacing: .3,
+      fontSize, fontWeight: 900, color, letterSpacing: 0.5,
     }}>
       {initials}
     </div>
@@ -103,12 +82,12 @@ function CompetitorBadge({ name, color }) {
 function TcoBar({ label, value, max, color, amount }) {
   const pct = Math.min(100, (value / (max || 800)) * 100);
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-      <div style={{ width: 68, textAlign: 'right', fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', flexShrink: 0 }}>{label}</div>
-      <div style={{ flex: 1, height: 18, background: 'var(--tco-track)', borderRadius: 4, overflow: 'hidden', minWidth: 0 }}>
-        <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 4 }} />
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+      <div style={{ width: 72, textAlign: 'right', fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', flexShrink: 0, lineHeight: 1.2 }}>{label}</div>
+      <div style={{ flex: 1, height: 20, background: 'var(--tco-track)', borderRadius: 5, overflow: 'hidden', minWidth: 0, position: 'relative' }}>
+        <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 5, transition: 'width .4s ease' }} />
       </div>
-      <div style={{ width: 48, fontSize: 11.5, fontWeight: 800, color, flexShrink: 0, textAlign: 'right' }}>{amount}</div>
+      <div style={{ width: 54, fontSize: 11.5, fontWeight: 800, color, flexShrink: 0, textAlign: 'right' }}>{amount}</div>
     </div>
   );
 }
@@ -178,30 +157,44 @@ function ProductIcon() {
 // ── Case Study icon by type ───────────────────────────────────────────────
 function CaseStudyIcon({ type }) {
   const t = (type || '').toLowerCase();
-  if (t.includes('bank') || t.includes('financ')) {
-    return <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 22, height: 22 }}><path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zm14 5H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM6 13a1 1 0 11-2 0 1 1 0 012 0zm3 0a1 1 0 11-2 0 1 1 0 012 0z" clipRule="evenodd"/></svg>;
-  }
-  if (t.includes('telecom') || t.includes('telco')) {
-    return <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 22, height: 22 }}><path fillRule="evenodd" d="M5.05 3.636a1 1 0 010 1.414 7 7 0 000 9.9 1 1 0 11-1.414 1.414 9 9 0 010-12.728 1 1 0 011.414 0zm9.9 0a1 1 0 011.414 0 9 9 0 010 12.728 1 1 0 11-1.414-1.414 7 7 0 000-9.9 1 1 0 010-1.414zM7.879 6.464a1 1 0 010 1.414 3 3 0 000 4.243 1 1 0 11-1.415 1.414 5 5 0 010-7.07 1 1 0 011.415 0zm4.242 0a1 1 0 011.415 0 5 5 0 010 7.072 1 1 0 01-1.415-1.415 3 3 0 000-4.242 1 1 0 010-1.415zM10 9a1 1 0 011 1v.01a1 1 0 11-2 0V10a1 1 0 011-1z" clipRule="evenodd"/></svg>;
-  }
-  if (t.includes('energy') || t.includes('util')) {
-    return <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 22, height: 22 }}><path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd"/></svg>;
-  }
-  if (t.includes('health')) {
-    return <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 22, height: 22 }}><path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd"/></svg>;
-  }
-  if (t.includes('retail') || t.includes('commerce')) {
-    return <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 22, height: 22 }}><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/><path d="M16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg>;
-  }
-  return <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 22, height: 22 }}><path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clipRule="evenodd"/></svg>;
+  if (t.includes('bank') || t.includes('financ'))
+    return <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 20, height: 20 }}><path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zm14 5H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM6 13a1 1 0 11-2 0 1 1 0 012 0zm3 0a1 1 0 11-2 0 1 1 0 012 0z" clipRule="evenodd"/></svg>;
+  if (t.includes('telecom') || t.includes('telco'))
+    return <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 20, height: 20 }}><path fillRule="evenodd" d="M5.05 3.636a1 1 0 010 1.414 7 7 0 000 9.9 1 1 0 11-1.414 1.414 9 9 0 010-12.728 1 1 0 011.414 0zm9.9 0a1 1 0 011.414 0 9 9 0 010 12.728 1 1 0 11-1.414-1.414 7 7 0 000-9.9 1 1 0 010-1.414zM7.879 6.464a1 1 0 010 1.414 3 3 0 000 4.243 1 1 0 11-1.415 1.414 5 5 0 010-7.07 1 1 0 011.415 0zm4.242 0a1 1 0 011.415 0 5 5 0 010 7.072 1 1 0 01-1.415-1.415 3 3 0 000-4.242 1 1 0 010-1.415zM10 9a1 1 0 011 1v.01a1 1 0 11-2 0V10a1 1 0 011-1z" clipRule="evenodd"/></svg>;
+  if (t.includes('energy') || t.includes('util'))
+    return <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 20, height: 20 }}><path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd"/></svg>;
+  if (t.includes('health'))
+    return <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 20, height: 20 }}><path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd"/></svg>;
+  if (t.includes('retail') || t.includes('commerce'))
+    return <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 20, height: 20 }}><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/><path d="M16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg>;
+  return <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 20, height: 20 }}><path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clipRule="evenodd"/></svg>;
 }
 
-// ── Check icon SVG ────────────────────────────────────────────────────────
+// ── Check / X icons ───────────────────────────────────────────────────────
 function CheckIcon({ color = 'var(--green)', size = 14 }) {
   return (
     <svg viewBox="0 0 16 16" fill="currentColor" style={{ width: size, height: size, color, flexShrink: 0 }}>
       <path d="M13.854 3.646a.5.5 0 010 .708l-7 7a.5.5 0 01-.708 0l-3.5-3.5a.5.5 0 11.708-.708L6.5 10.293l6.646-6.647a.5.5 0 01.708 0z"/>
     </svg>
+  );
+}
+function XIcon({ size = 13 }) {
+  return (
+    <svg viewBox="0 0 16 16" fill="currentColor" style={{ width: size, height: size, color: 'var(--red)', flexShrink: 0 }}>
+      <path d="M4.646 4.646a.5.5 0 01.708 0L8 7.293l2.646-2.647a.5.5 0 01.708.708L8.707 8l2.647 2.646a.5.5 0 01-.708.708L8 8.707l-2.646 2.647a.5.5 0 01-.708-.708L7.293 8 4.646 5.354a.5.5 0 010-.708z"/>
+    </svg>
+  );
+}
+
+// ── Section header with accent bar ───────────────────────────────────────
+function SectionLabel({ children, color = 'var(--blue)' }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 12 }}>
+      <div style={{ width: 3, height: 14, background: color, borderRadius: 2, flexShrink: 0 }} />
+      <span style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
+        {children}
+      </span>
+    </div>
   );
 }
 
@@ -219,7 +212,6 @@ export default function OverviewPage({ data }) {
   const tcoMax    = tcoData?.maxValue      || 800;
   const tcoLabels = tcoData?.labels        || fmLabels;
 
-  // Case study type → colour
   function caseColor(type) {
     const t = (type || '').toLowerCase();
     if (t.includes('bank') || t.includes('financ')) return 'var(--blue)';
@@ -229,217 +221,341 @@ export default function OverviewPage({ data }) {
     return 'var(--blue)';
   }
 
+  const winRate = winLoss?.winRate || 0;
+  const tcoAdvantage = (() => {
+    const prod = parseMoney(tcoData?.totals?.product);
+    const c1   = parseMoney(tcoData?.totals?.comp1);
+    const c2   = parseMoney(tcoData?.totals?.comp2);
+    const maxComp = Math.max(c1, c2);
+    if (!prod || !maxComp) return null;
+    const saving = maxComp - prod;
+    if (saving <= 0) return null;
+    return saving >= 1000 ? `$${Math.round(saving / 1000)}K` : `$${saving}`;
+  })();
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
 
-      {/* ── ROW 1: Product Overview | Key Features | Discovery + Responses ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 1fr', gap: 12, alignItems: 'start' }}>
-
-        {/* Product Overview */}
-        <div className="card" style={{ height: '100%' }}>
-          <div className="card-title" style={{ textTransform: 'uppercase', letterSpacing: 1 }}>PRODUCT OVERVIEW</div>
-
-          {/* Logo + name */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-            <div className="product-icon-badge"><ProductIcon /></div>
-            <div>
-              <div style={{ fontSize: 15, fontWeight: 900, color: 'var(--blue)', letterSpacing: .6, lineHeight: 1.2 }}>
-                {(overview?.name || data.product || '').toUpperCase()}
-              </div>
+      {/* ══════════════════════════════════════════════════════════════════
+          ROW A  —  Hero: Product Identity + Quick KPIs
+          ═════════════════════════════════════════════════════════════════ */}
+      <div style={{
+        background: 'var(--card-bg)',
+        border: '1px solid var(--card-border)',
+        borderRadius: 10,
+        padding: '18px 20px',
+        display: 'grid',
+        gridTemplateColumns: '1fr auto',
+        gap: 20,
+        alignItems: 'center',
+      }}>
+        {/* Left: identity */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, minWidth: 0 }}>
+          <div style={{
+            width: 54, height: 54, borderRadius: 13, flexShrink: 0,
+            background: 'var(--blue-lt)', border: '2px solid var(--blue)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <ProductIcon />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--text)', letterSpacing: 0.5, lineHeight: 1.2, marginBottom: 4 }}>
+              {(overview?.name || data.product || '').toUpperCase()}
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+              {overview?.category && (
+                <span style={{ fontSize: 10.5, fontWeight: 700, padding: '2px 9px', borderRadius: 10, background: 'var(--blue-lt)', color: 'var(--blue)', border: '1px solid var(--blue)', letterSpacing: 0.3 }}>
+                  {overview.category}
+                </span>
+              )}
+              {overview?.deployment && (
+                <span style={{ fontSize: 10.5, fontWeight: 700, padding: '2px 9px', borderRadius: 10, background: 'var(--purple-lt)', color: 'var(--purple)', border: '1px solid var(--purple)', letterSpacing: 0.3 }}>
+                  {overview.deployment}
+                </span>
+              )}
+              {overview?.marketPosition && (
+                <span style={{ fontSize: 10.5, fontWeight: 700, padding: '2px 9px', borderRadius: 10, background: 'var(--green-lt)', color: 'var(--green)', border: '1px solid var(--green)', letterSpacing: 0.3 }}>
+                  {overview.marketPosition}
+                </span>
+              )}
             </div>
           </div>
+        </div>
 
-          <p style={{ fontSize: 11.5, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 10, paddingBottom: 10, borderBottom: '1px solid var(--card-border)' }}>
+        {/* Right: 4 KPIs */}
+        <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
+          {[
+            { label: 'Win Rate',          val: winRate ? `${winRate}%`      : '—', color: 'var(--blue)',   bg: 'var(--blue-lt)' },
+            { label: 'Customers',         val: (keyCustomers||[]).length || '—',   color: 'var(--green)',  bg: 'var(--green-lt)' },
+            { label: 'TCO Advantage',     val: tcoAdvantage || '—',                color: 'var(--orange)', bg: 'var(--orange-lt)' },
+            { label: 'Competitors Tracked', val: (competitorSummary||[]).length || '—', color: 'var(--purple)', bg: 'var(--purple-lt)' },
+          ].map((k) => (
+            <div key={k.label} style={{
+              textAlign: 'center', padding: '10px 16px', borderRadius: 8,
+              background: k.bg, border: `1px solid ${k.color}33`, minWidth: 80,
+            }}>
+              <div style={{ fontSize: 20, fontWeight: 900, color: k.color, lineHeight: 1, marginBottom: 3 }}>{k.val}</div>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600, lineHeight: 1.3, whiteSpace: 'nowrap' }}>{k.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════════════════════════════════════
+          ROW 1  —  Product Overview  |  Key Features  |  Discovery + Responses
+          ═════════════════════════════════════════════════════════════════ */}
+      <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr 1fr', gap: 14, alignItems: 'start' }}>
+
+        {/* ── Product Overview card ── */}
+        <div className="card" style={{ height: '100%' }}>
+          <SectionLabel>Product Overview</SectionLabel>
+
+          <p style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.65, marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid var(--card-border)' }}>
             {overview?.description}
           </p>
 
           {[
-            { icon: MetaIcons.category,  label: 'Category',        val: overview?.category },
-            { icon: MetaIcons.deployment,label: 'Deployment',      val: overview?.deployment },
-            { icon: MetaIcons.users,     label: 'Target Users',    val: overview?.targetUsers },
-            { icon: MetaIcons.launch,    label: 'Product Launch',  val: overview?.productLaunch },
-            { icon: MetaIcons.position,  label: 'Market Position', val: overview?.marketPosition },
+            { icon: MetaIcons.category,   label: 'Category',        val: overview?.category },
+            { icon: MetaIcons.deployment, label: 'Deployment',      val: overview?.deployment },
+            { icon: MetaIcons.users,      label: 'Target Users',    val: overview?.targetUsers },
+            { icon: MetaIcons.launch,     label: 'Launched',        val: overview?.productLaunch },
+            { icon: MetaIcons.position,   label: 'Market Position', val: overview?.marketPosition },
           ].map((r) => (
-            <div key={r.label} className="meta-row">
-              <span className="meta-icon" style={{ color: 'var(--blue)' }}>{r.icon}</span>
-              <span className="meta-label">{r.label}</span>
-              <span className="meta-value">{r.val}</span>
+            <div key={r.label} style={{
+              display: 'flex', alignItems: 'flex-start', gap: 9,
+              padding: '6px 0', borderBottom: '1px solid var(--card-border)',
+            }}>
+              <span style={{ width: 15, height: 15, flexShrink: 0, color: 'var(--blue)', marginTop: 1 }}>{r.icon}</span>
+              <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600, minWidth: 96 }}>{r.label}</span>
+              <span style={{ fontSize: 11.5, color: 'var(--text)', fontWeight: 700, flex: 1 }}>{r.val || '—'}</span>
             </div>
           ))}
         </div>
 
-        {/* Key Features — 2×4 grid */}
+        {/* ── Key Features card ── */}
         <div className="card" style={{ height: '100%' }}>
-          <div className="card-title" style={{ textTransform: 'uppercase', letterSpacing: 1 }}>KEY FEATURES</div>
+          <SectionLabel>Key Features</SectionLabel>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 9 }}>
             {(keyFeatures || []).map((f, i) => (
-              <div key={i} className="icon-box">
-                <div style={{ color: 'var(--blue)' }}>{getFeatureIcon(f.name)}</div>
-                <span>{f.name}</span>
+              <div key={i} style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7,
+                padding: '13px 10px', background: 'var(--card-bg2)',
+                border: '1px solid var(--card-border)', borderRadius: 8,
+                textAlign: 'center', cursor: 'default',
+                transition: 'border-color .15s, background .15s',
+              }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--blue)'; e.currentTarget.style.background = 'var(--blue-lt)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--card-border)'; e.currentTarget.style.background = 'var(--card-bg2)'; }}
+              >
+                <div style={{ color: 'var(--blue)', width: 22, height: 22 }}>{getFeatureIcon(f.name)}</div>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text)', lineHeight: 1.35 }}>{f.name}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Discovery Questions + Recommended Responses side by side */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, height: '100%' }}>
+        {/* ── Discovery Questions + Recommended Responses ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, height: '100%' }}>
           <div className="card">
-            <div className="card-title" style={{ textTransform: 'uppercase', letterSpacing: 1 }}>DISCOVERY QUESTIONS</div>
-            {(discoveryQuestions || []).map((q, i) => {
-              const text = typeof q === 'string' ? q : (q?.question || q?.text || JSON.stringify(q));
-              return (
-                <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'flex-start' }}>
-                  <span className="num-circle">{i + 1}</span>
-                  <span style={{ fontSize: 11.5, color: 'var(--text)', lineHeight: 1.5 }}>{text}</span>
-                </div>
-              );
-            })}
+            <SectionLabel color="var(--blue)">Discovery Questions</SectionLabel>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+              {(discoveryQuestions || []).map((q, i) => {
+                const text = typeof q === 'string' ? q : (q?.question || q?.text || JSON.stringify(q));
+                return (
+                  <div key={i} style={{ display: 'flex', gap: 9, alignItems: 'flex-start' }}>
+                    <span style={{
+                      width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+                      background: 'var(--blue-lt)', border: '1px solid var(--blue)',
+                      color: 'var(--blue)', fontSize: 10, fontWeight: 800,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>{i + 1}</span>
+                    <span style={{ fontSize: 11.5, color: 'var(--text)', lineHeight: 1.55 }}>{text}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
           <div className="card">
-            <div className="card-title green" style={{ textTransform: 'uppercase', letterSpacing: 1 }}>RECOMMENDED RESPONSES</div>
-            {(recommendedResponses || []).map((r, i) => {
-              const text = typeof r === 'string' ? r : (r?.answer || r?.response || r?.text || JSON.stringify(r));
-              return (
-                <div key={i} style={{ display: 'flex', gap: 7, marginBottom: 8, alignItems: 'flex-start' }}>
-                  <CheckIcon color="var(--green)" size={13} />
-                  <span style={{ fontSize: 11.5, color: 'var(--text)', lineHeight: 1.5 }}>{text}</span>
-                </div>
-              );
-            })}
+            <SectionLabel color="var(--green)">Recommended Responses</SectionLabel>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+              {(recommendedResponses || []).map((r, i) => {
+                const text = typeof r === 'string' ? r : (r?.answer || r?.response || r?.text || JSON.stringify(r));
+                return (
+                  <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                    <CheckIcon color="var(--green)" size={13} />
+                    <span style={{ fontSize: 11.5, color: 'var(--text)', lineHeight: 1.55 }}>{text}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ── ROW 2: Strengths+Weaknesses | Case Studies | Key Customers ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 270px', gap: 12, alignItems: 'start' }}>
+      {/* ══════════════════════════════════════════════════════════════════
+          ROW 2  —  Strengths + Weaknesses  |  Case Studies  |  Key Customers
+          ═════════════════════════════════════════════════════════════════ */}
+      <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr 260px', gap: 14, alignItems: 'start' }}>
 
-        {/* Strengths & Weaknesses */}
+        {/* ── Strengths & Weaknesses ── */}
         <div className="card" style={{ height: '100%' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
-              <div className="card-title green" style={{ textTransform: 'uppercase', letterSpacing: 1 }}>STRENGTHS</div>
-              {(strengths || []).map((s, i) => (
-                <div key={i} className="sw-item">
-                  <CheckIcon color="var(--green)" size={13} />
-                  <span>{s}</span>
-                </div>
-              ))}
+              <SectionLabel color="var(--green)">Strengths</SectionLabel>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                {(strengths || []).map((s, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 7 }}>
+                    <CheckIcon color="var(--green)" size={13} />
+                    <span style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.5 }}>{s}</span>
+                  </div>
+                ))}
+              </div>
             </div>
             <div>
-              <div className="card-title red" style={{ textTransform: 'uppercase', letterSpacing: 1 }}>WEAKNESSES</div>
-              {(weaknesses || []).map((w, i) => (
-                <div key={i} className="sw-item">
-                  <svg viewBox="0 0 16 16" fill="currentColor"
-                    style={{ width: 13, height: 13, color: 'var(--red)', flexShrink: 0, marginTop: 1 }}>
-                    <path d="M4.646 4.646a.5.5 0 01.708 0L8 7.293l2.646-2.647a.5.5 0 01.708.708L8.707 8l2.647 2.646a.5.5 0 01-.708.708L8 8.707l-2.646 2.647a.5.5 0 01-.708-.708L7.293 8 4.646 5.354a.5.5 0 010-.708z"/>
-                  </svg>
-                  <span>{w}</span>
-                </div>
-              ))}
+              <SectionLabel color="var(--red)">Weaknesses</SectionLabel>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                {(weaknesses || []).map((w, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 7 }}>
+                    <XIcon size={13} />
+                    <span style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.5 }}>{w}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Relevant Case Studies */}
+        {/* ── Case Studies ── */}
         <div className="card" style={{ height: '100%' }}>
-          <div className="card-title" style={{ textTransform: 'uppercase', letterSpacing: 1 }}>RELEVANT CASE STUDIES</div>
+          <SectionLabel>Relevant Case Studies</SectionLabel>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
             {(caseStudies || []).map((c, i) => {
               const col = caseColor(c.type || c.category);
               return (
                 <div key={i} style={{
-                  background: 'var(--card-bg2)', border: '1px solid var(--card-border)',
-                  borderTop: `3px solid ${col}`, borderRadius: 7, padding: '10px',
+                  background: 'var(--card-bg2)',
+                  border: '1px solid var(--card-border)',
+                  borderTop: `3px solid ${col}`,
+                  borderRadius: 8,
+                  padding: 12,
+                  display: 'flex', flexDirection: 'column', gap: 8,
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 6 }}>
-                    <div style={{ color: col }}><CaseStudyIcon type={c.type || c.category} /></div>
+                  {/* Header */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ color: col, flexShrink: 0 }}><CaseStudyIcon type={c.type || c.category} /></div>
                     <div>
-                      <div style={{ fontSize: 10, fontWeight: 800, color: col, textTransform: 'uppercase', letterSpacing: .6 }}>
-                        {c.customer}
-                      </div>
-                      <div style={{ fontSize: 9.5, color: 'var(--text-muted)', fontWeight: 600 }}>{c.type || c.category}</div>
+                      <div style={{ fontSize: 11, fontWeight: 800, color: col, lineHeight: 1.2 }}>{c.customer}</div>
+                      <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600, marginTop: 1 }}>{c.type || c.category}</div>
                     </div>
                   </div>
-                  <div style={{ fontSize: 9.5, fontWeight: 700, color: 'var(--text-muted)', marginBottom: 2, textTransform: 'uppercase', letterSpacing: .4 }}>Challenge:</div>
-                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 7, lineHeight: 1.45 }}>{c.challenge}</div>
-                  <div style={{ fontSize: 9.5, fontWeight: 700, color: col, marginBottom: 2, textTransform: 'uppercase', letterSpacing: .4 }}>Result:</div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text)', lineHeight: 1.45 }}>{c.result}</div>
+                  {/* Challenge */}
+                  <div style={{ borderTop: '1px solid var(--card-border)', paddingTop: 8 }}>
+                    <div style={{ fontSize: 9.5, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 3 }}>Challenge</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.5 }}>{c.challenge}</div>
+                  </div>
+                  {/* Result */}
+                  <div style={{ background: `${col}12`, borderRadius: 6, padding: '7px 9px' }}>
+                    <div style={{ fontSize: 9.5, fontWeight: 800, color: col, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 3 }}>Result</div>
+                    <div style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--text)', lineHeight: 1.45 }}>{c.result}</div>
+                  </div>
                 </div>
               );
             })}
           </div>
         </div>
 
-        {/* Key Customers */}
+        {/* ── Key Customers ── */}
         <div className="card" style={{ height: '100%' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-            <div className="card-title" style={{ marginBottom: 0, textTransform: 'uppercase', letterSpacing: 1 }}>KEY CUSTOMERS</div>
-            <span style={{ fontSize: 11, color: 'var(--blue)', cursor: 'pointer', fontWeight: 600 }}>View all</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+              <div style={{ width: 3, height: 14, background: 'var(--blue)', borderRadius: 2 }} />
+              <span style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Key Customers</span>
+            </div>
+            <span style={{
+              fontSize: 10.5, color: 'var(--blue)', cursor: 'pointer', fontWeight: 700,
+              padding: '2px 8px', borderRadius: 5, background: 'var(--blue-lt)',
+            }}>View all</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             {(keyCustomers || []).map((c, i) => (
               <div key={i} style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5,
-                padding: '10px 8px', background: 'var(--card-bg2)', border: '1px solid var(--card-border)',
-                borderRadius: 8, textAlign: 'center',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                padding: '11px 8px', background: 'var(--card-bg2)',
+                border: '1px solid var(--card-border)', borderRadius: 9,
+                textAlign: 'center',
               }}>
-                <CustomerBadge name={c.name} color={c.color || 'var(--blue)'} />
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text)', lineHeight: 1.2 }}>{c.name}</div>
-                {c.industry && <div style={{ fontSize: 9.5, color: 'var(--text-muted)' }}>{c.industry}</div>}
+                <InitialsBadge name={c.name} color={c.color || 'var(--blue)'} size={38} fontSize={12} />
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text)', lineHeight: 1.25 }}>{c.name}</div>
+                {c.industry && <div style={{ fontSize: 10, color: 'var(--text-muted)', lineHeight: 1.2 }}>{c.industry}</div>}
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* ── ROW 3: Competitor Summary | Feature Matrix | TCO ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 340px', gap: 12, alignItems: 'start' }}>
+      {/* ══════════════════════════════════════════════════════════════════
+          ROW 3  —  Competitor Summary  |  Feature Matrix  |  TCO
+          ═════════════════════════════════════════════════════════════════ */}
+      <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr 340px', gap: 14, alignItems: 'start' }}>
 
-        {/* Competitor Summary */}
+        {/* ── Competitor Summary ── */}
         <div className="card" style={{ height: '100%' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-            <div className="card-title" style={{ marginBottom: 0, textTransform: 'uppercase', letterSpacing: 1 }}>COMPETITOR SUMMARY</div>
-            <span style={{ fontSize: 10, color: 'var(--blue)', cursor: 'pointer', fontWeight: 600, whiteSpace: 'nowrap' }}>View full analysis</span>
-          </div>
-          {(competitorSummary || []).map((c, i) => (
-            <div key={i} className="comp-summary-card" style={{ borderLeft: `3px solid ${c.color}` }}>
-              <div className="comp-header">
-                <CompetitorBadge name={c.name} color={c.color} />
-                <span className="comp-name" style={{ color: c.color }}>{c.name}</span>
-                <span className="comp-pos">{c.marketPosition}</span>
-              </div>
-              <div className="comp-overview">{c.overview}</div>
-              <div className="comp-cols">
-                <div>
-                  <div className="col-label" style={{ color: 'var(--green)' }}>Strengths</div>
-                  {(c.strengths || []).map((s, j) => (
-                    <div key={j} className="col-item">
-                      <span style={{ color: 'var(--green)', flexShrink: 0, fontWeight: 700, fontSize: 10 }}>+</span>
-                      <span>{s}</span>
-                    </div>
-                  ))}
-                </div>
-                <div>
-                  <div className="col-label" style={{ color: 'var(--red)' }}>Weaknesses</div>
-                  {(c.weaknesses || []).map((w, j) => (
-                    <div key={j} className="col-item">
-                      <span style={{ color: 'var(--red)', flexShrink: 0, fontWeight: 700, fontSize: 10 }}>−</span>
-                      <span>{w}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+              <div style={{ width: 3, height: 14, background: 'var(--red)', borderRadius: 2 }} />
+              <span style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Competitor Summary</span>
             </div>
-          ))}
+            <span style={{ fontSize: 10, color: 'var(--blue)', cursor: 'pointer', fontWeight: 700, padding: '2px 7px', background: 'var(--blue-lt)', borderRadius: 5, whiteSpace: 'nowrap' }}>Full analysis</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {(competitorSummary || []).map((c, i) => (
+              <div key={i} style={{
+                border: '1px solid var(--card-border)',
+                borderLeft: `3px solid ${c.color}`,
+                borderRadius: 8, padding: 11,
+                background: 'var(--card-bg2)',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 7 }}>
+                  <InitialsBadge name={c.name} color={c.color} size={32} fontSize={11} radius={6} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: c.color, lineHeight: 1.2 }}>{c.name}</div>
+                    <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 7, background: 'var(--blue-lt)', color: 'var(--blue)' }}>{c.marketPosition}</span>
+                  </div>
+                </div>
+                <div style={{ fontSize: 11.5, color: 'var(--text-muted)', lineHeight: 1.55, marginBottom: 8 }}>{c.overview}</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--green)', textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 5 }}>Strengths</div>
+                    {(c.strengths || []).map((s, j) => (
+                      <div key={j} style={{ fontSize: 11, color: 'var(--text)', marginBottom: 3, display: 'flex', gap: 5, alignItems: 'flex-start' }}>
+                        <span style={{ color: 'var(--green)', fontWeight: 800, fontSize: 11, flexShrink: 0 }}>+</span><span>{s}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--red)', textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 5 }}>Weaknesses</div>
+                    {(c.weaknesses || []).map((w, j) => (
+                      <div key={j} style={{ fontSize: 11, color: 'var(--text)', marginBottom: 3, display: 'flex', gap: 5, alignItems: 'flex-start' }}>
+                        <span style={{ color: 'var(--red)', fontWeight: 800, fontSize: 11, flexShrink: 0 }}>−</span><span>{w}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Feature Comparison Matrix */}
+        {/* ── Feature Comparison Matrix ── */}
         <div className="card" style={{ height: '100%' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-            <div className="card-title" style={{ marginBottom: 0, textTransform: 'uppercase', letterSpacing: 1 }}>FEATURE COMPARISON MATRIX</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+              <div style={{ width: 3, height: 14, background: 'var(--purple)', borderRadius: 2 }} />
+              <span style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Feature Comparison Matrix</span>
+            </div>
             <div style={{ display: 'flex', gap: 12, fontSize: 11 }}>
               {[['var(--green)', 'Better'], ['var(--yellow)', 'Similar'], ['var(--red)', 'Weaker']].map(([col, lbl]) => (
-                <span key={lbl} style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--text-muted)' }}>
+                <span key={lbl} style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--text-muted)', fontWeight: 600 }}>
                   <svg viewBox="0 0 8 8" style={{ width: 8, height: 8 }}><circle cx="4" cy="4" r="4" fill={col}/></svg>
                   {lbl}
                 </span>
@@ -450,19 +566,19 @@ export default function OverviewPage({ data }) {
             <thead>
               <tr>
                 <th style={{ width: '42%' }}>Feature</th>
-                <th style={{ textAlign: 'center', color: 'var(--blue)' }}>{fmLabels.product}</th>
-                <th style={{ textAlign: 'center', color: 'var(--text)' }}>{fmLabels.comp1}</th>
-                <th style={{ textAlign: 'center', color: 'var(--text)' }}>{fmLabels.comp2}</th>
+                <th style={{ textAlign: 'center', color: 'var(--blue)', fontWeight: 800 }}>{fmLabels.product}</th>
+                <th style={{ textAlign: 'center', color: 'var(--text-muted)' }}>{fmLabels.comp1}</th>
+                <th style={{ textAlign: 'center', color: 'var(--text-muted)' }}>{fmLabels.comp2}</th>
               </tr>
             </thead>
             <tbody>
               {fmRows.map((r, i) => (
                 <tr key={i}>
-                  <td style={{ fontWeight: 600 }}>{r.feature}</td>
+                  <td style={{ fontWeight: 600, fontSize: 12 }}>{r.feature}</td>
                   {['product', 'comp1', 'comp2'].map((k) => (
-                    <td key={k} style={{ textAlign: 'center' }}>
-                      <svg viewBox="0 0 10 10" style={{ width: 10, height: 10 }}>
-                        <circle cx="5" cy="5" r="5" fill={DOT_COLOR[r[k]]}/>
+                    <td key={k} style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+                      <svg viewBox="0 0 12 12" style={{ width: 12, height: 12, display: 'inline-block' }}>
+                        <circle cx="6" cy="6" r="6" fill={DOT_COLOR[r[k]] || 'var(--card-border)'}/>
                       </svg>
                     </td>
                   ))}
@@ -472,12 +588,11 @@ export default function OverviewPage({ data }) {
           </table>
         </div>
 
-        {/* TCO Comparison */}
+        {/* ── TCO Comparison ── */}
         <div className="card" style={{ height: '100%' }}>
-          <div className="card-title" style={{ textTransform: 'uppercase', letterSpacing: 1 }}>3-YEAR TOTAL COST OF OWNERSHIP (TCO) COMPARISON</div>
+          <SectionLabel color="var(--green)">3-Year TCO Comparison</SectionLabel>
 
-          {/* Bar chart section */}
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5, marginBottom: 7 }}>Total TCO (3 Years)</div>
+          <div style={{ fontSize: 10.5, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 9 }}>Total TCO (3 Years)</div>
           {[
             { label: tcoLabels.comp1,   val: parseMoney(tcoData?.totals?.comp1),   amount: tcoData?.totals?.comp1,   color: 'var(--purple)' },
             { label: tcoLabels.comp2,   val: parseMoney(tcoData?.totals?.comp2),   amount: tcoData?.totals?.comp2,   color: 'var(--blue)' },
@@ -488,10 +603,10 @@ export default function OverviewPage({ data }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9.5, color: 'var(--text-muted)', marginTop: 3 }}>
             <span>$0</span><span>$200K</span><span>$400K</span><span>$600K</span><span>$800K</span>
           </div>
-          <div style={{ fontSize: 9.5, color: 'var(--text-muted)', marginTop: 2, marginBottom: 12, fontStyle: 'italic' }}>Lower is Better</div>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 4, marginBottom: 14, fontStyle: 'italic' }}>↓ Lower is Better</div>
 
           {/* Breakdown table */}
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5, marginBottom: 6 }}>TCO Breakdown (3 Years)</div>
+          <div style={{ fontSize: 10.5, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>TCO Breakdown (3 Years)</div>
           <table className="dash-table" style={{ fontSize: 11 }}>
             <thead>
               <tr>
@@ -513,7 +628,7 @@ export default function OverviewPage({ data }) {
             </tbody>
             <tfoot>
               <tr>
-                <td style={{ fontWeight: 800, fontSize: 10.5, borderTop: '2px solid var(--card-border)', paddingTop: 6 }}>TOTAL TCO</td>
+                <td style={{ fontWeight: 800, fontSize: 11, borderTop: '2px solid var(--card-border)', paddingTop: 7 }}>TOTAL TCO</td>
                 <td style={{ textAlign: 'right', color: 'var(--green)', fontWeight: 900, borderTop: '2px solid var(--card-border)', fontSize: 12 }}>{tcoData?.totals?.product}</td>
                 <td style={{ textAlign: 'right', color: 'var(--purple)', fontWeight: 800, borderTop: '2px solid var(--card-border)', fontSize: 12 }}>{tcoData?.totals?.comp1}</td>
                 <td style={{ textAlign: 'right', color: 'var(--blue)', fontWeight: 800, borderTop: '2px solid var(--card-border)', fontSize: 12 }}>{tcoData?.totals?.comp2}</td>
@@ -523,81 +638,97 @@ export default function OverviewPage({ data }) {
         </div>
       </div>
 
-      {/* ── ROW 4: Objection Handling | AI Coach | Win/Loss ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, alignItems: 'start' }}>
+      {/* ══════════════════════════════════════════════════════════════════
+          ROW 4  —  Objection Handling  |  AI Sales Coach  |  Win/Loss
+          ═════════════════════════════════════════════════════════════════ */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14, alignItems: 'start' }}>
 
-        {/* Objection Handling */}
+        {/* ── Objection Handling ── */}
         <div className="card" style={{ height: '100%' }}>
-          <div className="card-title" style={{ textTransform: 'uppercase', letterSpacing: 1 }}>OBJECTION HANDLING</div>
-          <table className="dash-table" style={{ fontSize: 11.5 }}>
-            <thead>
-              <tr>
-                <th style={{ width: '38%' }}>Customer Objection</th>
-                <th>Recommended Response</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(objectionHandling || []).map((item, i) => (
-                <tr key={i}>
-                  <td>
-                    <div style={{ fontStyle: 'italic', color: 'var(--text-muted)', fontSize: 11.5, lineHeight: 1.5 }}>{item.objection}</div>
-                  </td>
-                  <td style={{ fontSize: 11.5, lineHeight: 1.55, color: 'var(--text)' }}>{item.response}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <SectionLabel color="var(--orange)">Objection Handling</SectionLabel>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {(objectionHandling || []).map((item, i) => (
+              <div key={i} style={{
+                borderRadius: 8, overflow: 'hidden',
+                border: '1px solid var(--card-border)',
+              }}>
+                {/* Objection — speech-bubble feel */}
+                <div style={{
+                  padding: '9px 12px',
+                  background: 'var(--orange-lt)',
+                  borderLeft: '3px solid var(--orange)',
+                }}>
+                  <div style={{ fontSize: 9.5, fontWeight: 800, color: 'var(--orange)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 3 }}>Customer Objection</div>
+                  <div style={{ fontSize: 12, fontStyle: 'italic', color: 'var(--text)', lineHeight: 1.55 }}>{item.objection}</div>
+                </div>
+                {/* Response */}
+                <div style={{ padding: '9px 12px', background: 'var(--card-bg2)' }}>
+                  <div style={{ display: 'flex', gap: 7, alignItems: 'flex-start' }}>
+                    <CheckIcon color="var(--green)" size={13} />
+                    <div style={{ fontSize: 11.5, color: 'var(--text)', lineHeight: 1.6 }}>{item.response}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* AI Sales Coach */}
+        {/* ── AI Sales Coach ── */}
         <div className="card" style={{ height: '100%' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 11 }}>
-            <span style={{ background: 'var(--blue)', color: '#fff', padding: '2px 6px', borderRadius: 4, fontSize: 9, fontWeight: 800, letterSpacing: .5 }}>AI</span>
-            <div className="card-title" style={{ marginBottom: 0, textTransform: 'uppercase', letterSpacing: 1 }}>AI SALES COACH (INSIGHTS)</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <span style={{ background: 'var(--blue)', color: '#fff', padding: '2px 7px', borderRadius: 5, fontSize: 9.5, fontWeight: 900, letterSpacing: 0.5 }}>AI</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+              <div style={{ width: 3, height: 14, background: 'var(--blue)', borderRadius: 2 }} />
+              <span style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>AI Sales Coach</span>
+            </div>
           </div>
 
           {/* Customer quote */}
-          <div style={{ background: 'var(--card-bg2)', borderRadius: 7, padding: '9px 12px', marginBottom: 10, border: '1px solid var(--card-border)' }}>
-            <div style={{ fontSize: 9.5, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: .8, marginBottom: 4, fontWeight: 700 }}>Customer says:</div>
-            <div style={{ fontSize: 12.5, fontStyle: 'italic', color: 'var(--text)', lineHeight: 1.5 }}>{aiCoach?.customerSays}</div>
+          <div style={{
+            background: 'var(--card-bg2)', borderRadius: 8, padding: '10px 13px', marginBottom: 11,
+            border: '1px solid var(--card-border)',
+            borderLeft: '3px solid var(--blue)',
+          }}>
+            <div style={{ fontSize: 9.5, color: 'var(--blue)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5, fontWeight: 800 }}>Customer says:</div>
+            <div style={{ fontSize: 12.5, fontStyle: 'italic', color: 'var(--text)', lineHeight: 1.55 }}>{aiCoach?.customerSays}</div>
           </div>
 
           {/* Suggested response */}
-          <div style={{ marginBottom: 10 }}>
-            <div style={{ fontSize: 9.5, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: .8, marginBottom: 5, fontWeight: 700 }}>Suggested Response:</div>
-            <div style={{ fontSize: 11.5, color: 'var(--text)', lineHeight: 1.6 }}>{aiCoach?.suggestedResponse}</div>
+          <div style={{ marginBottom: 11 }}>
+            <div style={{ fontSize: 9.5, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6, fontWeight: 800 }}>Suggested Response</div>
+            <div style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.65 }}>{aiCoach?.suggestedResponse}</div>
           </div>
 
-          {/* Recommended case study */}
           {aiCoach?.recommendedCaseStudy && (
-            <div style={{ marginBottom: 10 }}>
-              <div style={{ fontSize: 9.5, color: 'var(--yellow)', textTransform: 'uppercase', letterSpacing: .8, marginBottom: 5, fontWeight: 700 }}>Recommended Case Study:</div>
+            <div style={{ marginBottom: 11, padding: '8px 11px', background: 'var(--yellow-lt)', borderRadius: 7, border: '1px solid var(--yellow)' }}>
+              <div style={{ fontSize: 9.5, color: 'var(--yellow)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4, fontWeight: 800 }}>Recommended Case Study</div>
               <div style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--text)', lineHeight: 1.5 }}>{aiCoach.recommendedCaseStudy}</div>
             </div>
           )}
 
-          {/* Key value points */}
           {aiCoach?.kvps && (
-            <div style={{ marginBottom: 10 }}>
-              <div style={{ fontSize: 9.5, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: .8, marginBottom: 7, fontWeight: 700 }}>Key Value Points to Emphasize</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+            <div style={{ marginBottom: 11 }}>
+              <div style={{ fontSize: 9.5, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8, fontWeight: 800 }}>Key Value Points</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {aiCoach.kvps.map((kv, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 7, alignItems: 'flex-start', fontSize: 11.5, color: 'var(--text)' }}>
-                    <CheckIcon color="var(--green)" size={12} />
-                    <span>{kv}</span>
+                  <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 11.5, color: 'var(--text)' }}>
+                    <CheckIcon color="var(--green)" size={13} />
+                    <span style={{ lineHeight: 1.5 }}>{kv}</span>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Win probability */}
           {aiCoach?.winProbability && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--card-border)' }}>
-              <span style={{ fontSize: 10.5, color: 'var(--text-muted)', fontWeight: 600 }}>Win Probability Impact:</span>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 10, marginTop: 10,
+              paddingTop: 10, borderTop: '1px solid var(--card-border)',
+            }}>
+              <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600 }}>Win Probability Impact:</span>
               <span style={{
                 background: aiCoach.winProbability === 'HIGH' ? 'var(--green)' : aiCoach.winProbability === 'MEDIUM' ? 'var(--orange)' : 'var(--red)',
-                color: '#fff', padding: '3px 10px', borderRadius: 5, fontSize: 10.5, fontWeight: 800, letterSpacing: .4,
+                color: '#fff', padding: '4px 12px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: 0.5,
               }}>
                 {aiCoach.winProbability}
               </span>
@@ -605,38 +736,40 @@ export default function OverviewPage({ data }) {
           )}
         </div>
 
-        {/* Win / Loss Intelligence */}
+        {/* ── Win / Loss Intelligence ── */}
         <div className="card" style={{ height: '100%' }}>
-          <div className="card-title" style={{ textTransform: 'uppercase', letterSpacing: 1 }}>WIN / LOSS INTELLIGENCE (LAST 12 MONTHS)</div>
+          <SectionLabel color="var(--blue)">Win / Loss Intelligence — Last 12 Months</SectionLabel>
 
           {/* KPI row */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginBottom: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginBottom: 14 }}>
             {[
-              { label: 'Total Opportunities', num: winLoss?.total,       color: 'var(--text)' },
-              { label: 'Won',                 num: winLoss?.won,         pct: winLoss?.winRate,                  color: 'var(--green)' },
-              { label: 'Lost',                num: winLoss?.lost,        pct: winLoss ? 100 - winLoss.winRate : null, color: 'var(--red)' },
-              { label: 'Win Rate',            num: `${winLoss?.winRate}%`, color: 'var(--blue)' },
+              { label: 'Total Opps',  num: winLoss?.total,          color: 'var(--text)',   bg: 'var(--card-bg2)' },
+              { label: 'Won',         num: winLoss?.won,            color: 'var(--green)',  bg: 'var(--green-lt)' },
+              { label: 'Lost',        num: winLoss?.lost,           color: 'var(--red)',    bg: 'var(--red-lt)' },
+              { label: 'Win Rate',    num: `${winLoss?.winRate||0}%`, color: 'var(--blue)',  bg: 'var(--blue-lt)' },
             ].map((k, i) => (
-              <div key={i} style={{ background: 'var(--card-bg2)', border: '1px solid var(--card-border)', borderRadius: 6, padding: '8px 6px', textAlign: 'center' }}>
-                <div style={{ fontSize: 18, fontWeight: 900, color: k.color, lineHeight: 1 }}>{k.num}</div>
-                {k.pct != null && <div style={{ fontSize: 10, color: k.color, fontWeight: 700 }}>({k.pct}%)</div>}
-                <div style={{ fontSize: 9.5, color: 'var(--text-muted)', marginTop: 2 }}>{k.label}</div>
+              <div key={i} style={{
+                background: k.bg, border: `1px solid ${k.color}33`,
+                borderRadius: 8, padding: '9px 6px', textAlign: 'center',
+              }}>
+                <div style={{ fontSize: 20, fontWeight: 900, color: k.color, lineHeight: 1 }}>{k.num}</div>
+                <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 3, fontWeight: 600 }}>{k.label}</div>
               </div>
             ))}
           </div>
 
-          {/* Win donut + legend */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          {/* Competitor donut + legend + win messages */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
-              <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5, marginBottom: 8 }}>Wins Against Competitors</div>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 9 }}>Wins vs Competitors</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <WinPie competitors={winLoss?.competitors || []} />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {(winLoss?.competitors || []).map((c, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11 }}>
                       <svg viewBox="0 0 8 8" style={{ width: 8, height: 8, flexShrink: 0 }}><circle cx="4" cy="4" r="4" fill={c.color}/></svg>
-                      <span style={{ color: 'var(--text)' }}>{c.label}</span>
-                      <span style={{ fontWeight: 700 }}>{c.wins}</span>
+                      <span style={{ color: 'var(--text)', fontWeight: 600 }}>{c.label}</span>
+                      <span style={{ fontWeight: 800, color: c.color }}>{c.wins}</span>
                       <span style={{ color: 'var(--text-muted)' }}>({c.pct}%)</span>
                     </div>
                   ))}
@@ -645,27 +778,31 @@ export default function OverviewPage({ data }) {
             </div>
 
             <div>
-              <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5, marginBottom: 8 }}>Top Winning Messages</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 9 }}>Top Winning Messages</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {(winLoss?.topMessages || []).map((m, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 6, alignItems: 'flex-start', fontSize: 11, color: 'var(--text)' }}>
-                    <CheckIcon color="var(--green)" size={12} />
-                    <span>{m}</span>
+                  <div key={i} style={{ display: 'flex', gap: 7, alignItems: 'flex-start', fontSize: 11.5, color: 'var(--text)' }}>
+                    <CheckIcon color="var(--green)" size={13} />
+                    <span style={{ lineHeight: 1.5 }}>{m}</span>
                   </div>
                 ))}
               </div>
 
               {/* Win rate donut */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--card-border)' }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 11, marginTop: 12,
+                paddingTop: 12, borderTop: '1px solid var(--card-border)',
+              }}>
                 <WinDonut rate={winLoss?.winRate || 0} />
                 <div>
-                  <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 2 }}>Win Rate</div>
-                  <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--blue)' }}>{winLoss?.winRate}%</div>
+                  <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600, marginBottom: 2 }}>Overall Win Rate</div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--blue)', lineHeight: 1 }}>{winLoss?.winRate}%</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
       </div>
 
     </div>

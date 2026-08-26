@@ -396,3 +396,32 @@ html, body {
 /* nav-item with admin badge */
 .nav-item[class*="manage"] .nav-label,
 .nav-item .nav-label-admin { color: var(--purple); }
+
+/* ── Overview page — feature tile hover (JS-driven, but keep transition CSS) ── */
+.icon-box {
+  transition: border-color .15s, background .15s;
+}
+
+/* ── Table alternating rows ── */
+.dash-table tbody tr:nth-child(even) td { background: var(--card-bg2); }
+.dash-table tbody tr:hover td { background: var(--blue-lt) !important; }
+
+/* ── Section accent label bar ── */
+.section-bar {
+  display: flex; align-items: center; gap: 7; margin-bottom: 12px;
+}
+
+/* ── KPI badge tiles (overview hero) ── */
+.kpi-hero-tile {
+  text-align: center; padding: 10px 16px; border-radius: 8px; min-width: 80px;
+}
+
+/* ── Objection card two-tone ── */
+.obj-card { border-radius: 8px; overflow: hidden; border: 1px solid var(--card-border); }
+.obj-objection { padding: 9px 12px; background: var(--orange-lt); border-left: 3px solid var(--orange); }
+.obj-response   { padding: 9px 12px; background: var(--card-bg2); }
+
+/* ── Card subtle hover lift ── */
+.card:not(.no-hover):hover {
+  border-color: rgba(21,101,216,.25);
+}
