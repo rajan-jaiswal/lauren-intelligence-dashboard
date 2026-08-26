@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { saveManualProduct, aiFillProduct, uploadProduct, generateCompetitor, verifyPin } from '../../api/products.js';
+import { saveManualProduct, aiFillProduct, uploadProduct, generateCompetitor, verifyPin, extractFromFile } from '../../api/products.js';
 import { useSSE } from '../../hooks/useSSE.js';
 import { useData } from '../../context/DataContext.jsx';
 
@@ -448,6 +448,8 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
   const [files, setFiles] = useState([]);
   const [dragOver, setDragOver] = useState(false);
   const [competitorSummary, setCompetitorSummary] = useState(editDoc?.competitorSummary || []);
+  const [isExtracting, setIsExtracting] = useState(false);
+  const [extractedFields, setExtractedFields] = useState(null);
 
   // ── Form state ──────────────────────────────────────────────────────────────
   const [practice, setPractice]   = useState(editDoc?.practice || defaultPractice || '');
@@ -506,6 +508,40 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
   function handleFileChange(e) {
     setFiles(prev => mergeFiles(prev, Array.from(e.target.files)));
     e.target.value = '';
+  }
+
+  // ── Extract from PDF — reads first file, pre-fills form fields ─────────────
+  async function handleExtractFromFile() {
+    if (!files.length || !pin) return;
+    const file = files[0];
+    setIsExtracting(true);
+    setExtractedFields(null);
+    setError('');
+    try {
+      const result = await extractFromFile(file, pin);
+      const d = result.data || {};
+      // Only fill fields that are currently blank
+      if (d.productName  && !productName)          setProduct(d.productName);
+      if (d.description  && !overview.description) setOverview(o => ({ ...o, description: d.description }));
+      if (d.category     && !overview.category)    setOverview(o => ({ ...o, category: d.category }));
+      if (d.deployment   && !overview.deployment)  setOverview(o => ({ ...o, deployment: d.deployment }));
+      if (d.targetUsers  && !overview.targetUsers) setOverview(o => ({ ...o, targetUsers: d.targetUsers }));
+      if (d.productLaunch && !overview.productLaunch) setOverview(o => ({ ...o, productLaunch: d.productLaunch }));
+      if (d.marketPosition && !overview.marketPosition) setOverview(o => ({ ...o, marketPosition: d.marketPosition }));
+      if (Array.isArray(d.strengths)  && d.strengths.length  && !strengths.length)  setStrengths(d.strengths);
+      if (Array.isArray(d.weaknesses) && d.weaknesses.length && !weaknesses.length) setWeaknesses(d.weaknesses);
+      if (Array.isArray(d.keyFeatures) && d.keyFeatures.length && !keyFeatures.length) {
+        setKeyFeatures(d.keyFeatures.map(f => typeof f === 'string' ? { icon: '', name: f } : f));
+      }
+      if (Array.isArray(d.competitors) && d.competitors.length && !competitors) {
+        setComp(d.competitors.join(', '));
+      }
+      setExtractedFields(d);
+    } catch (err) {
+      setError(err?.response?.data?.error || err.message || 'PDF extraction failed');
+    } finally {
+      setIsExtracting(false);
+    }
   }
 
   // ── Build product document from form state ─────────────────────────────────
@@ -601,16 +637,28 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
   return (
     <div style={{ padding: '24px 32px', maxWidth: 920, margin: '0 auto' }}>
 
-      {/* ── Sticky save bar — always visible while scrolling tabs ── */}
+      {/* Hidden file input — lives outside tab so ref is always mounted regardless of active tab */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+        accept=".pdf,.csv,.json,.xlsx,.xls,.txt"
+        multiple
+        onChange={handleFileChange}
+      />
+
+      {/* ── Fixed save bar — position:fixed so it never scrolls away inside overflow:auto container ── */}
       <div style={{
-        position: 'sticky', top: 0, zIndex: 100,
+        position: 'fixed',
+        top: 0,
+        left: 185,       /* sidebar width */
+        right: 0,
+        zIndex: 200,
         background: 'var(--card-bg)',
-        border: '1px solid var(--card-border)',
-        borderRadius: 10,
-        padding: '12px 18px',
-        marginBottom: 20,
+        borderBottom: '2px solid var(--card-border)',
+        padding: '10px 28px',
         display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.10)',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.10)',
       }}>
         {/* Product identity */}
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -654,6 +702,9 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
           </button>
         </div>
       </div>
+
+      {/* Spacer — pushes content below the fixed bar (bar height ≈ 50px) */}
+      <div style={{ height: 54, flexShrink: 0 }} />
 
       {/* Progress */}
       {(saving || filling) && progress && (
@@ -872,7 +923,6 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
       {activeTab === 'upload' && (
         <div className="card" style={{ padding: '22px 24px' }}>
           <SectionTitle icon="📎" title="Upload Data Files" sub="PDF, CSV, JSON, Excel or TXT. AI reads all files and fills missing fields on save." />
-          <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".pdf,.csv,.json,.xlsx,.xls,.txt" multiple onChange={handleFileChange} />
           <div
             className={`file-drop-zone${dragOver ? ' drag-over' : ''}`}
             onDragOver={e => { e.preventDefault(); setDragOver(true); }}
@@ -902,15 +952,59 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
                       <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)' }}>{f.name}</div>
                       <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{(f.size / 1024).toFixed(1)} KB</div>
                     </div>
-                    <button type="button" onClick={() => setFiles(prev => prev.filter(x => x.name !== f.name))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 16 }}>×</button>
+                    <button type="button" onClick={() => { setFiles(prev => prev.filter(x => x.name !== f.name)); setExtractedFields(null); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 16 }}>×</button>
                   </div>
                 );
               })}
+
+              {/* Extract from PDF button */}
+              <div style={{ display: 'flex', gap: 10, marginTop: 6, alignItems: 'center' }}>
+                <button
+                  type="button"
+                  disabled={isExtracting}
+                  onClick={handleExtractFromFile}
+                  style={{
+                    padding: '9px 20px', borderRadius: 8, border: 'none',
+                    cursor: isExtracting ? 'not-allowed' : 'pointer',
+                    background: isExtracting ? 'var(--card-border)' : 'var(--blue)',
+                    color: isExtracting ? 'var(--text-muted)' : '#fff',
+                    fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 7,
+                    transition: 'all .15s',
+                  }}
+                >
+                  {isExtracting
+                    ? <><span style={{ display: 'inline-block', width: 13, height: 13, border: '2px solid rgba(255,255,255,.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin .7s linear infinite' }} /> Extracting...</>
+                    : '📄 Extract from PDF'}
+                </button>
+                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                  Pulls product data from file and pre-fills Basic Info fields
+                </span>
+              </div>
+
+              {/* Extracted fields summary banner */}
+              {extractedFields && (
+                <div style={{ padding: '10px 14px', borderRadius: 8, background: 'var(--green-lt)', border: '1px solid var(--green)', marginTop: 4 }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--green)', marginBottom: 6 }}>📄 Extracted — fields pre-filled (check Basic Info tab):</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {extractedFields.productName    && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 7, background: 'var(--card-bg)', border: '1px solid var(--green)', color: 'var(--text)', fontWeight: 600 }}>Name: {extractedFields.productName}</span>}
+                    {extractedFields.category       && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 7, background: 'var(--card-bg)', border: '1px solid var(--blue)', color: 'var(--text)', fontWeight: 600 }}>Category: {extractedFields.category}</span>}
+                    {extractedFields.deployment     && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 7, background: 'var(--card-bg)', border: '1px solid var(--purple)', color: 'var(--text)', fontWeight: 600 }}>Deployment: {extractedFields.deployment}</span>}
+                    {(extractedFields.keyFeatures   || []).length > 0 && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 7, background: 'var(--card-bg)', border: '1px solid var(--blue)', color: 'var(--blue)', fontWeight: 700 }}>{extractedFields.keyFeatures.length} features</span>}
+                    {(extractedFields.strengths     || []).length > 0 && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 7, background: 'var(--card-bg)', border: '1px solid var(--green)', color: 'var(--green)', fontWeight: 700 }}>{extractedFields.strengths.length} strengths</span>}
+                    {(extractedFields.competitors   || []).length > 0 && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 7, background: 'var(--card-bg)', border: '1px solid var(--orange)', color: 'var(--orange)', fontWeight: 700 }}>{extractedFields.competitors.length} competitors</span>}
+                  </div>
+                  <div style={{ fontSize: 10.5, color: 'var(--text-muted)', marginTop: 6, fontStyle: 'italic' }}>
+                    Click "✨ AI Fill Gaps" to fill any remaining missing fields with Grok AI
+                  </div>
+                </div>
+              )}
+
               <div style={{ fontSize: 11, color: 'var(--text-dim)', paddingLeft: 2 }}>
-                {files.length} file{files.length > 1 ? 's' : ''} attached — click "Save Product" to upload and process
+                {files.length} file{files.length > 1 ? 's' : ''} attached — click "Save Product" to upload and process with AI
               </div>
             </div>
           )}
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       )}
 

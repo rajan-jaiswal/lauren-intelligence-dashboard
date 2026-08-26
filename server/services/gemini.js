@@ -1,20 +1,136 @@
+/**
+ * AI service — uses xAI Grok (OpenAI-compatible API).
+ * Keeps the same exported interface as the old Gemini service so all
+ * callers in routes/products.js work unchanged:
+ *   generateProductData(...)
+ *   generateCompetitorProfile(...)
+ *   generateWithFallback(prompt)
+ */
+
 require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const sse = require('../utils/sseEmitter');
+const https = require('https');
+const sse   = require('../utils/sseEmitter');
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Read API key lazily so dotenv has fully populated process.env by the time it's used.
+const API_HOST = 'api.x.ai';
+const API_PATH = '/v1/chat/completions';
+function getApiKey() {
+  const key = process.env.XAI_API_KEY || process.env.GEMINI_API_KEY;
+  if (!key) throw new Error('XAI_API_KEY is not set. Add it in server/.env and in the Render Environment tab.');
+  return key;
+}
 
-// ─── Prompt builder ───────────────────────────────────────────────────────────
+// Model priority list — tried in order on rate-limit / overload errors
+const MODEL_PRIORITY = [
+  'grok-3-fast',
+  'grok-3',
+  'grok-2-1212',
+  'grok-beta',
+];
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// ─── Raw HTTPS call to xAI ─────────────────────────────────────────────────
+function callXai(model, prompt, timeoutMs = 60000) {
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify({
+      model,
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0,
+      max_tokens: 8192,
+    });
+
+    const req = https.request(
+      {
+        hostname: API_HOST,
+        path:     API_PATH,
+        method:   'POST',
+        headers:  {
+          'Content-Type':  'application/json',
+          'Authorization': `Bearer ${getApiKey()}`,
+          'Content-Length': Buffer.byteLength(body),
+        },
+      },
+      (res) => {
+        let raw = '';
+        res.on('data', (chunk) => { raw += chunk; });
+        res.on('end', () => {
+          if (res.statusCode >= 400) {
+            return reject(new Error(`xAI ${res.statusCode}: ${raw.slice(0, 300)}`));
+          }
+          try {
+            const json = JSON.parse(raw);
+            const text = json.choices?.[0]?.message?.content;
+            if (!text) return reject(new Error('Empty xAI response: ' + raw.slice(0, 200)));
+            resolve(text);
+          } catch (e) {
+            reject(new Error('xAI JSON parse error: ' + raw.slice(0, 200)));
+          }
+        });
+      }
+    );
+
+    req.on('error', reject);
+
+    const timer = setTimeout(() => {
+      req.destroy(new Error(`xAI timeout after ${timeoutMs / 1000}s (${model})`));
+    }, timeoutMs);
+
+    res => { clearTimeout(timer); };
+    req.on('close', () => clearTimeout(timer));
+
+    req.write(body);
+    req.end();
+  });
+}
+
+// ─── Retry across models on 429 / 503 / timeout ───────────────────────────
+async function generateWithFallback(prompt) {
+  let lastErr;
+  for (const model of MODEL_PRIORITY) {
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        return await callXai(model, prompt);
+      } catch (err) {
+        const msg = err.message || '';
+        const isTransient =
+          msg.includes('429') || msg.includes('503') ||
+          msg.includes('timeout') || msg.includes('UNAVAILABLE') ||
+          msg.includes('overloaded');
+        const isNotFound =
+          msg.includes('404') || msg.includes('not found') ||
+          msg.includes('model_not_found') || msg.includes('does not exist');
+
+        lastErr = err;
+
+        if (isNotFound) break;                         // try next model
+        if (isTransient && attempt === 1) { await sleep(1500); continue; }
+        if (isTransient) break;                        // try next model
+        throw err;                                     // hard error — surface it
+      }
+    }
+  }
+  throw lastErr || new Error('All xAI models failed');
+}
+
+// ─── Parse JSON from AI response (strips markdown fences if present) ──────
+function parseAiJSON(text) {
+  let cleaned = text.trim();
+  if (cleaned.startsWith('```')) {
+    cleaned = cleaned.replace(/^```[a-z]*\n?/i, '').replace(/```\s*$/i, '').trim();
+  }
+  return JSON.parse(cleaned);
+}
+
+// ─── Prompt builders (unchanged logic from previous Gemini version) ────────
 function buildProductPrompt(productName, practice, description, competitorNames, rawData) {
   const competitorList = competitorNames.length > 0 ? competitorNames.join(', ') : 'Not specified';
 
-  // Extract readable text from rawData — prefer .text / .combined; fall back to JSON
   let rawSection = '';
   if (rawData) {
     const content = rawData.text || rawData.combined || (typeof rawData === 'string' ? rawData : JSON.stringify(rawData, null, 2));
-    // Truncate to ~12 000 chars to stay within Gemini context limits
     const truncated = content.length > 12000 ? content.slice(0, 12000) + '\n...[truncated]' : content;
-    const fileInfo = rawData.fileCount
+    const fileInfo  = rawData.fileCount
       ? `${rawData.fileCount} file(s): ${rawData.fileNames.join(', ')}`
       : (rawData.filename || 'uploaded file');
     rawSection = `\n\nADDITIONAL CONTEXT FROM UPLOADED FILES (${fileInfo}) — use this to enrich your response:\n${truncated}`;
@@ -132,7 +248,6 @@ Rules:
 - Return ONLY the JSON, no backticks, no markdown`;
 }
 
-// ─── Competitor profile prompt ────────────────────────────────────────────────
 function buildCompetitorPrompt(competitorName, productName, practice) {
   return `You are a competitive intelligence analyst. Generate a detailed competitor profile.
 
@@ -153,96 +268,13 @@ Return ONLY a valid JSON object (no markdown, no backticks):
 }`;
 }
 
-// ─── Parse Gemini JSON response safely ───────────────────────────────────────
-function parseGeminiJSON(text) {
-  // Strip markdown code fences if present
-  let cleaned = text.trim();
-  if (cleaned.startsWith('```')) {
-    cleaned = cleaned.replace(/^```[a-z]*\n?/i, '').replace(/```\s*$/i, '').trim();
-  }
-  return JSON.parse(cleaned);
-}
-
-// ─── Fallback model list — tried in order on 429 / 503 ──────────────────────
-const MODEL_PRIORITY = [
-  'gemini-2.5-flash',
-  'gemini-2.5-flash-lite',
-  'gemini-flash-latest',
-  'gemini-flash-lite-latest',
-  'gemini-pro-latest',
-];
-
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-// ─── Hard timeout wrapper — Gemini can hang; this prevents silent freezes ────
-function withTimeout(promise, ms, label) {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error(`Timeout after ${ms / 1000}s waiting for ${label}`)), ms);
-    promise.then(
-      (val) => { clearTimeout(timer); resolve(val); },
-      (err) => { clearTimeout(timer); reject(err); }
-    );
-  });
-}
-
-async function generateWithFallback(prompt) {
-  let lastErr;
-  for (const modelName of MODEL_PRIORITY) {
-    // Attempt each model up to 2 times with a short backoff on transient 503s
-    for (let attempt = 1; attempt <= 2; attempt++) {
-      try {
-        const model = genAI.getGenerativeModel({ model: modelName });
-        // 90-second hard timeout per attempt — prevents silent hangs on Render
-        const result = await withTimeout(
-          model.generateContent(prompt),
-          90000,
-          modelName
-        );
-        return result.response.text();
-      } catch (err) {
-        const isTransient = err.message && (
-          err.message.includes('503') ||
-          err.message.includes('429') ||
-          err.message.includes('UNAVAILABLE') ||
-          err.message.includes('Timeout')
-        );
-        const isNotFound = err.message && (
-          err.message.includes('404') ||
-          err.message.includes('not found') ||
-          err.message.includes('not supported')
-        );
-
-        if (isNotFound) {
-          lastErr = err;
-          break;
-        }
-
-        if (isTransient && attempt === 1) {
-          await sleep(2000);
-          lastErr = err;
-          continue;
-        }
-
-        if (isTransient) {
-          lastErr = err;
-          break;
-        }
-
-        throw err;
-      }
-    }
-  }
-  throw lastErr;
-}
-
-// ─── Main product generation ─────────────────────────────────────────────────
+// ─── Main product generation (broadcasts SSE progress) ─────────────────────
 async function generateProductData(productName, practice, description, competitorNames, rawData, jobId) {
-
   const STAGES = [
-    { percent: 10, stage: 'building_prompt',   message: 'Building AI prompt...' },
-    { percent: 25, stage: 'calling_gemini',    message: 'Calling Gemini AI...' },
-    { percent: 70, stage: 'parsing_response',  message: 'Parsing AI response...' },
-    { percent: 90, stage: 'saving_to_database',message: 'Saving to database...' },
+    { percent: 10, stage: 'building_prompt',    message: 'Building AI prompt...' },
+    { percent: 20, stage: 'calling_grok',        message: 'Calling Grok AI...' },
+    { percent: 70, stage: 'parsing_response',    message: 'Parsing AI response...' },
+    { percent: 90, stage: 'saving_to_database',  message: 'Saving to database...' },
   ];
 
   if (jobId) sse.broadcast('ai_progress', { jobId, ...STAGES[0] });
@@ -251,16 +283,16 @@ async function generateProductData(productName, practice, description, competito
 
   if (jobId) sse.broadcast('ai_progress', { jobId, ...STAGES[1] });
 
-  // Emit incremental ticks while Gemini is thinking so the bar visibly moves
-  let tickPercent = 25;
-  let tickTimer = null;
+  // Emit incremental ticks while Grok is working so the bar visibly moves
+  let tickPercent = 20;
+  let tickTimer   = null;
   if (jobId) {
     tickTimer = setInterval(() => {
       if (tickPercent < 65) {
         tickPercent += 5;
-        sse.broadcast('ai_progress', { jobId, percent: tickPercent, stage: 'calling_gemini', message: 'Gemini is generating your product data...' });
+        sse.broadcast('ai_progress', { jobId, percent: tickPercent, stage: 'calling_grok', message: 'Grok is generating your product data...' });
       }
-    }, 4000); // nudge +5% every 4 s while waiting
+    }, 3000);
   }
 
   let text;
@@ -272,18 +304,18 @@ async function generateProductData(productName, practice, description, competito
 
   if (jobId) sse.broadcast('ai_progress', { jobId, ...STAGES[2] });
 
-  const parsed = parseGeminiJSON(text);
+  const parsed = parseAiJSON(text);
 
   if (jobId) sse.broadcast('ai_progress', { jobId, ...STAGES[3] });
 
   return parsed;
 }
 
-// ─── Competitor profile generation ──────────────────────────────────────────
+// ─── Competitor profile ────────────────────────────────────────────────────
 async function generateCompetitorProfile(competitorName, productName, practice) {
   const prompt = buildCompetitorPrompt(competitorName, productName, practice);
-  const text = await generateWithFallback(prompt);
-  return parseGeminiJSON(text);
+  const text   = await generateWithFallback(prompt);
+  return parseAiJSON(text);
 }
 
 module.exports = { generateProductData, generateCompetitorProfile, generateWithFallback };
