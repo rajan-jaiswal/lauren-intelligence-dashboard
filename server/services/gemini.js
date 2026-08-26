@@ -19,11 +19,11 @@ function getApiKey() {
 
 // ── Model priority — fastest/cheapest first, fallback on quota / 503 ─────────
 const MODELS = [
+  'gemini-2.5-flash-lite',
+  'gemini-2.5-flash',
   'gemini-2.0-flash',
   'gemini-2.0-flash-lite',
   'gemini-1.5-flash',
-  'gemini-1.5-flash-8b',
-  'gemini-1.5-pro',
 ];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -87,21 +87,41 @@ function callGemini(model, prompt, timeoutMs = 90000) {
 }
 
 // ─── Retry across models on quota / transient errors ─────────────────────────
+// Also handles "model no longer available, use X instead" redirects
 async function generateWithFallback(prompt) {
-  let lastErr;
-  for (const model of MODELS) {
+  // Build a dynamic list: start with our priority list, then add any
+  // models suggested in redirect error messages
+  const tried   = new Set();
+  const queue   = [...MODELS];
+  let   lastErr;
+
+  while (queue.length > 0) {
+    const model = queue.shift();
+    if (tried.has(model)) continue;
+    tried.add(model);
+
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
         return await callGemini(model, prompt);
       } catch (err) {
         const msg = err.message || '';
+
+        // If Gemini suggests a replacement model, add it to the front of queue
+        const redirect = msg.match(/use models\/([\w\d.\-]+)/i) ||
+                         msg.match(/update.*to use models\/([\w\d.\-]+)/i);
+        if (redirect) {
+          const suggested = redirect[1];
+          if (!tried.has(suggested)) queue.unshift(suggested);
+        }
+
         const isTransient =
           msg.includes('429') || msg.includes('503') ||
           msg.includes('timeout') || msg.includes('UNAVAILABLE') ||
           msg.includes('overloaded') || msg.includes('RESOURCE_EXHAUSTED');
         const isNotFound =
           msg.includes('404') || msg.includes('not found') ||
-          msg.includes('MODEL_NOT_FOUND') || msg.includes('is not supported');
+          msg.includes('MODEL_NOT_FOUND') || msg.includes('is not supported') ||
+          msg.includes('no longer available');
 
         lastErr = err;
         if (isNotFound) break;                          // try next model
