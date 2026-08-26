@@ -178,6 +178,68 @@ router.post('/products/ai-fill', async (req, res) => {
   }
 });
 
+// ─── POST /api/products/extract-pdf — parse PDF → return field preview (no save) ─
+// Used by the frontend "Extract from PDF" button to pre-fill the form.
+router.post('/products/extract-pdf', upload.single('file'), async (req, res) => {
+  if (!process.env.ADMIN_PIN || req.body.pin !== process.env.ADMIN_PIN) {
+    return res.status(401).json({ error: 'Invalid PIN' });
+  }
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+  try {
+    const parsed = await fileParser.parseFile(req.file.buffer, req.file.mimetype, req.file.originalname);
+
+    // Build a compact text representation for Gemini
+    let text = '';
+    if (parsed && parsed.text)      text = parsed.text;
+    else if (parsed && parsed.combined) text = parsed.combined;
+    else                            text = JSON.stringify(parsed, null, 2);
+
+    // Truncate to stay within context limits
+    if (text.length > 12000) text = text.slice(0, 12000) + '\n...[truncated]';
+
+    const extractPrompt = `You are a product intelligence analyst. Extract structured product data from the following document.
+
+DOCUMENT CONTENT:
+${text}
+
+Return ONLY a valid JSON object (no markdown, no backticks) with fields that you can confidently extract from the document. Leave any field as null if the information is not present in the document. Use this exact structure:
+
+{
+  "productName": "<product name or null>",
+  "description": "<product description or null>",
+  "category": "<category or null>",
+  "deployment": "<e.g. SaaS / On-Prem / Hybrid or null>",
+  "targetUsers": "<target users or null>",
+  "productLaunch": "<launch year or null>",
+  "marketPosition": "<market position or null>",
+  "keyFeatures": ["<feature name>"],
+  "strengths": ["<strength>"],
+  "weaknesses": ["<weakness>"],
+  "competitors": ["<competitor name>"]
+}
+
+Only include values explicitly stated or clearly inferable from the document. Do not hallucinate data.`;
+
+    const rawText = await gemini.generateWithFallback(extractPrompt);
+
+    let extractedData;
+    try {
+      let cleaned = rawText.trim();
+      if (cleaned.startsWith('`')) {
+        cleaned = cleaned.replace(/^```[a-z]*\n?/i, '').replace(/```\s*$/i, '').trim();
+      }
+      extractedData = JSON.parse(cleaned);
+    } catch (_) {
+      return res.status(422).json({ error: 'Could not parse AI response from PDF' });
+    }
+
+    res.json({ status: 'ok', data: extractedData });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ─── POST /api/products/upload — files + form → Gemini → MongoDB ──────────────
 router.post('/products/upload', uploadMany, async (req, res) => {
   if (!process.env.ADMIN_PIN || req.body.pin !== process.env.ADMIN_PIN) {

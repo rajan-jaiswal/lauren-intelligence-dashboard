@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useSSE } from '../../hooks/useSSE.js';
-import { uploadProduct, generateCompetitor, verifyPin, fetchProduct } from '../../api/products.js';
+import { uploadProduct, generateCompetitor, verifyPin, fetchProduct, extractFromFile } from '../../api/products.js';
 import { useData } from '../../context/DataContext.jsx';
 
 // ─── PIN Gate ─────────────────────────────────────────────────────────────────
@@ -174,6 +174,152 @@ function CompetitorCard({ name, status, profile, jobId, progress }) {
   );
 }
 
+// ─── AI Data Preview Card ─────────────────────────────────────────────────────
+// Shows the AI-generated data and lets user confirm before saving to DB
+function PreviewCard({ previewData, onSave, onDiscard, isSaving }) {
+  const ov = previewData?.overview || {};
+  const features = (previewData?.keyFeatures || []).slice(0, 6);
+  const strengths = (previewData?.strengths || []).slice(0, 4);
+  const weaknesses = (previewData?.weaknesses || []).slice(0, 3);
+
+  return (
+    <div style={{
+      border: '2px solid var(--blue)',
+      borderRadius: 12,
+      background: 'var(--card-bg)',
+      overflow: 'hidden',
+      marginBottom: 20,
+    }}>
+      {/* Header */}
+      <div style={{
+        background: 'var(--blue)', padding: '12px 20px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 20 }}>{ov.logo || '📦'}</span>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>
+              AI Generated Preview — {previewData?.product || ov.name}
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,.75)', marginTop: 1 }}>
+              Review the data below, then click Save to Dashboard to publish
+            </div>
+          </div>
+        </div>
+        <span style={{ fontSize: 10, fontWeight: 800, color: '#fff', background: 'rgba(255,255,255,.2)', padding: '3px 10px', borderRadius: 20, letterSpacing: 0.5 }}>
+          NOT SAVED YET
+        </span>
+      </div>
+
+      <div style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+        {/* Overview */}
+        <div>
+          <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 }}>Product Overview</div>
+          <div style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.6, background: 'var(--card-bg2)', borderRadius: 8, padding: '10px 14px', border: '1px solid var(--card-border)' }}>
+            {ov.description || 'No description generated.'}
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
+            {ov.category && <span style={{ fontSize: 11, padding: '2px 9px', borderRadius: 10, background: 'var(--blue-lt)', color: 'var(--blue)', border: '1px solid var(--blue)', fontWeight: 700 }}>{ov.category}</span>}
+            {ov.deployment && <span style={{ fontSize: 11, padding: '2px 9px', borderRadius: 10, background: 'var(--purple-lt)', color: 'var(--purple)', border: '1px solid var(--purple)', fontWeight: 700 }}>{ov.deployment}</span>}
+            {ov.marketPosition && <span style={{ fontSize: 11, padding: '2px 9px', borderRadius: 10, background: 'var(--green-lt)', color: 'var(--green)', border: '1px solid var(--green)', fontWeight: 700 }}>{ov.marketPosition}</span>}
+          </div>
+        </div>
+
+        {/* Features + Strengths + Weaknesses side by side */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14 }}>
+          {features.length > 0 && (
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--blue)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Key Features ({(previewData?.keyFeatures || []).length} total)</div>
+              {features.map((f, i) => (
+                <div key={i} style={{ fontSize: 11.5, color: 'var(--text)', marginBottom: 5, display: 'flex', gap: 6, alignItems: 'flex-start' }}>
+                  <span style={{ color: 'var(--blue)', fontWeight: 800, flexShrink: 0 }}>→</span>
+                  <span>{f.name || f}</span>
+                </div>
+              ))}
+              {(previewData?.keyFeatures || []).length > 6 && (
+                <div style={{ fontSize: 10.5, color: 'var(--text-muted)', fontStyle: 'italic', marginTop: 3 }}>+{(previewData.keyFeatures.length - 6)} more...</div>
+              )}
+            </div>
+          )}
+          {strengths.length > 0 && (
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--green)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Strengths</div>
+              {strengths.map((s, i) => (
+                <div key={i} style={{ fontSize: 11.5, color: 'var(--text)', marginBottom: 5, display: 'flex', gap: 6, alignItems: 'flex-start' }}>
+                  <span style={{ color: 'var(--green)', fontWeight: 800, flexShrink: 0 }}>✓</span>
+                  <span>{s}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {weaknesses.length > 0 && (
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--red)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Weaknesses</div>
+              {weaknesses.map((w, i) => (
+                <div key={i} style={{ fontSize: 11.5, color: 'var(--text)', marginBottom: 5, display: 'flex', gap: 6, alignItems: 'flex-start' }}>
+                  <span style={{ color: 'var(--red)', fontWeight: 800, flexShrink: 0 }}>×</span>
+                  <span>{w}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Win/Loss quick stats */}
+        {previewData?.winLoss?.winRate > 0 && (
+          <div style={{ display: 'flex', gap: 10 }}>
+            {[
+              { label: 'Win Rate', val: `${previewData.winLoss.winRate}%`, color: 'var(--blue)' },
+              { label: 'Won', val: previewData.winLoss.won, color: 'var(--green)' },
+              { label: 'Lost', val: previewData.winLoss.lost, color: 'var(--red)' },
+              { label: 'Total Opps', val: previewData.winLoss.total, color: 'var(--text-muted)' },
+            ].map((k) => (
+              <div key={k.label} style={{ flex: 1, textAlign: 'center', padding: '8px', borderRadius: 8, background: 'var(--card-bg2)', border: '1px solid var(--card-border)' }}>
+                <div style={{ fontSize: 18, fontWeight: 900, color: k.color, lineHeight: 1 }}>{k.val}</div>
+                <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 3, fontWeight: 600 }}>{k.label}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Action buttons */}
+        <div style={{ display: 'flex', gap: 12, paddingTop: 4, borderTop: '1px solid var(--card-border)' }}>
+          <button
+            type="button"
+            disabled={isSaving}
+            onClick={onSave}
+            style={{
+              flex: 1, padding: '13px 0', borderRadius: 9, border: 'none',
+              cursor: isSaving ? 'not-allowed' : 'pointer',
+              background: isSaving ? 'var(--card-border)' : '#2dca6e',
+              color: isSaving ? 'var(--text-muted)' : '#fff',
+              fontSize: 14, fontWeight: 800, letterSpacing: 0.3,
+              transition: 'all .15s',
+            }}
+          >
+            {isSaving ? '⏳ Saving to Dashboard...' : '💾 Save to Dashboard'}
+          </button>
+          <button
+            type="button"
+            disabled={isSaving}
+            onClick={onDiscard}
+            style={{
+              padding: '13px 22px', borderRadius: 9,
+              border: '1px solid var(--card-border)',
+              cursor: isSaving ? 'not-allowed' : 'pointer',
+              background: 'var(--card-bg2)', color: 'var(--text-muted)',
+              fontSize: 13, fontWeight: 600,
+            }}
+          >
+            Discard & Edit
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function AddProductPage({ practice: defaultPractice, pin: externalPin, onPinSet, onProductAdded }) {
   // Use externally cached PIN if already unlocked (shared across admin pages)
@@ -187,37 +333,51 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
   const [practice, setPractice] = useState(defaultPractice || 'IBM');
   const [description, setDescription] = useState('');
   const [competitors, setCompetitors] = useState([]);
-  const [files, setFiles] = useState([]);   // multiple files
+  const [files, setFiles] = useState([]);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef(null);
 
-  // Generation state
-  const [isSubmitting, setIsSubmitting]     = useState(false);
-  const [progress, setProgress]             = useState(null);
-  const [competitorStates, setCompetitorStates] = useState({});
-  const [success, setSuccess]               = useState(null);
-  const [formError, setFormError]           = useState('');
-  const submittedRef    = useRef(null);   // { practice, product } set on submit
-  const sseReceivedRef  = useRef(false);  // flips true when first SSE event arrives
-  const tickTimerRef    = useRef(null);   // client-side fake progress ticker
-  const pollTimerRef    = useRef(null);   // DB-poll fallback timer
+  // PDF extraction state
+  const [isExtracting, setIsExtracting]   = useState(false);
+  const [extractError, setExtractError]   = useState('');
+  const [extractedFields, setExtractedFields] = useState(null); // preview of what PDF gave us
 
-  // ── Client-side fake progress animation ──────────────────────────────────
-  // Smoothly nudges the bar forward so it never looks frozen, even before
-  // the first SSE event arrives from Render.
+  // AI fill state
+  const [isAiFilling, setIsAiFilling]     = useState(false);
+  const [aiFillJobId, setAiFillJobId]     = useState(null);
+  const [aiFillDone, setAiFillDone]       = useState(false);
+
+  // Generation / submission state
+  const [isSubmitting, setIsSubmitting]   = useState(false);
+  const [progress, setProgress]           = useState(null);
+  const [competitorStates, setCompetitorStates] = useState({});
+  const [formError, setFormError]         = useState('');
+
+  // Preview state — AI generated data waiting for user confirmation to save
+  const [previewData, setPreviewData]     = useState(null);  // holds the AI result
+  const [isSavingPreview, setIsSavingPreview] = useState(false);
+
+  // Success state
+  const [success, setSuccess]             = useState(null);
+
+  const submittedRef    = useRef(null);
+  const sseReceivedRef  = useRef(false);
+  const tickTimerRef    = useRef(null);
+  const pollTimerRef    = useRef(null);
+
+  // ── Client-side fake progress ticks ─────────────────────────────────────────
   function startFakeTicks(startPercent) {
     clearInterval(tickTimerRef.current);
     let pct = startPercent;
     tickTimerRef.current = setInterval(() => {
-      pct = Math.min(pct + 2, 68); // never exceed 68 — real events take it to 70+
+      pct = Math.min(pct + 2, 68);
       setProgress(prev => {
-        // Only update if real SSE hasn't overtaken our fake value
         if (!prev || prev.percent < pct) {
           return { percent: pct, stage: prev?.stage || 'calling_gemini', message: prev?.message || 'AI is generating your product data...' };
         }
         return prev;
       });
-    }, 3000); // +2% every 3 s
+    }, 3000);
   }
 
   function stopFakeTicks() {
@@ -225,20 +385,18 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
     tickTimerRef.current = null;
   }
 
-  // ── DB poll fallback — if SSE never fires (network issue), check DB directly ─
-  // After 3 minutes we assume SSE silently dropped and check if the product
-  // was actually saved to the DB. If yes, treat it as success.
+  // ── DB poll fallback ─────────────────────────────────────────────────────────
   function startPollFallback() {
     clearTimeout(pollTimerRef.current);
     pollTimerRef.current = setTimeout(async () => {
-      if (!submittedRef.current || success) return;
+      if (!submittedRef.current || previewData) return;
       try {
         const doc = await fetchProduct(submittedRef.current.practice, submittedRef.current.product);
         if (doc) {
           stopFakeTicks();
-          setProgress({ percent: 100, stage: 'complete', message: 'Product saved! (SSE fallback)' });
+          setProgress({ percent: 100, stage: 'complete', message: 'AI generation complete! (SSE fallback)' });
           setIsSubmitting(false);
-          setSuccess({ practice: doc.practice, product: doc.product });
+          setPreviewData(doc);
         } else {
           setFormError('Generation is taking longer than expected. Please check Manage Practices in a minute.');
           setIsSubmitting(false);
@@ -249,25 +407,59 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
         setIsSubmitting(false);
         stopFakeTicks();
       }
-    }, 3 * 60 * 1000); // 3 minutes
+    }, 3 * 60 * 1000);
   }
 
-  // Cleanup timers on unmount
   useEffect(() => () => { stopFakeTicks(); clearTimeout(pollTimerRef.current); }, []);
 
-  // SSE event handlers
+  // ── SSE event handlers ───────────────────────────────────────────────────────
   useSSE({
     ai_progress: (data) => {
       sseReceivedRef.current = true;
-      stopFakeTicks(); // real event arrived — stop fake ticks
+      stopFakeTicks();
       setProgress(data);
+
+      // If this is an ai-fill progress event, track it
+      if (aiFillJobId && data.jobId === aiFillJobId) {
+        if (data.stage === 'complete') {
+          setIsAiFilling(false);
+          setAiFillDone(true);
+          setAiFillJobId(null);
+        } else if (data.stage === 'error') {
+          setIsAiFilling(false);
+          setAiFillJobId(null);
+          setFormError('AI fill failed: ' + (data.message || 'Unknown error'));
+        }
+      }
     },
     product_added: (data) => {
       sseReceivedRef.current = true;
       stopFakeTicks();
       clearTimeout(pollTimerRef.current);
+
+      if (isAiFilling || aiFillJobId) {
+        // This is the ai-fill completing — reload form data
+        setIsAiFilling(false);
+        setAiFillJobId(null);
+        setAiFillDone(true);
+        return;
+      }
+
+      // Main product generation completed — show preview instead of navigating
       setIsSubmitting(false);
-      setSuccess({ practice: data.practice, product: data.product });
+      setProgress({ percent: 100, stage: 'complete', message: 'AI generation complete! Review below.' });
+
+      // Fetch the freshly saved doc to show in preview
+      if (submittedRef.current) {
+        fetchProduct(submittedRef.current.practice, submittedRef.current.product)
+          .then(doc => {
+            if (doc) setPreviewData(doc);
+          })
+          .catch(() => {
+            // Fallback: just use the SSE data to show a minimal success
+            setSuccess({ practice: data.practice, product: data.product });
+          });
+      }
     },
     competitor_added: (data) => {
       const { competitorName, profile } = data;
@@ -278,7 +470,39 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
     },
   });
 
-  // ── Competitor tag added → immediately trigger AI generation ──────────────
+  // ── PDF/File extraction ──────────────────────────────────────────────────────
+  async function handleExtractFromFile() {
+    if (!files.length || !pin) return;
+    // Only use the first file for extraction (the primary product document)
+    const file = files[0];
+    setIsExtracting(true);
+    setExtractError('');
+    setExtractedFields(null);
+
+    try {
+      const result = await extractFromFile(file, pin);
+      const d = result.data || {};
+
+      // Pre-fill form fields only if not already filled
+      if (d.productName && !productName) setProductName(d.productName);
+      if (d.description && !description) setDescription(d.description);
+
+      // Add any extracted competitors not already in list
+      if (Array.isArray(d.competitors) && d.competitors.length) {
+        const newComps = d.competitors.filter(c => c && !competitors.includes(c));
+        if (newComps.length) setCompetitors(prev => [...prev, ...newComps]);
+      }
+
+      // Store extracted fields to show in a "what we found" panel
+      setExtractedFields(d);
+    } catch (err) {
+      setExtractError(err?.response?.data?.error || err.message || 'Extraction failed');
+    } finally {
+      setIsExtracting(false);
+    }
+  }
+
+  // ── Competitor tag added → immediately trigger AI generation ────────────────
   async function handleAddCompetitor(name) {
     if (!pin) return;
     setCompetitors((prev) => [...prev, name]);
@@ -310,7 +534,7 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
     });
   }
 
-  // ── File drop zone — multiple files ──────────────────────────────────────
+  // ── File drop zone ───────────────────────────────────────────────────────────
   function handleDrop(e) {
     e.preventDefault();
     setDragOver(false);
@@ -321,25 +545,26 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
   function handleFileChange(e) {
     const selected = Array.from(e.target.files);
     if (selected.length) setFiles((prev) => mergeFiles(prev, selected));
-    // reset input so the same file can be re-added after removal
     e.target.value = '';
   }
 
   function removeFile(name) {
     setFiles((prev) => prev.filter((f) => f.name !== name));
+    // Clear extracted fields if the source file is removed
+    if (extractedFields) setExtractedFields(null);
   }
 
-  // merge without duplicates (by name)
   function mergeFiles(existing, incoming) {
     const names = new Set(existing.map((f) => f.name));
     return [...existing, ...incoming.filter((f) => !names.has(f.name))];
   }
 
-  // ── Form submit ────────────────────────────────────────────────────────────
+  // ── Main AI generation submit ────────────────────────────────────────────────
   async function handleSubmit(e) {
     e.preventDefault();
     if (!productName.trim()) { setFormError('Product name is required.'); return; }
     setFormError('');
+    setPreviewData(null);
     sseReceivedRef.current = false;
     submittedRef.current = { practice, product: productName.trim() };
     setIsSubmitting(true);
@@ -355,10 +580,8 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
 
     try {
       await uploadProduct(formData);
-      // Job accepted (202) — start fake progress ticks and DB-poll safety net
       startFakeTicks(5);
       startPollFallback();
-      // Real completion arrives via SSE product_added event
     } catch (err) {
       stopFakeTicks();
       clearTimeout(pollTimerRef.current);
@@ -373,14 +596,59 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
     }
   }
 
-  // ── PIN unlock handler ─────────────────────────────────────────────────────
+  // ── "Fill Missing Details with AI" ──────────────────────────────────────────
+  // Triggers ai-fill on the already-saved product (from previewData) or by name
+  async function handleAiFill() {
+    const targetProduct = previewData?.product || productName.trim();
+    const targetPractice = previewData?.practice || practice;
+    if (!targetProduct) return;
+
+    setIsAiFilling(true);
+    setAiFillDone(false);
+    setFormError('');
+
+    try {
+      const { aiFillProduct } = await import('../../api/products.js');
+      const result = await aiFillProduct({
+        productId: previewData?._id || undefined,
+        practice: targetPractice,
+        product: targetProduct,
+        competitors: competitors.join(','),
+      }, pin);
+      setAiFillJobId(result.jobId);
+    } catch (err) {
+      setIsAiFilling(false);
+      setFormError(err?.response?.data?.error || err.message || 'AI fill failed');
+    }
+  }
+
+  // ── Save preview to dashboard ────────────────────────────────────────────────
+  // The data is already in DB (saved by the upload route) — this just
+  // navigates the dashboard to show it
+  function handleSavePreview() {
+    if (!previewData) return;
+    setIsSavingPreview(true);
+    // Small delay for button feedback
+    setTimeout(() => {
+      onProductAdded(previewData.practice, previewData.product);
+    }, 300);
+  }
+
+  // ── Discard preview — go back to editing the same form ──────────────────────
+  function handleDiscardPreview() {
+    setPreviewData(null);
+    setProgress(null);
+    setAiFillDone(false);
+  }
+
+  // ── PIN unlock handler ───────────────────────────────────────────────────────
   function handleUnlock(enteredPin) {
     setPinError('');
     setPin(enteredPin);
-    if (onPinSet) onPinSet(enteredPin);   // share with parent so other admin pages don't re-ask
+    if (onPinSet) onPinSet(enteredPin);
   }
 
-  // ─── PIN gate ──────────────────────────────────────────────────────────────
+  // ─── PIN gate ────────────────────────────────────────────────────────────────
   if (!pin) {
     return (
       <div style={{ padding: 32 }}>
@@ -398,7 +666,7 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
     );
   }
 
-  // ─── Success screen ────────────────────────────────────────────────────────
+  // ─── Success screen (shown after "Save to Dashboard" is clicked) ─────────────
   if (success) {
     return (
       <div style={{ padding: 32 }}>
@@ -427,7 +695,8 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
             <button
               onClick={() => {
                 setSuccess(null); setProductName(''); setDescription('');
-                setCompetitors([]); setCompetitorStates({}); setFiles([]); setProgress(null);
+                setCompetitors([]); setCompetitorStates({}); setFiles([]);
+                setProgress(null); setExtractedFields(null); setAiFillDone(false);
               }}
               style={{
                 padding: '10px 24px', borderRadius: 8, border: '1px solid var(--card-border)',
@@ -442,7 +711,7 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
     );
   }
 
-  // ─── Main Form ─────────────────────────────────────────────────────────────
+  // ─── Main Form ───────────────────────────────────────────────────────────────
   return (
     <div style={{ padding: 32, maxWidth: 820, margin: '0 auto' }}>
 
@@ -450,14 +719,35 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
       <div style={{ marginBottom: 28 }}>
         <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--text)' }}>➕ Product Data Engine</div>
         <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
-          Add a product name and competitors — AI will generate complete intelligence. Upload a file for richer context.
+          Upload a PDF to extract product data, then use AI to fill any missing fields. Review the preview before saving to the dashboard.
         </div>
       </div>
+
+      {/* ── AI Preview — shown once AI finishes, before saving ───────────────── */}
+      {previewData && (
+        <PreviewCard
+          previewData={previewData}
+          onSave={handleSavePreview}
+          onDiscard={handleDiscardPreview}
+          isSaving={isSavingPreview}
+        />
+      )}
+
+      {/* ── AI Fill done banner ────────────────────────────────────────────── */}
+      {aiFillDone && !previewData && (
+        <div style={{
+          padding: '12px 18px', borderRadius: 9, background: 'var(--green-lt)',
+          border: '1px solid var(--green)', color: 'var(--green)', fontSize: 13,
+          fontWeight: 700, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 9,
+        }}>
+          ✅ AI has filled missing fields. Click "Generate with AI" again to regenerate full intelligence, or proceed to save.
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
 
-          {/* ── Section A — Product Info ──────────────────────────────── */}
+          {/* ── Section A — Product Info ──────────────────────────────────── */}
           <div style={{ gridColumn: '1 / -1' }}>
             <div className="card" style={{ padding: '24px 28px' }}>
               <div className="card-title" style={{ marginBottom: 20 }}>
@@ -465,7 +755,6 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-
                 {/* Product Name */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: .6 }}>
@@ -506,7 +795,11 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
                 {/* Description */}
                 <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', gap: 6 }}>
                   <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: .6 }}>
-                    Product Description <span style={{ fontWeight: 400, textTransform: 'none' }}>(optional — AI fills in if blank)</span>
+                    Product Description{' '}
+                    <span style={{ fontWeight: 400, textTransform: 'none' }}>(optional — AI fills in if blank)</span>
+                    {extractedFields?.description && (
+                      <span style={{ marginLeft: 8, color: 'var(--green)', fontSize: 10, fontWeight: 800 }}>📄 Extracted from PDF</span>
+                    )}
                   </label>
                   <textarea
                     value={description}
@@ -515,25 +808,73 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
                     rows={3}
                     style={{
                       padding: '10px 12px', borderRadius: 8, fontSize: 13,
-                      border: '1px solid var(--card-border)', background: 'var(--card-bg2)',
-                      color: 'var(--text)', outline: 'none', resize: 'vertical',
-                      fontFamily: 'var(--font)',
+                      border: extractedFields?.description ? '1px solid var(--green)' : '1px solid var(--card-border)',
+                      background: 'var(--card-bg2)', color: 'var(--text)', outline: 'none',
+                      resize: 'vertical', fontFamily: 'var(--font)',
                     }}
                   />
                 </div>
-
               </div>
+
+              {/* Extracted fields summary */}
+              {extractedFields && (
+                <div style={{
+                  marginTop: 16, padding: '12px 16px', borderRadius: 9,
+                  background: 'var(--green-lt)', border: '1px solid var(--green)',
+                }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--green)', marginBottom: 8 }}>
+                    📄 Extracted from PDF — fields pre-filled:
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {extractedFields.productName && (
+                      <span style={{ fontSize: 11, padding: '2px 9px', borderRadius: 8, background: 'var(--card-bg)', border: '1px solid var(--green)', color: 'var(--text)', fontWeight: 600 }}>
+                        Name: {extractedFields.productName}
+                      </span>
+                    )}
+                    {extractedFields.category && (
+                      <span style={{ fontSize: 11, padding: '2px 9px', borderRadius: 8, background: 'var(--card-bg)', border: '1px solid var(--blue)', color: 'var(--text)', fontWeight: 600 }}>
+                        Category: {extractedFields.category}
+                      </span>
+                    )}
+                    {extractedFields.deployment && (
+                      <span style={{ fontSize: 11, padding: '2px 9px', borderRadius: 8, background: 'var(--card-bg)', border: '1px solid var(--purple)', color: 'var(--text)', fontWeight: 600 }}>
+                        Deployment: {extractedFields.deployment}
+                      </span>
+                    )}
+                    {(extractedFields.keyFeatures || []).length > 0 && (
+                      <span style={{ fontSize: 11, padding: '2px 9px', borderRadius: 8, background: 'var(--card-bg)', border: '1px solid var(--blue)', color: 'var(--blue)', fontWeight: 700 }}>
+                        {extractedFields.keyFeatures.length} features found
+                      </span>
+                    )}
+                    {(extractedFields.strengths || []).length > 0 && (
+                      <span style={{ fontSize: 11, padding: '2px 9px', borderRadius: 8, background: 'var(--card-bg)', border: '1px solid var(--green)', color: 'var(--green)', fontWeight: 700 }}>
+                        {extractedFields.strengths.length} strengths found
+                      </span>
+                    )}
+                    {(extractedFields.competitors || []).length > 0 && (
+                      <span style={{ fontSize: 11, padding: '2px 9px', borderRadius: 8, background: 'var(--card-bg)', border: '1px solid var(--orange)', color: 'var(--orange)', fontWeight: 700 }}>
+                        {extractedFields.competitors.length} competitors added
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: 10.5, color: 'var(--text-muted)', marginTop: 8, fontStyle: 'italic' }}>
+                    Missing fields will be filled by AI when you click "Generate with AI &amp; Save"
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* ── Section B — Competitors ───────────────────────────────── */}
+          {/* ── Section B — Competitors ───────────────────────────────────── */}
           <div style={{ gridColumn: '1 / -1' }}>
             <div className="card" style={{ padding: '24px 28px' }}>
               <div className="card-title" style={{ marginBottom: 6 }}>
                 ⚔️ Section B — Competitor Names
               </div>
               <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 14 }}>
-                Type a competitor name and press <kbd style={{ padding: '1px 5px', borderRadius: 4, border: '1px solid var(--card-border)', fontSize: 11 }}>Enter</kbd> — AI generates their profile instantly.
+                Type a competitor name and press{' '}
+                <kbd style={{ padding: '1px 5px', borderRadius: 4, border: '1px solid var(--card-border)', fontSize: 11 }}>Enter</kbd>
+                {' '}— AI generates their profile instantly.
               </div>
 
               <TagInput
@@ -543,7 +884,6 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
                 placeholder="Type competitor name and press Enter..."
               />
 
-              {/* Live competitor cards */}
               {competitors.length > 0 && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12, marginTop: 16 }}>
                   {competitors.map((name) => (
@@ -558,17 +898,19 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
             </div>
           </div>
 
-          {/* ── Section C — File Upload ───────────────────────────────── */}
+          {/* ── Section C — File Upload ───────────────────────────────────── */}
           <div style={{ gridColumn: '1 / -1' }}>
             <div className="card" style={{ padding: '24px 28px' }}>
               <div className="card-title" style={{ marginBottom: 6 }}>
-                📎 Section C — Upload Product Data <span style={{ fontWeight: 400, fontSize: 11, color: 'var(--text-dim)' }}>Optional</span>
+                📎 Section C — Upload Product Data{' '}
+                <span style={{ fontWeight: 400, fontSize: 11, color: 'var(--text-dim)' }}>Optional</span>
               </div>
               <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 14 }}>
-                 Upload one or more files — <strong style={{ color: 'var(--text)' }}>PDF, CSV, JSON, Excel, or plain text</strong>. AI reads all files together and uses them as additional context for generation.
-               </div>
+                Upload a <strong style={{ color: 'var(--text)' }}>PDF, CSV, JSON, Excel, or plain text</strong> file.
+                Click <strong style={{ color: 'var(--blue)' }}>"Extract from PDF"</strong> to pull data into the form.
+                AI will fill any remaining missing fields during generation.
+              </div>
 
-              {/* Hidden file input — multiple */}
               <input
                 type="file"
                 ref={fileInputRef}
@@ -592,12 +934,12 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
                     {files.length > 0 ? 'Drop more files or click to add' : 'Drop files here or click to browse'}
                   </div>
                   <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6 }}>
-                    PDF · CSV · JSON · XLSX · TXT &nbsp;·&nbsp; Multiple files &nbsp;·&nbsp; Max 10 MB each
+                    PDF · CSV · JSON · XLSX · TXT &nbsp;·&nbsp; Max 10 MB each
                   </div>
                 </div>
               </div>
 
-              {/* File list — shown below the drop zone */}
+              {/* File list */}
               {files.length > 0 && (
                 <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {files.map((f) => {
@@ -626,8 +968,39 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
                       </div>
                     );
                   })}
+
+                  {/* Extract button row */}
+                  <div style={{ display: 'flex', gap: 10, marginTop: 6, alignItems: 'center' }}>
+                    <button
+                      type="button"
+                      disabled={isExtracting}
+                      onClick={handleExtractFromFile}
+                      style={{
+                        padding: '9px 20px', borderRadius: 8, border: 'none',
+                        cursor: isExtracting ? 'not-allowed' : 'pointer',
+                        background: isExtracting ? 'var(--card-border)' : 'var(--blue)',
+                        color: isExtracting ? 'var(--text-muted)' : '#fff',
+                        fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 7,
+                        transition: 'all .15s',
+                      }}
+                    >
+                      {isExtracting
+                        ? <><span style={{ display: 'inline-block', width: 13, height: 13, border: '2px solid rgba(255,255,255,.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin .7s linear infinite' }} /> Extracting...</>
+                        : '📄 Extract from PDF'}
+                    </button>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                      Pulls product data from the file into the form fields above
+                    </span>
+                  </div>
+
+                  {extractError && (
+                    <div style={{ fontSize: 12, color: '#ff5a5a', padding: '7px 12px', borderRadius: 7, background: '#ff5a5a18', border: '1px solid #ff5a5a44' }}>
+                      {extractError}
+                    </div>
+                  )}
+
                   <div style={{ fontSize: 11, color: 'var(--text-dim)', paddingLeft: 2 }}>
-                    {files.length} file{files.length > 1 ? 's' : ''} attached — all will be parsed and sent to AI
+                    {files.length} file{files.length > 1 ? 's' : ''} attached — all will be sent to AI for additional context
                   </div>
                 </div>
               )}
@@ -636,11 +1009,19 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
 
         </div>
 
-        {/* ── Progress ──────────────────────────────────────────────────── */}
+        {/* ── Progress ──────────────────────────────────────────────────────── */}
         {isSubmitting && progress && (
           <div className="card" style={{ padding: '20px 28px', marginBottom: 20 }}>
             <div className="card-title" style={{ marginBottom: 14 }}>🤖 AI Generation in Progress</div>
             <ProgressBar percent={progress.percent || 0} stage={progress.stage} message={progress.message} />
+          </div>
+        )}
+
+        {/* ── AI Fill progress ───────────────────────────────────────────────── */}
+        {isAiFilling && progress && (
+          <div className="card" style={{ padding: '16px 22px', marginBottom: 20, border: '1px solid var(--purple)', background: 'var(--purple-lt)' }}>
+            <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--purple)', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 10 }}>✨ AI Filling Missing Fields...</div>
+            <ProgressBar percent={progress.percent || 10} stage={progress.stage} message={progress.message} />
           </div>
         )}
 
@@ -651,25 +1032,49 @@ export default function AddProductPage({ practice: defaultPractice, pin: externa
           </div>
         )}
 
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          style={{
-            width: '100%', padding: '14px 0', borderRadius: 10, border: 'none',
-            cursor: isSubmitting ? 'not-allowed' : 'pointer',
-            background: isSubmitting ? 'var(--card-border)' : 'var(--blue)',
-            color: isSubmitting ? 'var(--text-muted)' : '#fff',
-            fontSize: 14, fontWeight: 800, letterSpacing: .5,
-            transition: 'all .15s',
-          }}
-        >
-          {isSubmitting ? '⏳ Generating with AI...' : '🚀 Generate with AI & Save to Database'}
-        </button>
+        {/* ── Action button row ─────────────────────────────────────────────── */}
+        <div style={{ display: 'flex', gap: 12 }}>
+          {/* Main generate button */}
+          <button
+            type="submit"
+            disabled={isSubmitting || isAiFilling}
+            style={{
+              flex: 1, padding: '14px 0', borderRadius: 10, border: 'none',
+              cursor: (isSubmitting || isAiFilling) ? 'not-allowed' : 'pointer',
+              background: (isSubmitting || isAiFilling) ? 'var(--card-border)' : 'var(--blue)',
+              color: (isSubmitting || isAiFilling) ? 'var(--text-muted)' : '#fff',
+              fontSize: 14, fontWeight: 800, letterSpacing: .5,
+              transition: 'all .15s',
+            }}
+          >
+            {isSubmitting ? '⏳ Generating with AI...' : '🚀 Generate with AI'}
+          </button>
+
+          {/* Fill missing details with AI — always visible once user has a product name */}
+          {(productName.trim() || previewData) && !isSubmitting && (
+            <button
+              type="button"
+              disabled={isAiFilling || isSubmitting}
+              onClick={handleAiFill}
+              style={{
+                padding: '14px 22px', borderRadius: 10, border: '2px solid var(--purple)',
+                cursor: (isAiFilling || isSubmitting) ? 'not-allowed' : 'pointer',
+                background: isAiFilling ? 'var(--purple-lt)' : 'transparent',
+                color: isAiFilling ? 'var(--purple)' : 'var(--purple)',
+                fontSize: 13, fontWeight: 800, letterSpacing: 0.3,
+                transition: 'all .15s', whiteSpace: 'nowrap',
+              }}
+            >
+              {isAiFilling ? '✨ Filling...' : '✨ Fill Missing Details with AI'}
+            </button>
+          )}
+        </div>
 
         <div style={{ textAlign: 'center', marginTop: 12, fontSize: 11, color: 'var(--text-dim)' }}>
-          Powered by Google Gemini 1.5 Flash · Data saved to MongoDB · All team members see updates instantly
+          Powered by Google Gemini · Data saved to MongoDB · Review preview before publishing to dashboard
         </div>
+
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </form>
     </div>
   );

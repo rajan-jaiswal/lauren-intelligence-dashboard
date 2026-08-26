@@ -97,6 +97,21 @@ export async function aiFillProduct(params, pin) {
   return data; // { status: 'processing', jobId }
 }
 
+/**
+ * POST a single file to extract structured data from it (PDF/CSV/Excel etc.)
+ * Returns { status: 'ok', data: { productName, description, keyFeatures, ... } }
+ * No DB save — just extraction.
+ */
+export async function extractFromFile(file, pin) {
+  const fd = new FormData();
+  fd.append('pin', pin);
+  fd.append('file', file);
+  const { data } = await axios.post(`${API_BASE}/products/extract-pdf`, fd, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return data; // { status: 'ok', data: {...} }
+}
+
 /** POST a chat question to the AI Sales Coach */
 export async function chatCoach({ question, productName, practice, productContext }) {
   const { data } = await axios.post(`${API_BASE}/coach/chat`, {
