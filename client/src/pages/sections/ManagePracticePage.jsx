@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useData } from '../../context/DataContext.jsx';
-import { createPractice, fetchProducts, deleteProduct, verifyPin } from '../../api/products.js';
+import { createPractice, fetchProducts, deleteProduct, deletePractice, verifyPin } from '../../api/products.js';
 import { useSSE } from '../../hooks/useSSE.js';
 
 const PRACTICE_COLORS = [
@@ -150,8 +150,9 @@ function ProductRow({ doc, pin, onDelete, onEdit, onNavigate }) {
 }
 
 // ─── Practice Card ────────────────────────────────────────────────────────────
-function PracticeCard({ practiceName, products, pin, color, onAddProduct, onDelete, onEdit }) {
+function PracticeCard({ practiceName, products, pin, color, onAddProduct, onDelete, onEdit, onDeletePractice }) {
   const [expanded, setExpanded] = useState(true);
+  const [deletingPractice, setDeletingPractice] = useState(false);
 
   return (
     <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
@@ -182,8 +183,22 @@ function PracticeCard({ practiceName, products, pin, color, onAddProduct, onDele
             background: color, color: '#fff', fontSize: 11, fontWeight: 700,
           }}
         >+ Add Product</button>
+        <button
+          onClick={e => { e.stopPropagation(); setDeletingPractice(true); }}
+          style={{
+            padding: '5px 10px', borderRadius: 7, border: '1px solid #ff5a5a33',
+            background: '#ff5a5a11', color: '#ff5a5a', fontSize: 11, cursor: 'pointer', fontWeight: 700,
+          }}
+        >🗑 Delete</button>
         <span style={{ color: 'var(--text-muted)', fontSize: 12, marginLeft: 4 }}>{expanded ? '▲' : '▼'}</span>
       </div>
+      {deletingPractice && (
+        <ConfirmDialog
+          message={`Delete practice "${practiceName}" and all ${products.length} product(s) inside it? This cannot be undone.`}
+          onConfirm={async () => { setDeletingPractice(false); await onDeletePractice(practiceName); }}
+          onCancel={() => setDeletingPractice(false)}
+        />
+      )}
 
       {/* Product list */}
       {expanded && (
@@ -256,7 +271,7 @@ export default function ManagePracticePage({ pin: externalPin, onPinSet, onAddPr
   const [loading, setLoading]           = useState(true);
   const [showAddPractice, setShowAddPractice] = useState(false);
 
-  const { practices, addPracticeToList, addProductToList, removeProductFromList } = useData();
+  const { practices, addPracticeToList, addProductToList, removeProductFromList, removePracticeFromList } = useData();
 
   // Load all products once (skip if PIN not yet set — prevents 401 noise)
   useEffect(() => {
@@ -266,7 +281,7 @@ export default function ManagePracticePage({ pin: externalPin, onPinSet, onAddPr
       .catch(() => setLoading(false));
   }, [pin]);   // re-runs when PIN becomes available
 
-  // SSE — refresh on product_added / product_deleted
+  // SSE — refresh on product_added / product_deleted / practice_deleted
   useSSE({
     product_added: ({ practice, product: prod }) => {
       addProductToList(practice, prod);
@@ -274,6 +289,10 @@ export default function ManagePracticePage({ pin: externalPin, onPinSet, onAddPr
     },
     product_deleted: ({ productId }) => {
       setAllProducts(prev => prev.filter(d => d._id !== productId));
+    },
+    practice_deleted: ({ practice: name }) => {
+      if (removePracticeFromList) removePracticeFromList(name);
+      setAllProducts(prev => prev.filter(d => d.practice !== name));
     },
   });
 
@@ -292,6 +311,16 @@ export default function ManagePracticePage({ pin: externalPin, onPinSet, onAddPr
     }
   }
 
+  async function handleDeletePractice(practiceName) {
+    try {
+      await deletePractice(practiceName, pin);
+      if (removePracticeFromList) removePracticeFromList(practiceName);
+      setAllProducts(prev => prev.filter(d => d.practice !== practiceName));
+    } catch (err) {
+      alert('Delete practice failed: ' + (err?.response?.data?.error || err.message));
+    }
+  }
+
   function handlePracticeCreated(name) {
     addPracticeToList(name);
     setShowAddPractice(false);
@@ -307,10 +336,10 @@ export default function ManagePracticePage({ pin: externalPin, onPinSet, onAddPr
   const allNames = [...practiceNames, ...extraPractices];
 
   return (
-    <div style={{ padding: 32, maxWidth: 900, margin: '0 auto' }}>
+    <div style={{ padding: '20px 16px', maxWidth: 900, margin: '0 auto' }}>
 
       {/* Page header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28, gap: 12, flexWrap: 'wrap' }}>
         <div>
           <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--text)' }}>
             🏢 Manage Practices &amp; Products
@@ -331,7 +360,7 @@ export default function ManagePracticePage({ pin: externalPin, onPinSet, onAddPr
       </div>
 
       {/* Stats bar */}
-      <div style={{ display: 'flex', gap: 14, marginBottom: 24 }}>
+      <div className="mp-stats-bar" style={{ display: 'flex', gap: 14, marginBottom: 24, flexWrap: 'wrap' }}>
         {[
           { label: 'Total Practices', value: allNames.length, color: 'var(--blue)' },
           { label: 'Total Products', value: allProducts.length, color: 'var(--green)' },
@@ -367,6 +396,7 @@ export default function ManagePracticePage({ pin: externalPin, onPinSet, onAddPr
               onAddProduct={(p) => onAddProduct(p, pin)}
               onDelete={handleDelete}
               onEdit={(doc) => onNavigate('product-form', { editDoc: doc, defaultPractice: doc.practice })}
+              onDeletePractice={handleDeletePractice}
             />
           ))}
         </div>

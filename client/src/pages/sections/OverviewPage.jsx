@@ -14,6 +14,7 @@ const MetaIcons = {
   users:      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 100-6 3 3 0 000 6zM5.216 14A2.238 2.238 0 015 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 005 9c-4 0-5 3-5 4s1 1 1 1h4.216z"/><path d="M4.5 8a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/></svg>,
   launch:     <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 3.5a.5.5 0 00-1 0V9a.5.5 0 00.252.434l3.5 2a.5.5 0 00.496-.868L8 8.71V3.5z"/><path d="M8 16A8 8 0 108 0a8 8 0 000 16zm7-8A7 7 0 111 8a7 7 0 0114 0z"/></svg>,
   position:   <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm-3 6.5a3 3 0 116 0 3 3 0 01-6 0z"/></svg>,
+  gartner:    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2.5 3.5a.5.5 0 010-1h11a.5.5 0 010 1h-11zm0 4a.5.5 0 010-1h11a.5.5 0 010 1h-11zm0 4a.5.5 0 010-1h11a.5.5 0 010 1h-11z"/></svg>,
 };
 
 // ── Feature SVG icons ─────────────────────────────────────────────────────
@@ -320,7 +321,8 @@ export default function OverviewPage({ data }) {
             { icon: MetaIcons.users,      label: 'Target Users',    val: overview?.targetUsers },
             { icon: MetaIcons.launch,     label: 'Launched',        val: overview?.productLaunch },
             { icon: MetaIcons.position,   label: 'Market Position', val: overview?.marketPosition },
-          ].map((r) => (
+            { icon: MetaIcons.gartner,    label: 'Gartner MQ',      val: overview?.gartnerMQ },
+          ].filter(r => r.val).map((r) => (
             <div key={r.label} style={{
               display: 'flex', alignItems: 'flex-start', gap: 9,
               padding: '6px 0', borderBottom: '1px solid var(--card-border)',
@@ -562,6 +564,7 @@ export default function OverviewPage({ data }) {
               ))}
             </div>
           </div>
+          <div className="table-scroll-wrap">
           <table className="dash-table">
             <thead>
               <tr>
@@ -586,6 +589,7 @@ export default function OverviewPage({ data }) {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
 
         {/* ── TCO Comparison ── */}
@@ -607,6 +611,7 @@ export default function OverviewPage({ data }) {
 
           {/* Breakdown table */}
           <div style={{ fontSize: 10.5, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>TCO Breakdown (3 Years)</div>
+          <div className="table-scroll-wrap">
           <table className="dash-table" style={{ fontSize: 11 }}>
             <thead>
               <tr>
@@ -635,6 +640,7 @@ export default function OverviewPage({ data }) {
               </tr>
             </tfoot>
           </table>
+          </div>
         </div>
       </div>
 

@@ -1,5 +1,6 @@
-const xlsx    = require('xlsx');
+const xlsx     = require('xlsx');
 const pdfParse = require('pdf-parse');
+const mammoth  = require('mammoth');
 
 // ─────────────────────────────────────────────────────────────────────────────
 // parseFile — turn a single uploaded buffer into a plain JS value
@@ -55,6 +56,25 @@ async function parseFile(buffer, mimetype, originalname) {
       };
     } catch (err) {
       return { type: 'pdf', filename: originalname, error: err.message, text: '' };
+    }
+  }
+
+  // ── Word documents (.docx / .doc) ────────────────────────────────────────────
+  if (
+    ext === 'docx' ||
+    mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+    ext === 'doc'  ||
+    mimetype === 'application/msword'
+  ) {
+    try {
+      const result = await mammoth.extractRawText({ buffer });
+      return {
+        type: 'docx',
+        filename: originalname,
+        text: result.value,
+      };
+    } catch (err) {
+      return { type: 'docx', filename: originalname, error: err.message, text: '' };
     }
   }
 

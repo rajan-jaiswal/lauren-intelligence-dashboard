@@ -124,8 +124,25 @@ export function DataProvider({ children }) {
     invalidateProduct(practice, product);
   }, [invalidateProduct]);
 
+  /** Remove an entire practice and all its cached products */
+  const removePracticeFromList = useCallback((practiceName) => {
+    setPractices((prev) => {
+      const next = { ...prev };
+      delete next[practiceName];
+      return next;
+    });
+    // Also evict all cached products for this practice
+    const keysToDelete = Object.keys(productCacheRef.current).filter(k => k.startsWith(`${practiceName}/`));
+    keysToDelete.forEach(k => delete productCacheRef.current[k]);
+    setProductCache((prev) => {
+      const next = { ...prev };
+      keysToDelete.forEach(k => delete next[k]);
+      return next;
+    });
+  }, []);
+
   return (
-    <DataContext.Provider value={{ practices, loading, error, getProductData, invalidateProduct, addProductToList, addPracticeToList, removeProductFromList }}>
+    <DataContext.Provider value={{ practices, loading, error, getProductData, invalidateProduct, addProductToList, addPracticeToList, removeProductFromList, removePracticeFromList }}>
       {children}
     </DataContext.Provider>
   );

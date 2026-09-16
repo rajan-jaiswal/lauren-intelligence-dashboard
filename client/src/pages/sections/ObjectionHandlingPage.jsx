@@ -10,6 +10,7 @@ export default function ObjectionHandlingPage({ data }) {
 
       <div className="card">
         <div className="card-title">CUSTOMER OBJECTIONS &amp; RECOMMENDED RESPONSES</div>
+        <div className="table-scroll-wrap">
         <table className="dash-table">
           <thead>
             <tr>
@@ -35,6 +36,7 @@ export default function ObjectionHandlingPage({ data }) {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

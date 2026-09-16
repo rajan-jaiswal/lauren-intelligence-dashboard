@@ -184,10 +184,22 @@ function Sparkline() {
   );
 }
 
+// ── Practice accent colours ───────────────────────────────────────────────
+const PRACTICE_ACCENT = {
+  AWS:      { color: '#ff9900', light: 'rgba(255,153,0,.13)', icon: '☁️' },
+  IBM:      { color: '#3b82d4', light: 'rgba(59,130,212,.13)', icon: '🔷' },
+  'Red Hat':{ color: '#cc0000', light: 'rgba(204,0,0,.11)',   icon: '🎩' },
+  WIZ:      { color: '#7c5cd8', light: 'rgba(124,92,216,.13)', icon: '🔮' },
+  GOOGLE:   { color: '#4285f4', light: 'rgba(66,133,244,.13)', icon: '🔵' },
+};
+function practiceAccent(p) {
+  return PRACTICE_ACCENT[p] || { color: 'var(--blue)', light: 'var(--blue-lt)', icon: '🏢' };
+}
+
 // ── Welcome / Selection Screen ────────────────────────────────────────────
 function WelcomeScreen({ theme, setTheme, practice, product, products, onPracticeChange, onProductChange, onLaunch, _loading, practicesList }) {
-  const isAws = practice === 'AWS';
   const displayPractices = practicesList && practicesList.length ? practicesList : ['IBM', 'AWS'];
+  const accent = practiceAccent(practice);
 
   return (
     <div style={{
@@ -195,13 +207,14 @@ function WelcomeScreen({ theme, setTheme, practice, product, products, onPractic
       background: 'var(--bg)',
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
       fontFamily: 'var(--font)',
+      padding: '24px 16px',
     }}>
 
       {/* Theme toggle — top right */}
       <button
         className="theme-btn"
         onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
-        style={{ position: 'fixed', top: 16, right: 20 }}
+        style={{ position: 'fixed', top: 14, right: 18 }}
       >
         <span style={{ width: 13, height: 13, display: 'flex' }}>
           {theme === 'dark' ? IC.Sun : IC.Moon}
@@ -209,121 +222,183 @@ function WelcomeScreen({ theme, setTheme, practice, product, products, onPractic
         {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
       </button>
 
-      {/* Card */}
-      <div style={{
-        background: 'var(--card-bg)', border: '1px solid var(--card-border)',
-        borderRadius: 14, padding: '44px 52px', width: '100%', maxWidth: 520,
-        boxShadow: '0 8px 40px rgba(0,0,0,.35)',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0,
+      {/* ── Card ── */}
+      <div className="welcome-card" style={{
+        background: 'var(--card-bg)',
+        border: '1px solid var(--card-border)',
+        borderRadius: 18,
+        padding: '40px 44px 36px',
+        width: '100%',
+        maxWidth: 600,
+        boxShadow: '0 12px 48px rgba(0,0,0,.22)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 0,
       }}>
 
-        {/* Logo */}
-        <div style={{ marginBottom: 6 }}>
-          <div style={{ fontSize: 34, fontWeight: 900, color: 'var(--text)', letterSpacing: 4, lineHeight: 1 }}>
+        {/* ── Brand header ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 28 }}>
+          <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--text)', letterSpacing: 5, lineHeight: 1 }}>
             LAUREN
           </div>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', letterSpacing: 4, textAlign: 'center', textTransform: 'uppercase', marginTop: 3 }}>
+          <div style={{ fontSize: 9.5, color: 'var(--text-muted)', letterSpacing: 3.5, textTransform: 'uppercase', marginTop: 5 }}>
             Intelligence Dashboard
           </div>
+          {/* Accent bar */}
+          <div style={{
+            width: 40, height: 3,
+            background: accent.color,
+            borderRadius: 2,
+            marginTop: 16,
+            transition: 'background .3s',
+          }}/>
         </div>
 
-        {/* Divider */}
-        <div style={{ width: 48, height: 3, background: isAws ? '#ff9900' : 'var(--blue)', borderRadius: 2, margin: '18px 0 28px' }}/>
-
-        {/* Headline */}
-        <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', marginBottom: 6, textAlign: 'center' }}>
-          Select your Practice &amp; Product
-        </div>
-        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 28, textAlign: 'center', lineHeight: 1.6 }}>
-          Choose the practice and product you want to explore,<br/>then launch the dashboard.
-        </div>
-
-        {/* Selectors */}
-        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 14 }}>
-
-          {/* Practice */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: .8 }}>
-              Practice
-            </label>
-            <div style={{ display: 'flex', gap: 8 }}>
-              {displayPractices.map((p) => (
+        {/* ── Section: Practice ── */}
+        <div style={{ marginBottom: 22 }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12,
+          }}>
+            <div style={{ width: 3, height: 14, background: accent.color, borderRadius: 2, transition: 'background .3s' }}/>
+            <span style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
+              Select Practice
+            </span>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {displayPractices.map((p) => {
+              const a = practiceAccent(p);
+              const isActive = practice === p;
+              return (
                 <button
                   key={p}
                   onClick={() => onPracticeChange(p)}
                   style={{
-                    flex: 1, padding: '10px 14px', borderRadius: 8, cursor: 'pointer',
-                    fontSize: 13, fontWeight: 800, letterSpacing: .5,
-                    border: practice === p
-                      ? `2px solid ${p === 'AWS' ? '#ff9900' : 'var(--blue)'}`
-                      : '2px solid var(--card-border)',
-                    background: practice === p
-                      ? (p === 'AWS' ? 'rgba(255,153,0,.12)' : 'var(--blue-lt)')
-                      : 'var(--card-bg2)',
-                    color: practice === p
-                      ? (p === 'AWS' ? '#ff9900' : 'var(--blue)')
-                      : 'var(--text-muted)',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center',
+                    gap: 5,
+                    padding: '10px 18px',
+                    borderRadius: 10,
+                    cursor: 'pointer',
+                    minWidth: 72,
+                    border: isActive ? `2px solid ${a.color}` : '2px solid var(--card-border)',
+                    background: isActive ? a.light : 'var(--card-bg2)',
+                    color: isActive ? a.color : 'var(--text-muted)',
                     transition: 'all .15s',
+                    fontSize: 11,
+                    fontWeight: 800,
+                    letterSpacing: .4,
                   }}
+                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.borderColor = a.color + '66'; }}
+                  onMouseLeave={e => { if (!isActive) e.currentTarget.style.borderColor = 'var(--card-border)'; }}
                 >
-                  {p === 'AWS' ? '☁' : '🔷'} {p}
+                  <span style={{ fontSize: 18, lineHeight: 1 }}>{a.icon}</span>
+                  {p}
                 </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Product */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: .8 }}>
-              Product
-            </label>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {products.map((p) => {
-                const accent = isAws ? '#ff9900' : 'var(--blue)';
-                const accentLt = isAws ? 'rgba(255,153,0,.12)' : 'var(--blue-lt)';
-                return (
-                  <button
-                    key={p}
-                    onClick={() => onProductChange(p)}
-                    style={{
-                      padding: '8px 16px', borderRadius: 7, cursor: 'pointer',
-                      fontSize: 12, fontWeight: 700,
-                      border: product === p ? `2px solid ${accent}` : '2px solid var(--card-border)',
-                      background: product === p ? accentLt : 'var(--card-bg2)',
-                      color: product === p ? accent : 'var(--text-muted)',
-                      transition: 'all .15s',
-                    }}
-                  >
-                    {p}
-                  </button>
-                );
-              })}
-            </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* Launch Button */}
+        {/* ── Divider ── */}
+        <div style={{ height: 1, background: 'var(--card-border)', margin: '4px 0 20px', opacity: .7 }}/>
+
+        {/* ── Section: Product ── */}
+        <div style={{ marginBottom: 28 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <div style={{ width: 3, height: 14, background: accent.color, borderRadius: 2, transition: 'background .3s' }}/>
+            <span style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
+              Select Product
+            </span>
+            {product && (
+              <span style={{
+                marginLeft: 'auto',
+                fontSize: 10.5, fontWeight: 700,
+                padding: '2px 9px', borderRadius: 10,
+                background: accent.light,
+                color: accent.color,
+                border: `1px solid ${accent.color}44`,
+                transition: 'all .3s',
+              }}>
+                {product}
+              </span>
+            )}
+          </div>
+
+          {/* Product grid — max 3 per row, scrollable if very many */}
+          <div className="welcome-product-grid" style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: 8,
+            maxHeight: 220,
+            overflowY: products.length > 9 ? 'auto' : 'visible',
+            paddingRight: products.length > 9 ? 4 : 0,
+          }}>
+            {products.map((p) => {
+              const isActive = product === p;
+              return (
+                <button
+                  key={p}
+                  onClick={() => onProductChange(p)}
+                  title={p}
+                  style={{
+                    padding: '9px 10px',
+                    borderRadius: 8,
+                    cursor: 'pointer',
+                    fontSize: 11.5,
+                    fontWeight: 700,
+                    textAlign: 'left',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    border: isActive ? `2px solid ${accent.color}` : '1.5px solid var(--card-border)',
+                    background: isActive ? accent.light : 'var(--card-bg2)',
+                    color: isActive ? accent.color : 'var(--text-muted)',
+                    transition: 'all .15s',
+                    letterSpacing: .2,
+                  }}
+                  onMouseEnter={e => { if (!isActive) { e.currentTarget.style.borderColor = accent.color + '55'; e.currentTarget.style.color = 'var(--text)'; } }}
+                  onMouseLeave={e => { if (!isActive) { e.currentTarget.style.borderColor = 'var(--card-border)'; e.currentTarget.style.color = 'var(--text-muted)'; } }}
+                >
+                  {p}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ── Launch button ── */}
         <button
           onClick={onLaunch}
+          disabled={!product}
           style={{
-            marginTop: 32, width: '100%', padding: '13px 0',
-            borderRadius: 9, border: 'none', cursor: 'pointer',
-            background: isAws ? '#ff9900' : 'var(--blue)',
-            color: '#fff', fontSize: 14, fontWeight: 900, letterSpacing: .8,
-            transition: 'opacity .15s',
+            width: '100%',
+            padding: '14px 0',
+            borderRadius: 11,
+            border: 'none',
+            cursor: product ? 'pointer' : 'not-allowed',
+            background: product ? accent.color : 'var(--card-border)',
+            color: '#fff',
+            fontSize: 14,
+            fontWeight: 900,
+            letterSpacing: 1,
+            transition: 'all .2s',
+            opacity: product ? 1 : 0.55,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
           }}
-          onMouseEnter={e => e.target.style.opacity = '.88'}
-          onMouseLeave={e => e.target.style.opacity = '1'}
+          onMouseEnter={e => { if (product) e.currentTarget.style.opacity = '.86'; }}
+          onMouseLeave={e => { if (product) e.currentTarget.style.opacity = '1'; }}
         >
-          Launch Dashboard →
+          <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 16, height: 16, flexShrink: 0 }}>
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd"/>
+          </svg>
+          Launch Dashboard
         </button>
 
-        {/* Footer note */}
-        <div style={{ marginTop: 20, fontSize: 10.5, color: 'var(--text-dim)', textAlign: 'center' }}>
+        {/* ── Footer ── */}
+        <div style={{ marginTop: 18, fontSize: 10, color: 'var(--text-dim)', textAlign: 'center', letterSpacing: .3 }}>
           For internal use only · © 2025 Lauren Group
         </div>
-      </div>
 
+      </div>
     </div>
   );
 }
@@ -339,6 +414,7 @@ function AppInner() {
   const [dataLoading, setDataLoading] = useState(false);
   const [adminPin, setAdminPin]     = useState(null);   // unlocked once, reused
   const [formArgs, setFormArgs]     = useState({});     // { editDoc } for product-form
+  const [sidebarOpen, setSidebarOpen] = useState(false); // mobile sidebar toggle
 
   const { practices, loading, getProductData, invalidateProduct, addProductToList, addPracticeToList, removeProductFromList } = useData();
 
@@ -576,8 +652,16 @@ function AppInner() {
   return (
     <div className="dashboard-layout">
 
+      {/* ── Mobile sidebar overlay ── */}
+      <div
+        className={`sidebar-overlay${sidebarOpen ? ' open' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+      />
+
       {/* ── Sidebar ── */}
-    <aside className="sidebar">
+    <aside className={`sidebar${sidebarOpen ? ' open' : ''}`}>
+      {/* Mobile close button */}
+      <button className="sidebar-close-btn" onClick={() => setSidebarOpen(false)} aria-label="Close menu">×</button>
       <div className="sidebar-logo">
         {isAws ? (
           <>
@@ -601,8 +685,8 @@ function AppInner() {
                   {/* Admin header row */}
                   <div
                     className={`nav-item${activeNav === 'admin' ? ' active' : ''}`}
-                    onClick={() => setActiveNav('admin')}
-                    style={{ borderTop: '1px solid rgba(255,255,255,.08)', marginTop: 4, paddingTop: 4 }}
+                    onClick={() => { setActiveNav('admin'); setSidebarOpen(false); }}
+                    style={{ borderTop: '1px solid rgba(255,255,255,.08)', marginTop: 6, paddingTop: 6 }}
                   >
                     <span className="nav-icon">
                       {adminPin ? UnlockIcon : LockIcon}
@@ -615,36 +699,35 @@ function AppInner() {
                   </div>
                   {/* Sub-items — only visible when admin is unlocked */}
                   {adminPin && (
-                    <>
+                    <div style={{ background: 'rgba(0,0,0,.15)', borderLeft: '2px solid rgba(74,158,255,.3)', marginLeft: 14, borderRadius: '0 0 6px 6px' }}>
                       <div
                         className={`nav-item${activeNav === 'add-product' ? ' active' : ''}`}
-                        onClick={() => setActiveNav('add-product')}
-                        style={{ paddingLeft: 28 }}
+                        onClick={() => { setActiveNav('add-product'); setSidebarOpen(false); }}
+                        style={{ paddingLeft: 14, paddingRight: 10, fontSize: 12 }}
                       >
-                        <span className="nav-icon">{AddIcon}</span>
-                        <span className="nav-label">Add Product</span>
-                        <span className="ai-badge" style={{ background: '#2dca6e', color: '#fff' }}>NEW</span>
+                        <span className="nav-icon" style={{ width: 14, height: 14 }}>{AddIcon}</span>
+                        <span className="nav-label" style={{ color: '#2dca6e' }}>Add Product</span>
+                        <span className="ai-badge" style={{ background: '#2dca6e', color: '#fff', fontSize: 8 }}>NEW</span>
                       </div>
                       <div
                         className={`nav-item${activeNav === 'manage-practice' ? ' active' : ''}`}
-                        onClick={() => setActiveNav('manage-practice')}
-                        style={{ paddingLeft: 28 }}
+                        onClick={() => { setActiveNav('manage-practice'); setSidebarOpen(false); }}
+                        style={{ paddingLeft: 14, paddingRight: 10, fontSize: 12 }}
                       >
-                        <span className="nav-icon">{ManageIcon}</span>
-                        <span className="nav-label">Manage Practices</span>
-                        <span className="ai-badge" style={{ background: '#b47fff', color: '#fff' }}>⚙</span>
+                        <span className="nav-icon" style={{ width: 14, height: 14 }}>{ManageIcon}</span>
+                        <span className="nav-label" style={{ color: '#b47fff' }}>Manage Practices</span>
                       </div>
                       <div
                         className="nav-item"
-                        onClick={() => { setAdminPin(null); setActiveNav('overview'); }}
-                        style={{ paddingLeft: 28, color: '#ff7a7a' }}
+                        onClick={() => { setAdminPin(null); setActiveNav('overview'); setSidebarOpen(false); }}
+                        style={{ paddingLeft: 14, paddingRight: 10, fontSize: 12 }}
                       >
-                        <span className="nav-icon">
+                        <span className="nav-icon" style={{ width: 14, height: 14, color: '#ff7a7a' }}>
                           <svg viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h6a1 1 0 100-2H4V5h5a1 1 0 100-2H3zm10.293 4.293a1 1 0 011.414 0L17 9.586V9a1 1 0 112 0v4a1 1 0 01-1 1h-4a1 1 0 110-2h1.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd"/></svg>
                         </span>
-                        <span className="nav-label">Logout</span>
+                        <span className="nav-label" style={{ color: '#ff7a7a' }}>Logout</span>
                       </div>
-                    </>
+                    </div>
                   )}
                 </div>
               );
@@ -654,7 +737,7 @@ function AppInner() {
               <div
                 key={item.id}
                 className={`nav-item${activeNav === item.id ? ' active' : ''}`}
-                onClick={() => setActiveNav(item.id)}
+                onClick={() => { setActiveNav(item.id); setSidebarOpen(false); }}
               >
                 <span className="nav-icon">{item.icon}</span>
                 <span className="nav-label">{item.label}</span>
@@ -692,6 +775,14 @@ function AppInner() {
 
         {/* Header */}
         <header className="top-header">
+          {/* Hamburger — visible on tablet/mobile only via CSS */}
+          <button
+            className="hamburger-btn"
+            onClick={() => setSidebarOpen(o => !o)}
+            aria-label="Toggle menu"
+          >
+            <span/><span/><span/>
+          </button>
           <div className="header-title">
             {isAws
               ? <><span style={{ color: '#ff9900', fontWeight: 900 }}>AWS</span> SALES INTELLIGENCE &amp; COMPETITIVE DASHBOARD</>

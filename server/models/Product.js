@@ -10,6 +10,7 @@ const OverviewSchema = new mongoose.Schema({
   targetUsers: String,
   productLaunch: String,
   marketPosition: String,
+  gartnerMQ: String,
   description: String,
 }, { _id: false });
 

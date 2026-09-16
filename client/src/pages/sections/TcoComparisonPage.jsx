@@ -73,6 +73,7 @@ export default function TcoComparisonPage({ data }) {
         {/* Breakdown table */}
         <div className="card">
           <div className="card-title">TCO BREAKDOWN (3 YEARS)</div>
+          <div className="table-scroll-wrap">
           <table className="dash-table">
             <thead>
               <tr>
@@ -101,6 +102,7 @@ export default function TcoComparisonPage({ data }) {
               </tr>
             </tfoot>
           </table>
+          </div>
         </div>
       </div>
     </div>

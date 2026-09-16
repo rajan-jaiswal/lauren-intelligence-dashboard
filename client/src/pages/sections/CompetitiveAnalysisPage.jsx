@@ -85,6 +85,7 @@ export default function CompetitiveAnalysisPage({ data }) {
             ))}
           </div>
         </div>
+        <div className="table-scroll-wrap">
         <table className="dash-table">
           <thead>
             <tr>
@@ -109,6 +110,7 @@ export default function CompetitiveAnalysisPage({ data }) {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import { saveManualProduct, aiFillProduct, uploadProduct, generateCompetitor, verifyPin, extractFromFile } from '../../api/products.js';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { saveManualProduct, aiFillProduct, aiGeneratePreview, uploadProduct, generateCompetitor, verifyPin, extractFromFile, checkDuplicate } from '../../api/products.js';
 import { useSSE } from '../../hooks/useSSE.js';
 import { useData } from '../../context/DataContext.jsx';
 
@@ -388,8 +388,82 @@ const TABS = [
   { id: 'competitive', label: '3 · Competitive' },
   { id: 'customers',   label: '4 · Customers & Cases' },
   { id: 'sales',       label: '5 · Sales Tools' },
+  { id: 'aicoach',     label: '6 · AI Sales Coach' },
   { id: 'upload',      label: '📎 File Upload' },
 ];
+
+// ─── AI Generate-Preview confirmation modal ───────────────────────────────────
+function AiFillConfirmModal({ productName, practice, competitors, onConfirm, onCancel }) {
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, background: 'var(--modal-overlay)', zIndex: 1000,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+    }}>
+      <div style={{
+        background: 'var(--card-bg)', border: '1px solid var(--card-border)',
+        borderRadius: 14, padding: '28px 32px', maxWidth: 460, width: '90%',
+        boxShadow: '0 8px 32px rgba(0,0,0,.18)',
+      }}>
+        {/* Icon + title */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+          <div style={{ width: 44, height: 44, borderRadius: 10, background: 'var(--purple-lt)', border: '1.5px solid var(--purple)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>
+            ✨
+          </div>
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)' }}>
+              Generate Product Data with AI?
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
+              AI will fill the form fields. You review, edit, then click Save.
+            </div>
+          </div>
+        </div>
+
+        {/* Product summary */}
+        <div style={{ background: 'var(--card-bg2)', border: '1px solid var(--card-border)', borderRadius: 9, padding: '12px 16px', marginBottom: 16 }}>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
+            <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5, minWidth: 72 }}>Practice</span>
+            <span style={{ fontSize: 13, color: 'var(--text)', fontWeight: 700 }}>{practice}</span>
+          </div>
+          <div style={{ display: 'flex', gap: 8, marginBottom: competitors ? 6 : 0 }}>
+            <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5, minWidth: 72 }}>Product</span>
+            <span style={{ fontSize: 13, color: 'var(--blue)', fontWeight: 800 }}>{productName}</span>
+          </div>
+          {competitors && (
+            <div style={{ display: 'flex', gap: 8 }}>
+              <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5, minWidth: 72 }}>vs.</span>
+              <span style={{ fontSize: 12, color: 'var(--text)', fontWeight: 600 }}>{competitors}</span>
+            </div>
+          )}
+        </div>
+
+        {/* What happens next */}
+        <div style={{ fontSize: 12, color: 'var(--text)', background: 'var(--green-lt)', border: '1px solid var(--green)', borderRadius: 7, padding: '10px 13px', marginBottom: 20, lineHeight: 1.7 }}>
+          <strong style={{ color: 'var(--green)' }}>How it works:</strong><br />
+          1. AI generates all product fields (no data is saved yet)<br />
+          2. The form is pre-filled — you can review and edit any field<br />
+          3. Click <strong>"Save Product"</strong> when you're happy to save to the database
+        </div>
+
+        {/* Buttons */}
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button
+            onClick={onConfirm}
+            style={{ flex: 1, padding: '11px', borderRadius: 8, border: 'none', cursor: 'pointer', background: 'var(--purple)', color: '#fff', fontSize: 13, fontWeight: 800 }}
+          >
+            ✨ Generate & Preview
+          </button>
+          <button
+            onClick={onCancel}
+            style={{ flex: 1, padding: '11px', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600, border: '1px solid var(--card-border)', background: 'var(--card-bg2)', color: 'var(--text)' }}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MAIN PAGE
@@ -439,7 +513,6 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
   // Use prop if provided (has full map), else fall back to context
   const practices = (practicesProp && Object.keys(practicesProp).length) ? practicesProp : ctxPractices;
 
-  const fileInputRef = useRef(null);
   const [activeTab, setActiveTab] = useState('basic');
   const [saving, setSaving] = useState(false);
   const [filling, setFilling] = useState(false);
@@ -450,17 +523,61 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
   const [competitorSummary, setCompetitorSummary] = useState(editDoc?.competitorSummary || []);
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractedFields, setExtractedFields] = useState(null);
+  const [showAiConfirm, setShowAiConfirm] = useState(false);
+  const [aiPreviewDone, setAiPreviewDone] = useState(false);
+  const [isAiFilling, setIsAiFilling] = useState(false);
+  // Duplicate name check state
+  const [dupWarning, setDupWarning] = useState('');
+  const dupCheckTimer = useRef(null);
+  // True while AI preview is pending — suppresses product_added auto-navigation
+  const previewModeRef = useRef(false);
 
   // ── Form state ──────────────────────────────────────────────────────────────
   const [practice, setPractice]   = useState(editDoc?.practice || defaultPractice || '');
   const [productName, setProduct] = useState(editDoc?.product  || '');
-  const [competitors, setComp]    = useState(editDoc?.competitors || '');
+  const [competitors, setComp]    = useState(
+    Array.isArray(editDoc?.competitors)
+      ? editDoc.competitors.join(', ')
+      : (editDoc?.competitors || '')
+  );
+
+  // ── Duplicate name check (debounced) ─────────────────────────────────────────
+  const checkDup = useCallback((prac, name) => {
+    setDupWarning('');
+    if (!prac || !name.trim() || editDoc?._id) return; // skip for edits
+    clearTimeout(dupCheckTimer.current);
+    dupCheckTimer.current = setTimeout(async () => {
+      try {
+        const { exists } = await checkDuplicate(prac, name.trim());
+        if (exists) setDupWarning(`"${name.trim()}" already exists in ${prac}. Saving will overwrite it.`);
+      } catch (_) { /* non-critical */ }
+    }, 600);
+  }, [editDoc]);
+
+  function handleProductNameChange(v) {
+    setProduct(v);
+    checkDup(practice, v);
+  }
+  function handlePracticeChange(v) {
+    setPractice(v);
+    checkDup(v, productName);
+  }
 
   // Overview fields
   const [overview, setOverview] = useState({
     logo: '', name: '', category: '', deployment: '', targetUsers: '',
-    productLaunch: '', marketPosition: '', description: '',
+    productLaunch: '', marketPosition: '', gartnerMQ: '', description: '',
     ...(editDoc?.overview || {}),
+  });
+
+  // AI Sales Coach fields
+  const [aiCoach, setAiCoach] = useState({
+    customerSays: '',
+    suggestedResponse: '',
+    recommendedCaseStudy: '',
+    winProbability: '',
+    kvps: [],
+    ...(editDoc?.aiCoach || {}),
   });
 
   // Array fields
@@ -478,7 +595,7 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
   // Win/loss summary fields
   const [winLoss, setWinLoss] = useState(editDoc?.winLoss || { total: '', won: '', lost: '', winRate: '', competitors: [], topMessages: [] });
 
-  // SSE for competitor_added
+  // SSE for competitor_added / ai_progress / ai_preview / product_added
   useSSE({
     competitor_added: ({ competitorName, profile }) => {
       setCompetitorSummary(prev => {
@@ -488,9 +605,49 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
       });
     },
     ai_progress: (data) => { setProgress(data); },
+
+    // ── AI preview: populate form fields, do NOT save or navigate ────────────
+    ai_preview: ({ data: d }) => {
+      if (!d) return;
+      previewModeRef.current = false;
+      setFilling(false);
+      setProgress(null);
+      setAiPreviewDone(true);
+      // Populate overview fields
+      if (d.overview) setOverview(o => ({ ...o, ...d.overview }));
+      // Populate product name if blank
+      if (d.overview?.name && !productName) setProduct(d.overview.name);
+      // Array fields — only fill if currently empty
+      if (Array.isArray(d.keyFeatures)          && d.keyFeatures.length)          setKeyFeatures(d.keyFeatures);
+      if (Array.isArray(d.discoveryQuestions)    && d.discoveryQuestions.length)   setDiscoveryQ(d.discoveryQuestions);
+      if (Array.isArray(d.recommendedResponses)  && d.recommendedResponses.length) setRecommendedR(d.recommendedResponses);
+      if (Array.isArray(d.strengths)             && d.strengths.length)            setStrengths(d.strengths);
+      if (Array.isArray(d.weaknesses)            && d.weaknesses.length)           setWeaknesses(d.weaknesses);
+      if (Array.isArray(d.objectionHandling)     && d.objectionHandling.length)    setObjections(d.objectionHandling);
+      if (Array.isArray(d.caseStudies)           && d.caseStudies.length)          setCaseStudies(d.caseStudies);
+      if (Array.isArray(d.keyCustomers)          && d.keyCustomers.length)         setKeyCustomers(d.keyCustomers);
+      if (Array.isArray(d.competitorSummary)     && d.competitorSummary.length)    setCompetitorSummary(d.competitorSummary);
+      if (d.featureMatrix?.rows?.length)   setFeatureMatrix(d.featureMatrix);
+      if (d.tcoData?.rows?.length)         setTcoData(d.tcoData);
+      if (d.winLoss) {
+        // Ensure winLoss.competitors are objects {label,wins,pct,color}, not strings
+        const wlCompetitors = Array.isArray(d.winLoss.competitors)
+          ? d.winLoss.competitors.map(c =>
+              typeof c === 'string' ? { label: c, wins: 0, pct: 0, color: '#5a6478' } : c
+            )
+          : [];
+        setWinLoss(wl => ({ ...wl, ...d.winLoss, competitors: wlCompetitors }));
+      }
+      if (d.aiCoach)                       setAiCoach(ac => ({ ...ac, ...d.aiCoach }));
+      // Switch to Basic Info tab so user sees the filled data
+      setActiveTab('basic');
+    },
+
+    // ── product_added: navigate unless we're in ai-generate-preview mode ──────
     product_added: (data) => {
+      if (previewModeRef.current) return; // ai-generate-preview in flight — ignore
       if (data.percent === 100) {
-        setSaving(false); setFilling(false);
+        setSaving(false); setFilling(false); setIsAiFilling(false); setProgress(null);
         if (onSaved) onSaved(data.practice, data.product);
       }
     },
@@ -501,18 +658,17 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
     const names = new Set(existing.map(f => f.name));
     return [...existing, ...incoming.filter(f => !names.has(f.name))];
   }
-  function handleDrop(e) {
-    e.preventDefault(); setDragOver(false);
-    setFiles(prev => mergeFiles(prev, Array.from(e.dataTransfer.files)));
-  }
   function handleFileChange(e) {
+    if (!e.target.files || e.target.files.length === 0) return;
     setFiles(prev => mergeFiles(prev, Array.from(e.target.files)));
+    // Reset so the same file can be re-selected if removed and re-added
     e.target.value = '';
   }
 
-  // ── Extract from PDF — reads first file, pre-fills form fields ─────────────
+  // ── Extract from file — reads first file, pre-fills ALL form fields ──────────
   async function handleExtractFromFile() {
-    if (!files.length || !pin) return;
+    if (!files.length) { setError('Please upload a file first.'); return; }
+    if (!pin) { setError('PIN required — please re-enter your admin PIN.'); return; }
     const file = files[0];
     setIsExtracting(true);
     setExtractedFields(null);
@@ -520,27 +676,80 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
     try {
       const result = await extractFromFile(file, pin);
       const d = result.data || {};
-      // Only fill fields that are currently blank
-      if (d.productName  && !productName)          setProduct(d.productName);
-      if (d.description  && !overview.description) setOverview(o => ({ ...o, description: d.description }));
-      if (d.category     && !overview.category)    setOverview(o => ({ ...o, category: d.category }));
-      if (d.deployment   && !overview.deployment)  setOverview(o => ({ ...o, deployment: d.deployment }));
-      if (d.targetUsers  && !overview.targetUsers) setOverview(o => ({ ...o, targetUsers: d.targetUsers }));
-      if (d.productLaunch && !overview.productLaunch) setOverview(o => ({ ...o, productLaunch: d.productLaunch }));
+
+      // ── Overview / basic fields — only fill if currently blank ────────────────
+      if (d.productName    && !productName)             { setProduct(d.productName); checkDup(practice, d.productName); }
+      if (d.description    && !overview.description)    setOverview(o => ({ ...o, description: d.description }));
+      if (d.category       && !overview.category)       setOverview(o => ({ ...o, category: d.category }));
+      if (d.deployment     && !overview.deployment)     setOverview(o => ({ ...o, deployment: d.deployment }));
+      if (d.targetUsers    && !overview.targetUsers)    setOverview(o => ({ ...o, targetUsers: d.targetUsers }));
+      if (d.productLaunch  && !overview.productLaunch)  setOverview(o => ({ ...o, productLaunch: d.productLaunch }));
       if (d.marketPosition && !overview.marketPosition) setOverview(o => ({ ...o, marketPosition: d.marketPosition }));
-      if (Array.isArray(d.strengths)  && d.strengths.length  && !strengths.length)  setStrengths(d.strengths);
-      if (Array.isArray(d.weaknesses) && d.weaknesses.length && !weaknesses.length) setWeaknesses(d.weaknesses);
+      if (d.gartnerMQ      && !overview.gartnerMQ)      setOverview(o => ({ ...o, gartnerMQ: d.gartnerMQ }));
+
+      // ── Array fields — only fill if currently empty ───────────────────────────
       if (Array.isArray(d.keyFeatures) && d.keyFeatures.length && !keyFeatures.length) {
-        setKeyFeatures(d.keyFeatures.map(f => typeof f === 'string' ? { icon: '', name: f } : f));
+        setKeyFeatures(d.keyFeatures.map(f => typeof f === 'string' ? { icon: '⚡', name: f } : { icon: f.icon || '⚡', name: f.name || String(f) }));
       }
-      if (Array.isArray(d.competitors) && d.competitors.length && !competitors) {
-        setComp(d.competitors.join(', '));
-      }
+      if (Array.isArray(d.strengths)            && d.strengths.length            && !strengths.length)            setStrengths(d.strengths);
+      if (Array.isArray(d.weaknesses)           && d.weaknesses.length           && !weaknesses.length)           setWeaknesses(d.weaknesses);
+      if (Array.isArray(d.discoveryQuestions)   && d.discoveryQuestions.length   && !discoveryQuestions.length)   setDiscoveryQ(d.discoveryQuestions);
+      if (Array.isArray(d.recommendedResponses) && d.recommendedResponses.length && !recommendedResponses.length) setRecommendedR(d.recommendedResponses);
+      if (Array.isArray(d.objectionHandling)    && d.objectionHandling.length    && !objectionHandling.length)    setObjections(d.objectionHandling);
+      if (Array.isArray(d.caseStudies)          && d.caseStudies.length          && !caseStudies.length)          setCaseStudies(d.caseStudies);
+      if (Array.isArray(d.keyCustomers)         && d.keyCustomers.length         && !keyCustomers.length)         setKeyCustomers(d.keyCustomers);
+      if (Array.isArray(d.competitors)          && d.competitors.length          && !competitors)                 setComp(d.competitors.join(', '));
+
+      // ── Structured fields ─────────────────────────────────────────────────────
+      if (d.featureMatrix?.rows?.length && !featureMatrix?.rows?.length) setFeatureMatrix(d.featureMatrix);
+      if (d.tcoData?.rows?.length       && !tcoData?.rows?.length)       setTcoData(d.tcoData);
+      if (d.winLoss) setWinLoss(wl => ({
+        ...wl,
+        ...(d.winLoss.total    ? { total:   d.winLoss.total }   : {}),
+        ...(d.winLoss.won      ? { won:     d.winLoss.won }     : {}),
+        ...(d.winLoss.lost     ? { lost:    d.winLoss.lost }    : {}),
+        ...(d.winLoss.winRate  ? { winRate: d.winLoss.winRate } : {}),
+        ...(Array.isArray(d.winLoss.topMessages) && d.winLoss.topMessages.length ? { topMessages: d.winLoss.topMessages } : {}),
+        ...(Array.isArray(d.winLoss.competitors) && d.winLoss.competitors.length
+          ? {
+              competitors: d.winLoss.competitors.map(c =>
+                typeof c === 'string' ? { label: c, wins: 0, pct: 0, color: '#5a6478' } : c
+              ),
+            }
+          : {}),
+      }));
+      if (d.aiCoach) setAiCoach(ac => ({ ...ac, ...d.aiCoach }));
+
       setExtractedFields(d);
+      // Switch to Basic Info so user immediately sees the filled data
+      setActiveTab('basic');
     } catch (err) {
       setError(err?.response?.data?.error || err.message || 'PDF extraction failed');
     } finally {
       setIsExtracting(false);
+    }
+  }
+
+  // ── AI Fill Missing Details — saves to DB then navigates to the product
+  // NOTE: previewModeRef must NOT be set here — aiFillProduct saves to DB
+  // and fires product_added at percent:100, which the handler uses to navigate.
+  async function handleAiFillMissing() {
+    if (!productName.trim() || !practice) { setError('Enter Product Name and Practice first (go to Basic Info tab).'); return; }
+    setError('');
+    setIsAiFilling(true);
+    // previewModeRef stays false so product_added SSE will trigger navigation
+    setProgress({ percent: 10, stage: 'starting', message: 'AI is analysing and filling missing details...' });
+    try {
+      await aiFillProduct({
+        practice,
+        product: productName.trim(),
+        competitors,
+      }, pin);
+      // SSE ai_progress + product_added will fire as server completes
+    } catch (err) {
+      setError(err?.response?.data?.error || err.message);
+      setIsAiFilling(false);
+      setProgress(null);
     }
   }
 
@@ -565,6 +774,7 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
       featureMatrix,
       tcoData,
       winLoss,
+      aiCoach,
     };
   }
 
@@ -572,29 +782,23 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
   async function handleSave(e) {
     e.preventDefault();
     if (!practice || !productName.trim()) { setError('Practice and Product Name are required.'); return; }
-    setError(''); setSaving(true);
+    setError('');
+    setDupWarning('');
 
-    // If files are attached, use the upload+AI route
-    if (files.length > 0) {
-      const formData = new FormData();
-      formData.append('pin', pin);
-      formData.append('productName', productName.trim());
-      formData.append('practice', practice);
-      formData.append('description', overview.description || '');
-      formData.append('competitors', competitors);
-      files.forEach(f => formData.append('files', f));
-      setProgress({ percent: 0, stage: 'uploading', message: 'Uploading files...' });
+    // Block save if duplicate product exists and this is a new product (not editing)
+    if (!editDoc?._id) {
       try {
-        await uploadProduct(formData);
-        // success via SSE product_added
-      } catch (err) {
-        if (err?.response?.status === 401) { setError('Invalid PIN.'); }
-        else { setError(err.message || 'Upload failed.'); setSaving(false); }
-      }
-      return;
+        const { exists } = await checkDuplicate(practice, productName.trim());
+        if (exists) {
+          setError(`"${productName.trim()}" already exists in ${practice}. Use the Edit button from Manage Practices to update it.`);
+          return;
+        }
+      } catch (_) { /* non-critical — proceed */ }
     }
 
-    // Pure manual save
+    setSaving(true);
+
+    // Pure manual save (no auto-AI when files attached — use Extract + AI Fill buttons for that)
     try {
       const doc = await saveManualProduct(buildDoc(), pin);
       setSaving(false);
@@ -605,20 +809,31 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
     }
   }
 
-  // ── AI fill missing ─────────────────────────────────────────────────────────
-  async function handleAiFill() {
+  // ── AI generate preview ──────────────────────────────────────────────────────
+  // Step 1: validate → show confirm modal
+  function handleAiFill() {
     if (!productName.trim() || !practice) { setError('Enter Product Name and Practice first.'); return; }
-    setError(''); setFilling(true);
-    setProgress({ percent: 0, stage: 'starting', message: 'Sending to AI...' });
+    setError('');
+    setShowAiConfirm(true);
+  }
+
+  // Step 2: user confirmed → call preview endpoint (no DB save)
+  // When the SSE ai_preview event arrives, form fields are populated and
+  // the user can edit them before clicking "Save Product" to persist.
+  async function doAiFill() {
+    setShowAiConfirm(false);
+    previewModeRef.current = true;
+    setFilling(true);
+    setProgress({ percent: 0, stage: 'starting', message: 'AI is generating product data...' });
     try {
-      await aiFillProduct({
-        productId: editDoc?._id,
+      await aiGeneratePreview({
         practice,
         product: productName.trim(),
         competitors,
       }, pin);
-      // SSE product_added fires on completion
+      // SSE ai_preview fires when done → populates form fields
     } catch (err) {
+      previewModeRef.current = false;
       setError(err?.response?.data?.error || err.message);
       setFilling(false);
     }
@@ -637,21 +852,23 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
   return (
     <div style={{ padding: '24px 32px', maxWidth: 920, margin: '0 auto' }}>
 
-      {/* Hidden file input — lives outside tab so ref is always mounted regardless of active tab */}
-      <input
-        type="file"
-        ref={fileInputRef}
-        style={{ display: 'none' }}
-        accept=".pdf,.csv,.json,.xlsx,.xls,.txt"
-        multiple
-        onChange={handleFileChange}
-      />
+      {/* ── AI Generate-Preview confirmation modal ── */}
+      {showAiConfirm && (
+        <AiFillConfirmModal
+          productName={productName}
+          practice={practice}
+          competitors={competitors}
+          onConfirm={doAiFill}
+          onCancel={() => setShowAiConfirm(false)}
+        />
+      )}
+
 
       {/* ── Fixed save bar — position:fixed so it never scrolls away inside overflow:auto container ── */}
-      <div style={{
+      <div className="pf-save-bar" style={{
         position: 'fixed',
         top: 0,
-        left: 185,       /* sidebar width */
+        left: 185,       /* sidebar width — overridden to 0 on mobile via CSS */
         right: 0,
         zIndex: 200,
         background: 'var(--card-bg)',
@@ -691,7 +908,7 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
             padding: '8px 16px', borderRadius: 7, border: 'none', cursor: saving || filling ? 'not-allowed' : 'pointer',
             background: filling ? 'var(--card-border)' : 'var(--purple)',
             color: filling ? 'var(--text-muted)' : '#fff', fontSize: 12, fontWeight: 700, opacity: filling ? 0.7 : 1,
-          }}>{filling ? '⏳ AI Working...' : '✨ AI Fill Gaps'}</button>
+          }}>{filling ? '⏳ Generating...' : '✨ AI Generate'}</button>
 
           <button type="button" onClick={handleSave} disabled={saving || filling} style={{
             padding: '8px 22px', borderRadius: 7, border: 'none', cursor: saving || filling ? 'not-allowed' : 'pointer',
@@ -713,6 +930,26 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
         </div>
       )}
 
+      {/* AI preview ready banner */}
+      {aiPreviewDone && !filling && !saving && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 12,
+          padding: '12px 16px', borderRadius: 9, marginBottom: 16,
+          background: 'var(--green-lt)', border: '1.5px solid var(--green)',
+        }}>
+          <span style={{ fontSize: 20 }}>✅</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--green)' }}>AI data generated — form is pre-filled</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>Review each tab, edit any fields you want, then click <strong>Save Product</strong> to save to the database.</div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setAiPreviewDone(false)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 18, lineHeight: 1, padding: 4 }}
+          >×</button>
+        </div>
+      )}
+
       {error && (
         <div style={{ padding: '10px 14px', borderRadius: 8, background: '#ff5a5a18', border: '1px solid #ff5a5a44', color: '#ff5a5a', fontSize: 13, marginBottom: 16 }}>
           {error}
@@ -720,14 +957,16 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
       )}
 
       {/* Tab bar */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 20, flexWrap: 'wrap' }}>
+      <div className="pf-tabs" style={{ display: 'flex', gap: 4, marginBottom: 20, flexWrap: 'wrap' }}>
         {TABS.map(t => (
           <button
             key={t.id}
             type="button"
             onClick={() => setActiveTab(t.id)}
+            className="pf-tab"
             style={{
               padding: '7px 14px', borderRadius: 7, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 700,
+              whiteSpace: 'nowrap',
               background: activeTab === t.id ? 'var(--blue)' : 'var(--card-bg2)',
               color: activeTab === t.id ? '#fff' : 'var(--text-muted)',
             }}
@@ -743,17 +982,28 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
 
             <Field label="Practice *">
               {practiceOptions.length > 0 ? (
-                <select value={practice} onChange={e => setPractice(e.target.value)} style={{ ...INPUT_STYLE }}>
+                <select value={practice} onChange={e => handlePracticeChange(e.target.value)} style={{ ...INPUT_STYLE }}>
                   <option value="">Select practice...</option>
                   {practiceOptions.map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
               ) : (
-                <input value={practice} onChange={e => setPractice(e.target.value)} placeholder="e.g. IBM" style={INPUT_STYLE} />
+                <input value={practice} onChange={e => handlePracticeChange(e.target.value)} placeholder="e.g. IBM" style={INPUT_STYLE} />
               )}
             </Field>
 
             <Field label="Product Name *">
-              <input value={productName} onChange={e => setProduct(e.target.value)} placeholder="e.g. IBM Security Verify" style={INPUT_STYLE} required />
+              <input
+                value={productName}
+                onChange={e => handleProductNameChange(e.target.value)}
+                placeholder="e.g. IBM Security Verify"
+                style={{ ...INPUT_STYLE, borderColor: dupWarning ? '#f5c518' : undefined }}
+                required
+              />
+              {dupWarning && (
+                <div style={{ fontSize: 11, color: '#f5c518', marginTop: 4, display: 'flex', alignItems: 'center', gap: 5 }}>
+                  ⚠️ {dupWarning}
+                </div>
+              )}
             </Field>
 
             <Field label="Display Logo (emoji)">
@@ -778,6 +1028,10 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
 
             <Field label="Market Position">
               <input value={overview.marketPosition} onChange={e => setOverview(o => ({ ...o, marketPosition: e.target.value }))} placeholder="e.g. Leader (Gartner MQ)" style={INPUT_STYLE} />
+            </Field>
+
+            <Field label="Gartner MQ">
+              <input value={overview.gartnerMQ || ''} onChange={e => setOverview(o => ({ ...o, gartnerMQ: e.target.value }))} placeholder="e.g. Leader, Visionary, Challenger, Niche Player" style={INPUT_STYLE} />
             </Field>
 
             <div style={{ gridColumn: '1 / -1' }}>
@@ -897,6 +1151,88 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
         </div>
       )}
 
+      {/* ── TAB: AI SALES COACH ── */}
+      {activeTab === 'aicoach' && (
+        <div className="card" style={{ padding: '22px 24px' }}>
+          <SectionTitle icon="🤖" title="AI Sales Coach" sub="Fill in customer scenario and coaching data. This will appear on the product overview page." />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+            <Field label="Customer Says">
+              <textarea
+                value={aiCoach.customerSays || ''}
+                onChange={e => setAiCoach(ac => ({ ...ac, customerSays: e.target.value }))}
+                placeholder="e.g. We are worried about integration complexity with our existing systems..."
+                rows={3}
+                style={TEXTAREA_STYLE}
+              />
+            </Field>
+
+            <Field label="Suggested Response">
+              <textarea
+                value={aiCoach.suggestedResponse || ''}
+                onChange={e => setAiCoach(ac => ({ ...ac, suggestedResponse: e.target.value }))}
+                placeholder="e.g. Our product offers native connectors for all major identity providers and supports..."
+                rows={4}
+                style={TEXTAREA_STYLE}
+              />
+            </Field>
+
+            <Field label="Recommended Case Study">
+              <input
+                value={aiCoach.recommendedCaseStudy || ''}
+                onChange={e => setAiCoach(ac => ({ ...ac, recommendedCaseStudy: e.target.value }))}
+                placeholder="e.g. Global Bank reduced onboarding time by 60% using IBM Security Verify"
+                style={INPUT_STYLE}
+              />
+            </Field>
+
+            <Field label="Win Probability">
+              <select
+                value={aiCoach.winProbability || ''}
+                onChange={e => setAiCoach(ac => ({ ...ac, winProbability: e.target.value }))}
+                style={INPUT_STYLE}
+              >
+                <option value="">Select...</option>
+                <option value="HIGH">HIGH</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="LOW">LOW</option>
+              </select>
+            </Field>
+
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>Key Value Points</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {(aiCoach.kvps || []).map((kv, i) => (
+                  <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 32px', gap: 6 }}>
+                    <input
+                      value={kv}
+                      onChange={e => {
+                        const a = [...(aiCoach.kvps || [])];
+                        a[i] = e.target.value;
+                        setAiCoach(ac => ({ ...ac, kvps: a }));
+                      }}
+                      placeholder="Key value point..."
+                      style={INPUT_STYLE}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setAiCoach(ac => ({ ...ac, kvps: (ac.kvps || []).filter((_, idx) => idx !== i) }))}
+                      style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 16 }}
+                    >×</button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setAiCoach(ac => ({ ...ac, kvps: [...(ac.kvps || []), ''] }))}
+                  style={{ padding: '6px', borderRadius: 7, border: '1px dashed var(--card-border)', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 12 }}
+                >+ Add key value point</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+
       {/* ── TAB: SALES TOOLS ── */}
       {activeTab === 'sales' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -922,85 +1258,168 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
       {/* ── TAB: FILE UPLOAD ── */}
       {activeTab === 'upload' && (
         <div className="card" style={{ padding: '22px 24px' }}>
-          <SectionTitle icon="📎" title="Upload Data Files" sub="PDF, CSV, JSON, Excel or TXT. AI reads all files and fills missing fields on save." />
-          <div
-            className={`file-drop-zone${dragOver ? ' drag-over' : ''}`}
-            onDragOver={e => { e.preventDefault(); setDragOver(true); }}
-            onDragLeave={() => setDragOver(false)}
-            onDrop={handleDrop}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 28, marginBottom: 8 }}>☁</div>
-              <div style={{ fontWeight: 600, color: 'var(--text)', fontSize: 13 }}>
-                {files.length > 0 ? 'Drop more files or click to add' : 'Drop files here or click to browse'}
+          <SectionTitle icon="📎" title="Upload Document" sub="Step 1: Upload your PDF/Word file and click Extract. Step 2: Click AI Fill to complete missing fields. Step 3: Save Product." />
+
+          {/* HOW IT WORKS banner */}
+          <div style={{ display: 'flex', gap: 0, marginBottom: 18, borderRadius: 10, overflow: 'hidden', border: '1px solid var(--card-border)' }}>
+            {[
+              { n: '1', label: 'Upload', desc: 'Drop or click to pick file', color: 'var(--blue)' },
+              { n: '2', label: 'Extract', desc: 'Pull fields from document', color: 'var(--green)' },
+              { n: '3', label: 'AI Fill', desc: 'Fill remaining gaps with AI', color: 'var(--purple)' },
+              { n: '4', label: 'Save', desc: 'Click Save Product button', color: 'var(--orange)' },
+            ].map((s, i) => (
+              <div key={i} style={{ flex: 1, padding: '10px 12px', background: 'var(--card-bg2)', borderRight: i < 3 ? '1px solid var(--card-border)' : 'none' }}>
+                <div style={{ fontSize: 11, fontWeight: 900, color: s.color, marginBottom: 2 }}>{s.n}. {s.label}</div>
+                <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>{s.desc}</div>
               </div>
-              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6 }}>
-                PDF · CSV · JSON · XLSX · TXT — max 10 MB each
-              </div>
-            </div>
+            ))}
           </div>
+
+          {/* Drop zone — input IS the clickable area via label wrapping */}
+          <label
+            style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              border: `2px dashed ${dragOver ? 'var(--blue)' : 'var(--card-border)'}`,
+              borderRadius: 12, padding: '28px 20px', cursor: 'pointer',
+              background: dragOver ? 'var(--blue-lt)' : 'var(--card-bg2)',
+              transition: 'all .15s', userSelect: 'none',
+            }}
+            onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={e => { e.preventDefault(); setDragOver(false); }}
+            onDrop={e => {
+              e.preventDefault(); e.stopPropagation(); setDragOver(false);
+              const dropped = Array.from(e.dataTransfer.files);
+              if (dropped.length) setFiles(prev => mergeFiles(prev, dropped));
+            }}
+          >
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx,.csv,.json,.xlsx,.xls,.txt"
+              multiple
+              style={{ display: 'none' }}
+              onChange={handleFileChange}
+            />
+            <div style={{ fontSize: 40, marginBottom: 10, lineHeight: 1 }}>
+              {dragOver ? '📂' : '☁️'}
+            </div>
+            <div style={{ fontWeight: 700, color: 'var(--text)', fontSize: 14, marginBottom: 4 }}>
+              {files.length > 0 ? '+ Add more files' : 'Click here or drag & drop files'}
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+              PDF · DOC · DOCX · CSV · JSON · XLSX · TXT &nbsp;·&nbsp; max 10 MB each
+            </div>
+          </label>
+
+          {/* Uploaded file list */}
           {files.length > 0 && (
-            <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 6 }}>
               {files.map(f => {
                 const ext = f.name.split('.').pop().toLowerCase();
-                const icon = ext === 'pdf' ? '📕' : ext === 'xlsx' || ext === 'xls' ? '📊' : ext === 'csv' ? '📋' : ext === 'json' ? '📦' : '📄';
+                const icon = ext === 'pdf' ? '📕' : ['xlsx','xls'].includes(ext) ? '📊' : ext === 'csv' ? '📋' : ext === 'json' ? '📦' : ['doc','docx'].includes(ext) ? '📝' : '📄';
                 return (
-                  <div key={f.name} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', borderRadius: 7, background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
-                    <span style={{ fontSize: 18 }}>{icon}</span>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)' }}>{f.name}</div>
-                      <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{(f.size / 1024).toFixed(1)} KB</div>
+                  <div key={f.name} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 14px', borderRadius: 8, background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
+                    <span style={{ fontSize: 22, flexShrink: 0 }}>{icon}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>{(f.size / 1024).toFixed(1)} KB · {ext.toUpperCase()}</div>
                     </div>
-                    <button type="button" onClick={() => { setFiles(prev => prev.filter(x => x.name !== f.name)); setExtractedFields(null); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 16 }}>×</button>
+                    <button
+                      type="button"
+                      onClick={() => { setFiles(prev => prev.filter(x => x.name !== f.name)); setExtractedFields(null); }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 20, lineHeight: 1, padding: '2px 4px', borderRadius: 4, flexShrink: 0 }}
+                    >×</button>
                   </div>
                 );
               })}
 
-              {/* Extract from PDF button */}
-              <div style={{ display: 'flex', gap: 10, marginTop: 6, alignItems: 'center' }}>
+              {/* ── STEP 1: Extract button ── */}
+              <div style={{ marginTop: 6, padding: '14px 16px', borderRadius: 10, background: 'var(--card-bg2)', border: '1px solid var(--card-border)' }}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--text)', marginBottom: 8 }}>
+                  📄 Step 1: Extract fields from document
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 10 }}>
+                  Reads your document and pulls out product name, description, features, strengths, competitors, and more.
+                </div>
                 <button
                   type="button"
-                  disabled={isExtracting}
+                  disabled={isExtracting || isAiFilling}
                   onClick={handleExtractFromFile}
                   style={{
-                    padding: '9px 20px', borderRadius: 8, border: 'none',
-                    cursor: isExtracting ? 'not-allowed' : 'pointer',
+                    padding: '10px 24px', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 700,
+                    cursor: (isExtracting || isAiFilling) ? 'not-allowed' : 'pointer',
                     background: isExtracting ? 'var(--card-border)' : 'var(--blue)',
                     color: isExtracting ? 'var(--text-muted)' : '#fff',
-                    fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 7,
-                    transition: 'all .15s',
+                    display: 'flex', alignItems: 'center', gap: 8,
                   }}
                 >
                   {isExtracting
-                    ? <><span style={{ display: 'inline-block', width: 13, height: 13, border: '2px solid rgba(255,255,255,.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin .7s linear infinite' }} /> Extracting...</>
-                    : '📄 Extract from PDF'}
+                    ? <><span style={{ display: 'inline-block', width: 14, height: 14, border: '2px solid rgba(255,255,255,.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin .7s linear infinite' }} /> Extracting from document...</>
+                    : '📄 Extract from Document'}
                 </button>
-                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-                  Pulls product data from file and pre-fills Basic Info fields
-                </span>
               </div>
 
-              {/* Extracted fields summary banner */}
+              {/* Extraction result */}
               {extractedFields && (
-                <div style={{ padding: '10px 14px', borderRadius: 8, background: 'var(--green-lt)', border: '1px solid var(--green)', marginTop: 4 }}>
-                  <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--green)', marginBottom: 6 }}>📄 Extracted — fields pre-filled (check Basic Info tab):</div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                    {extractedFields.productName    && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 7, background: 'var(--card-bg)', border: '1px solid var(--green)', color: 'var(--text)', fontWeight: 600 }}>Name: {extractedFields.productName}</span>}
-                    {extractedFields.category       && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 7, background: 'var(--card-bg)', border: '1px solid var(--blue)', color: 'var(--text)', fontWeight: 600 }}>Category: {extractedFields.category}</span>}
-                    {extractedFields.deployment     && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 7, background: 'var(--card-bg)', border: '1px solid var(--purple)', color: 'var(--text)', fontWeight: 600 }}>Deployment: {extractedFields.deployment}</span>}
-                    {(extractedFields.keyFeatures   || []).length > 0 && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 7, background: 'var(--card-bg)', border: '1px solid var(--blue)', color: 'var(--blue)', fontWeight: 700 }}>{extractedFields.keyFeatures.length} features</span>}
-                    {(extractedFields.strengths     || []).length > 0 && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 7, background: 'var(--card-bg)', border: '1px solid var(--green)', color: 'var(--green)', fontWeight: 700 }}>{extractedFields.strengths.length} strengths</span>}
-                    {(extractedFields.competitors   || []).length > 0 && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 7, background: 'var(--card-bg)', border: '1px solid var(--orange)', color: 'var(--orange)', fontWeight: 700 }}>{extractedFields.competitors.length} competitors</span>}
+                <div style={{ borderRadius: 10, border: '1.5px solid var(--green)', overflow: 'hidden' }}>
+                  {/* Result header */}
+                  <div style={{ padding: '10px 16px', background: 'var(--green-lt)', borderBottom: '1px solid var(--green)' }}>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--green)' }}>✅ Extraction complete — all fields pre-filled across tabs</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>Review each tab to see the extracted data. Use AI Fill to complete any missing fields.</div>
                   </div>
-                  <div style={{ fontSize: 10.5, color: 'var(--text-muted)', marginTop: 6, fontStyle: 'italic' }}>
-                    Click "✨ AI Fill Gaps" to fill any remaining missing fields with Grok AI
+                  {/* Extracted field badges */}
+                  <div style={{ padding: '10px 16px', display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {extractedFields.productName    && <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'var(--card-bg)', border: '1px solid var(--green)', color: 'var(--text)', fontWeight: 600 }}>📛 {extractedFields.productName}</span>}
+                    {extractedFields.category       && <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'var(--card-bg)', border: '1px solid var(--blue)', color: 'var(--text)', fontWeight: 600 }}>🗂 {extractedFields.category}</span>}
+                    {extractedFields.deployment     && <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'var(--card-bg)', border: '1px solid var(--purple)', color: 'var(--text)', fontWeight: 600 }}>☁ {extractedFields.deployment}</span>}
+                    {extractedFields.targetUsers    && <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'var(--card-bg)', border: '1px solid var(--blue)', color: 'var(--text)', fontWeight: 600 }}>👥 {extractedFields.targetUsers}</span>}
+                    {extractedFields.gartnerMQ      && <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'var(--card-bg)', border: '1px solid var(--orange)', color: 'var(--text)', fontWeight: 600 }}>📊 Gartner: {extractedFields.gartnerMQ}</span>}
+                    {extractedFields.description    && <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'var(--card-bg)', border: '1px solid var(--card-border)', color: 'var(--text-muted)', fontWeight: 500, maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>📝 {extractedFields.description}</span>}
+                    {(extractedFields.keyFeatures        || []).length > 0 && <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'var(--blue-lt)',   border: '1px solid var(--blue)',   color: 'var(--blue)',   fontWeight: 700 }}>⚡ {extractedFields.keyFeatures.length} features</span>}
+                    {(extractedFields.strengths          || []).length > 0 && <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'var(--green-lt)', border: '1px solid var(--green)', color: 'var(--green)', fontWeight: 700 }}>✅ {extractedFields.strengths.length} strengths</span>}
+                    {(extractedFields.weaknesses         || []).length > 0 && <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: '#ff5a5a11', border: '1px solid #ff5a5a44', color: '#ff5a5a', fontWeight: 700 }}>⚠ {extractedFields.weaknesses.length} weaknesses</span>}
+                    {(extractedFields.competitors        || []).length > 0 && <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'var(--orange-lt)', border: '1px solid var(--orange)', color: 'var(--orange)', fontWeight: 700 }}>⚔ {extractedFields.competitors.length} competitors</span>}
+                    {(extractedFields.discoveryQuestions || []).length > 0 && <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'var(--blue-lt)',   border: '1px solid var(--blue)',   color: 'var(--blue)',   fontWeight: 700 }}>❓ {extractedFields.discoveryQuestions.length} questions</span>}
+                    {(extractedFields.objectionHandling  || []).length > 0 && <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'var(--orange-lt)', border: '1px solid var(--orange)', color: 'var(--orange)', fontWeight: 700 }}>🛡 {extractedFields.objectionHandling.length} objections</span>}
+                    {(extractedFields.caseStudies        || []).length > 0 && <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'var(--purple-lt)', border: '1px solid var(--purple)', color: 'var(--purple)', fontWeight: 700 }}>📖 {extractedFields.caseStudies.length} case studies</span>}
+                    {(extractedFields.keyCustomers       || []).length > 0 && <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'var(--green-lt)', border: '1px solid var(--green)', color: 'var(--green)', fontWeight: 700 }}>🏢 {extractedFields.keyCustomers.length} customers</span>}
+                    {extractedFields.featureMatrix?.rows?.length > 0       && <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'var(--purple-lt)', border: '1px solid var(--purple)', color: 'var(--purple)', fontWeight: 700 }}>📊 {extractedFields.featureMatrix.rows.length} matrix rows</span>}
+                    {extractedFields.winLoss?.topMessages?.length > 0      && <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'var(--blue-lt)',   border: '1px solid var(--blue)',   color: 'var(--blue)',   fontWeight: 700 }}>🏆 win/loss data</span>}
+                    {extractedFields.aiCoach?.customerSays                  && <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'var(--card-bg2)', border: '1px solid var(--card-border)', color: 'var(--text-muted)', fontWeight: 600 }}>🤖 AI coach</span>}
+                  </div>
+
+                  {/* ── STEP 2: AI Fill ── */}
+                  <div style={{ padding: '12px 16px', borderTop: '1px solid var(--card-border)', background: 'var(--card-bg)' }}>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--text)', marginBottom: 6 }}>
+                      ✨ Step 2: AI fills any missing fields
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 10 }}>
+                      {(!productName.trim() || !practice)
+                        ? '⚠️ Go to Basic Info tab first and set Product Name + Practice, then come back here.'
+                        : `Will use AI to complete any fields not found in the document for "${productName}" in ${practice}.`}
+                    </div>
+                    <button
+                      type="button"
+                      disabled={isAiFilling || isExtracting || !productName.trim() || !practice}
+                      onClick={handleAiFillMissing}
+                      style={{
+                        padding: '10px 24px', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 700,
+                        cursor: (isAiFilling || isExtracting || !productName.trim() || !practice) ? 'not-allowed' : 'pointer',
+                        background: isAiFilling ? 'var(--card-border)' : (!productName.trim() || !practice) ? '#aaa' : 'var(--purple)',
+                        color: (isAiFilling || !productName.trim() || !practice) ? 'var(--text-muted)' : '#fff',
+                        display: 'flex', alignItems: 'center', gap: 8,
+                        opacity: (!productName.trim() || !practice) ? 0.6 : 1,
+                      }}
+                    >
+                      {isAiFilling
+                        ? <><span style={{ display: 'inline-block', width: 14, height: 14, border: '2px solid rgba(255,255,255,.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin .7s linear infinite' }} /> AI is filling missing details...</>
+                        : '✨ AI Fill Missing Details'}
+                    </button>
                   </div>
                 </div>
               )}
 
-              <div style={{ fontSize: 11, color: 'var(--text-dim)', paddingLeft: 2 }}>
-                {files.length} file{files.length > 1 ? 's' : ''} attached — click "Save Product" to upload and process with AI
+              <div style={{ fontSize: 11, color: 'var(--text-dim)', paddingLeft: 2, marginTop: 4 }}>
+                After reviewing all filled fields → click <strong>💾 Save Product</strong> above
               </div>
             </div>
           )}
@@ -1019,7 +1438,7 @@ export default function ProductFormPage({ pin: externalPin, onPinSet, editDoc, d
           flex: 1, padding: '13px 0', borderRadius: 9, border: 'none', cursor: saving || filling ? 'not-allowed' : 'pointer',
           background: filling ? 'var(--card-border)' : 'var(--purple)',
           color: filling ? 'var(--text-muted)' : '#fff', fontSize: 14, fontWeight: 800, opacity: filling ? 0.7 : 1,
-        }}>{filling ? '⏳ AI Filling...' : '✨ AI Fill Missing & Save'}</button>
+        }}>{filling ? '⏳ Generating...' : '✨ AI Generate & Preview'}</button>
       </div>
     </div>
   );

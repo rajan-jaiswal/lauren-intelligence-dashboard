@@ -30,11 +30,11 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // ─── Single Gemini REST call ──────────────────────────────────────────────────
 // POST https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={KEY}
-function callGemini(model, prompt, timeoutMs = 90000) {
+function callGemini(model, prompt, timeoutMs = 120000) {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0, maxOutputTokens: 8192 },
+      generationConfig: { temperature: 0, maxOutputTokens: 16384 },
     });
 
     const path = `/v1beta/models/${model}:generateContent?key=${getApiKey()}`;
