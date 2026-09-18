@@ -1,13 +1,11 @@
 import React from 'react';
 
-// ── helpers ──────────────────────────────────────────────────────────────
 function parseMoney(str) {
   return parseInt((str || '0').replace(/[^0-9]/g, ''), 10) || 0;
 }
 
 const DOT_COLOR = { green: 'var(--green)', yellow: 'var(--yellow)', red: 'var(--red)' };
 
-// ── SVG mini icons for product meta ──────────────────────────────────────
 const MetaIcons = {
   category:   <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h5v5H2V2zm7 0h5v5H9V2zM2 9h5v5H2V9zm7 0h5v5H9V9z"/></svg>,
   deployment: <svg viewBox="0 0 16 16" fill="currentColor"><path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z"/></svg>,
@@ -17,7 +15,6 @@ const MetaIcons = {
   gartner:    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2.5 3.5a.5.5 0 010-1h11a.5.5 0 010 1h-11zm0 4a.5.5 0 010-1h11a.5.5 0 010 1h-11zm0 4a.5.5 0 010-1h11a.5.5 0 010 1h-11z"/></svg>,
 };
 
-// ── Feature SVG icons ─────────────────────────────────────────────────────
 const FeatureIcons = {
   'Automatic Discovery':          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 9a2 2 0 114 0 2 2 0 01-4 0z"/><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a4 4 0 00-3.446 6.032l-1.261 1.26a1 1 0 101.414 1.415l1.261-1.261A4 4 0 1011 5z" clipRule="evenodd"/></svg>,
   'AI Root Cause Analysis':        <svg viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd"/></svg>,
@@ -61,7 +58,6 @@ function getFeatureIcon(name) {
   );
 }
 
-// ── Initials badge (customers & competitors) ─────────────────────────────
 function InitialsBadge({ name, color, size = 40, fontSize = 13, radius = 8 }) {
   const words = (name || '').split(' ').filter(Boolean);
   const initials = words.length >= 2
@@ -79,43 +75,40 @@ function InitialsBadge({ name, color, size = 40, fontSize = 13, radius = 8 }) {
   );
 }
 
-// ── TCO horizontal bar ────────────────────────────────────────────────────
 function TcoBar({ label, value, max, color, amount }) {
   const pct = Math.min(100, (value / (max || 800)) * 100);
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-      <div style={{ width: 72, textAlign: 'right', fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', flexShrink: 0, lineHeight: 1.2 }}>{label}</div>
-      <div style={{ flex: 1, height: 20, background: 'var(--tco-track)', borderRadius: 5, overflow: 'hidden', minWidth: 0, position: 'relative' }}>
-        <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 5, transition: 'width .4s ease' }} />
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 7 }}>
+      <div style={{ width: 70, textAlign: 'right', fontSize: 11.5, fontWeight: 700, color: 'var(--text-muted)', flexShrink: 0, lineHeight: 1.2 }}>{label}</div>
+      <div style={{ flex: 1, height: 17, background: 'var(--tco-track)', borderRadius: 4, overflow: 'hidden', minWidth: 0 }}>
+        <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 4, transition: 'width .4s ease' }} />
       </div>
-      <div style={{ width: 54, fontSize: 11.5, fontWeight: 800, color, flexShrink: 0, textAlign: 'right' }}>{amount}</div>
+      <div style={{ width: 54, fontSize: 12, fontWeight: 800, color, flexShrink: 0, textAlign: 'right' }}>{amount}</div>
     </div>
   );
 }
 
-// ── Win Rate Donut ────────────────────────────────────────────────────────
 function WinDonut({ rate }) {
-  const r = 28, cx = 34, cy = 34, sw = 7;
+  const r = 24, cx = 30, cy = 30, sw = 6;
   const circ = 2 * Math.PI * r;
   const dash = (rate / 100) * circ;
   return (
-    <div style={{ position: 'relative', width: 68, height: 68, flexShrink: 0 }}>
-      <svg width="68" height="68" viewBox="0 0 68 68">
+    <div style={{ position: 'relative', width: 60, height: 60, flexShrink: 0 }}>
+      <svg width="60" height="60" viewBox="0 0 60 60">
         <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--card-border)" strokeWidth={sw} />
         <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--blue)" strokeWidth={sw}
           strokeDasharray={`${dash} ${circ}`} strokeLinecap="round"
           transform={`rotate(-90 ${cx} ${cy})`} />
       </svg>
-      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ fontSize: 13, fontWeight: 900, color: 'var(--text)', lineHeight: 1 }}>{rate}%</span>
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ fontSize: 11, fontWeight: 900, color: 'var(--text)', lineHeight: 1 }}>{rate}%</span>
       </div>
     </div>
   );
 }
 
-// ── Win Pie (donut chart for competitors) ────────────────────────────────
 function WinPie({ competitors }) {
-  const r = 36, cx = 46, cy = 46, sw = 14;
+  const r = 30, cx = 38, cy = 38, sw = 12;
   const total = (competitors || []).reduce((s, c) => s + c.wins, 0) || 1;
   const circ = 2 * Math.PI * r;
   let offset = 0;
@@ -126,7 +119,7 @@ function WinPie({ competitors }) {
     return seg;
   });
   return (
-    <svg width="92" height="92" viewBox="0 0 92 92" style={{ flexShrink: 0 }}>
+    <svg width="76" height="76" viewBox="0 0 76 76" style={{ flexShrink: 0 }}>
       <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--card-border)" strokeWidth={sw} />
       {segments.map((s, i) => (
         <circle key={i} cx={cx} cy={cy} r={r} fill="none"
@@ -140,11 +133,10 @@ function WinPie({ competitors }) {
   );
 }
 
-// ── Product Icon SVG ──────────────────────────────────────────────────────
 function ProductIcon() {
   return (
     <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeWidth="1.8"
-      style={{ color: 'var(--blue)', width: 28, height: 28 }}>
+      style={{ color: 'var(--blue)', width: 26, height: 26 }}>
       <circle cx="14" cy="14" r="12" strokeDasharray="4 2"/>
       <circle cx="14" cy="14" r="5"/>
       <line x1="14" y1="2" x2="14" y2="8"/>
@@ -155,51 +147,48 @@ function ProductIcon() {
   );
 }
 
-// ── Case Study icon by type ───────────────────────────────────────────────
 function CaseStudyIcon({ type }) {
   const t = (type || '').toLowerCase();
   if (t.includes('bank') || t.includes('financ'))
-    return <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 20, height: 20 }}><path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zm14 5H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM6 13a1 1 0 11-2 0 1 1 0 012 0zm3 0a1 1 0 11-2 0 1 1 0 012 0z" clipRule="evenodd"/></svg>;
+    return <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 16, height: 16 }}><path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zm14 5H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM6 13a1 1 0 11-2 0 1 1 0 012 0zm3 0a1 1 0 11-2 0 1 1 0 012 0z" clipRule="evenodd"/></svg>;
   if (t.includes('telecom') || t.includes('telco'))
-    return <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 20, height: 20 }}><path fillRule="evenodd" d="M5.05 3.636a1 1 0 010 1.414 7 7 0 000 9.9 1 1 0 11-1.414 1.414 9 9 0 010-12.728 1 1 0 011.414 0zm9.9 0a1 1 0 011.414 0 9 9 0 010 12.728 1 1 0 11-1.414-1.414 7 7 0 000-9.9 1 1 0 010-1.414zM7.879 6.464a1 1 0 010 1.414 3 3 0 000 4.243 1 1 0 11-1.415 1.414 5 5 0 010-7.07 1 1 0 011.415 0zm4.242 0a1 1 0 011.415 0 5 5 0 010 7.072 1 1 0 01-1.415-1.415 3 3 0 000-4.242 1 1 0 010-1.415zM10 9a1 1 0 011 1v.01a1 1 0 11-2 0V10a1 1 0 011-1z" clipRule="evenodd"/></svg>;
+    return <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 16, height: 16 }}><path fillRule="evenodd" d="M5.05 3.636a1 1 0 010 1.414 7 7 0 000 9.9 1 1 0 11-1.414 1.414 9 9 0 010-12.728 1 1 0 011.414 0zm9.9 0a1 1 0 011.414 0 9 9 0 010 12.728 1 1 0 11-1.414-1.414 7 7 0 000-9.9 1 1 0 010-1.414zM7.879 6.464a1 1 0 010 1.414 3 3 0 000 4.243 1 1 0 11-1.415 1.414 5 5 0 010-7.07 1 1 0 011.415 0zm4.242 0a1 1 0 011.415 0 5 5 0 010 7.072 1 1 0 01-1.415-1.415 3 3 0 000-4.242 1 1 0 010-1.415zM10 9a1 1 0 011 1v.01a1 1 0 11-2 0V10a1 1 0 011-1z" clipRule="evenodd"/></svg>;
   if (t.includes('energy') || t.includes('util'))
-    return <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 20, height: 20 }}><path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd"/></svg>;
+    return <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 16, height: 16 }}><path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd"/></svg>;
   if (t.includes('health'))
-    return <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 20, height: 20 }}><path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd"/></svg>;
-  if (t.includes('retail') || t.includes('commerce'))
-    return <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 20, height: 20 }}><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/><path d="M16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg>;
-  return <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 20, height: 20 }}><path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clipRule="evenodd"/></svg>;
+    return <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 16, height: 16 }}><path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd"/></svg>;
+  return <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 16, height: 16 }}><path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clipRule="evenodd"/></svg>;
 }
 
-// ── Check / X icons ───────────────────────────────────────────────────────
-function CheckIcon({ color = 'var(--green)', size = 14 }) {
+function CheckIcon({ color = 'var(--green)', size = 13 }) {
   return (
-    <svg viewBox="0 0 16 16" fill="currentColor" style={{ width: size, height: size, color, flexShrink: 0 }}>
+    <svg viewBox="0 0 16 16" fill="currentColor" style={{ width: size, height: size, color, flexShrink: 0, marginTop: 2 }}>
       <path d="M13.854 3.646a.5.5 0 010 .708l-7 7a.5.5 0 01-.708 0l-3.5-3.5a.5.5 0 11.708-.708L6.5 10.293l6.646-6.647a.5.5 0 01.708 0z"/>
     </svg>
   );
 }
-function XIcon({ size = 13 }) {
+
+function XIcon({ size = 12 }) {
   return (
-    <svg viewBox="0 0 16 16" fill="currentColor" style={{ width: size, height: size, color: 'var(--red)', flexShrink: 0 }}>
+    <svg viewBox="0 0 16 16" fill="currentColor" style={{ width: size, height: size, color: 'var(--red)', flexShrink: 0, marginTop: 2 }}>
       <path d="M4.646 4.646a.5.5 0 01.708 0L8 7.293l2.646-2.647a.5.5 0 01.708.708L8.707 8l2.647 2.646a.5.5 0 01-.708.708L8 8.707l-2.646 2.647a.5.5 0 01-.708-.708L7.293 8 4.646 5.354a.5.5 0 010-.708z"/>
     </svg>
   );
 }
 
-// ── Section header with accent bar ───────────────────────────────────────
 function SectionLabel({ children, color = 'var(--blue)' }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 12 }}>
-      <div style={{ width: 3, height: 14, background: color, borderRadius: 2, flexShrink: 0 }} />
-      <span style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 11 }}>
+      <div style={{ width: 3, height: 13, background: color, borderRadius: 2, flexShrink: 0 }} />
+      <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.9 }}>
         {children}
       </span>
     </div>
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default function OverviewPage({ data }) {
   if (!data) return null;
   const {
@@ -234,583 +223,469 @@ export default function OverviewPage({ data }) {
     return saving >= 1000 ? `$${Math.round(saving / 1000)}K` : `$${saving}`;
   })();
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+  // card style shorthand
+  const card = { background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 8, padding: '14px 15px' };
+  const subCard = { background: 'var(--card-bg2)', border: '1px solid var(--card-border)', borderRadius: 7 };
 
-      {/* ══════════════════════════════════════════════════════════════════
-          ROW A  —  Hero: Product Identity + Quick KPIs
-          ═════════════════════════════════════════════════════════════════ */}
-      <div style={{
-        background: 'var(--card-bg)',
-        border: '1px solid var(--card-border)',
-        borderRadius: 10,
-        padding: '18px 20px',
-        display: 'grid',
-        gridTemplateColumns: '1fr auto',
-        gap: 20,
-        alignItems: 'center',
-      }}>
-        {/* Left: identity */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, minWidth: 0 }}>
-          <div style={{
-            width: 54, height: 54, borderRadius: 13, flexShrink: 0,
-            background: 'var(--blue-lt)', border: '2px solid var(--blue)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+
+      {/* ── Hero bar ── */}
+      <div style={{ ...card, padding: '13px 17px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 13, minWidth: 0 }}>
+          <div style={{ width: 48, height: 48, borderRadius: 11, flexShrink: 0, background: 'var(--blue-lt)', border: '2px solid var(--blue)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <ProductIcon />
           </div>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--text)', letterSpacing: 0.5, lineHeight: 1.2, marginBottom: 4 }}>
+            <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--text)', letterSpacing: 0.4, lineHeight: 1.2, marginBottom: 5 }}>
               {(overview?.name || data.product || '').toUpperCase()}
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
-              {overview?.category && (
-                <span style={{ fontSize: 10.5, fontWeight: 700, padding: '2px 9px', borderRadius: 10, background: 'var(--blue-lt)', color: 'var(--blue)', border: '1px solid var(--blue)', letterSpacing: 0.3 }}>
-                  {overview.category}
-                </span>
-              )}
-              {overview?.deployment && (
-                <span style={{ fontSize: 10.5, fontWeight: 700, padding: '2px 9px', borderRadius: 10, background: 'var(--purple-lt)', color: 'var(--purple)', border: '1px solid var(--purple)', letterSpacing: 0.3 }}>
-                  {overview.deployment}
-                </span>
-              )}
-              {overview?.marketPosition && (
-                <span style={{ fontSize: 10.5, fontWeight: 700, padding: '2px 9px', borderRadius: 10, background: 'var(--green-lt)', color: 'var(--green)', border: '1px solid var(--green)', letterSpacing: 0.3 }}>
-                  {overview.marketPosition}
-                </span>
-              )}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+              {overview?.category && <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 8, background: 'var(--blue-lt)', color: 'var(--blue)', border: '1px solid var(--blue)' }}>{overview.category}</span>}
+              {overview?.deployment && <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 8, background: 'var(--purple-lt)', color: 'var(--purple)', border: '1px solid var(--purple)' }}>{overview.deployment}</span>}
+              {overview?.marketPosition && <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 8, background: 'var(--green-lt)', color: 'var(--green)', border: '1px solid var(--green)' }}>{overview.marketPosition}</span>}
             </div>
           </div>
         </div>
-
-        {/* Right: 4 KPIs */}
-        <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
+        <div style={{ display: 'flex', gap: 9, flexShrink: 0, flexWrap: 'wrap' }}>
           {[
-            { label: 'Win Rate',          val: winRate ? `${winRate}%`      : '—', color: 'var(--blue)',   bg: 'var(--blue-lt)' },
-            { label: 'Customers',         val: (keyCustomers||[]).length || '—',   color: 'var(--green)',  bg: 'var(--green-lt)' },
-            { label: 'TCO Advantage',     val: tcoAdvantage || '—',                color: 'var(--orange)', bg: 'var(--orange-lt)' },
-            { label: 'Competitors Tracked', val: (competitorSummary||[]).length || '—', color: 'var(--purple)', bg: 'var(--purple-lt)' },
+            { label: 'Win Rate',            val: winRate ? `${winRate}%` : '—',              color: 'var(--blue)',   bg: 'var(--blue-lt)' },
+            { label: 'Customers',           val: (keyCustomers||[]).length || '—',            color: 'var(--green)',  bg: 'var(--green-lt)' },
+            { label: 'TCO Advantage',       val: tcoAdvantage || '—',                         color: 'var(--orange)', bg: 'var(--orange-lt)' },
+            { label: 'Competitors Tracked', val: (competitorSummary||[]).length || '—',       color: 'var(--purple)', bg: 'var(--purple-lt)' },
           ].map((k) => (
-            <div key={k.label} style={{
-              textAlign: 'center', padding: '10px 16px', borderRadius: 8,
-              background: k.bg, border: `1px solid ${k.color}33`, minWidth: 80,
-            }}>
+            <div key={k.label} style={{ textAlign: 'center', padding: '8px 15px', borderRadius: 8, background: k.bg, border: `1px solid ${k.color}33`, minWidth: 76 }}>
               <div style={{ fontSize: 20, fontWeight: 900, color: k.color, lineHeight: 1, marginBottom: 3 }}>{k.val}</div>
-              <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600, lineHeight: 1.3, whiteSpace: 'nowrap' }}>{k.label}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600, whiteSpace: 'nowrap' }}>{k.label}</div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* ══════════════════════════════════════════════════════════════════
-          ROW 1  —  Product Overview  |  Key Features  |  Discovery + Responses
-          ═════════════════════════════════════════════════════════════════ */}
-      <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr 1fr', gap: 14, alignItems: 'start' }}>
+      {/* ── Main 2-column layout ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(auto, 340px) 1fr', gap: 10, alignItems: 'start' }}>
 
-        {/* ── Product Overview card ── */}
-        <div className="card" style={{ height: '100%' }}>
-          <SectionLabel>Product Overview</SectionLabel>
+        {/* ════ LEFT COLUMN ════ */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
 
-          <p style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.65, marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid var(--card-border)' }}>
-            {overview?.description}
-          </p>
-
-          {[
-            { icon: MetaIcons.category,   label: 'Category',        val: overview?.category },
-            { icon: MetaIcons.deployment, label: 'Deployment',      val: overview?.deployment },
-            { icon: MetaIcons.users,      label: 'Target Users',    val: overview?.targetUsers },
-            { icon: MetaIcons.launch,     label: 'Launched',        val: overview?.productLaunch },
-            { icon: MetaIcons.position,   label: 'Market Position', val: overview?.marketPosition },
-            { icon: MetaIcons.gartner,    label: 'Gartner MQ',      val: overview?.gartnerMQ },
-          ].filter(r => r.val).map((r) => (
-            <div key={r.label} style={{
-              display: 'flex', alignItems: 'flex-start', gap: 9,
-              padding: '6px 0', borderBottom: '1px solid var(--card-border)',
-            }}>
-              <span style={{ width: 15, height: 15, flexShrink: 0, color: 'var(--blue)', marginTop: 1 }}>{r.icon}</span>
-              <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600, minWidth: 96 }}>{r.label}</span>
-              <span style={{ fontSize: 11.5, color: 'var(--text)', fontWeight: 700, flex: 1 }}>{r.val || '—'}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* ── Key Features card ── */}
-        <div className="card" style={{ height: '100%' }}>
-          <SectionLabel>Key Features</SectionLabel>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 9 }}>
-            {(keyFeatures || []).map((f, i) => (
-              <div key={i} style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7,
-                padding: '13px 10px', background: 'var(--card-bg2)',
-                border: '1px solid var(--card-border)', borderRadius: 8,
-                textAlign: 'center', cursor: 'default',
-                transition: 'border-color .15s, background .15s',
-              }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--blue)'; e.currentTarget.style.background = 'var(--blue-lt)'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--card-border)'; e.currentTarget.style.background = 'var(--card-bg2)'; }}
-              >
-                <div style={{ color: 'var(--blue)', width: 22, height: 22 }}>{getFeatureIcon(f.name)}</div>
-                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text)', lineHeight: 1.35 }}>{f.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Discovery Questions + Recommended Responses ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, height: '100%' }}>
-          <div className="card">
-            <SectionLabel color="var(--blue)">Discovery Questions</SectionLabel>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-              {(discoveryQuestions || []).map((q, i) => {
-                const text = typeof q === 'string' ? q : (q?.question || q?.text || JSON.stringify(q));
-                return (
-                  <div key={i} style={{ display: 'flex', gap: 9, alignItems: 'flex-start' }}>
-                    <span style={{
-                      width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
-                      background: 'var(--blue-lt)', border: '1px solid var(--blue)',
-                      color: 'var(--blue)', fontSize: 10, fontWeight: 800,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>{i + 1}</span>
-                    <span style={{ fontSize: 11.5, color: 'var(--text)', lineHeight: 1.55 }}>{text}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-          <div className="card">
-            <SectionLabel color="var(--green)">Recommended Responses</SectionLabel>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-              {(recommendedResponses || []).map((r, i) => {
-                const text = typeof r === 'string' ? r : (r?.answer || r?.response || r?.text || JSON.stringify(r));
-                return (
-                  <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-                    <CheckIcon color="var(--green)" size={13} />
-                    <span style={{ fontSize: 11.5, color: 'var(--text)', lineHeight: 1.55 }}>{text}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ══════════════════════════════════════════════════════════════════
-          ROW 2  —  Strengths + Weaknesses  |  Case Studies  |  Key Customers
-          ═════════════════════════════════════════════════════════════════ */}
-      <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr 260px', gap: 14, alignItems: 'start' }}>
-
-        {/* ── Strengths & Weaknesses ── */}
-        <div className="card" style={{ height: '100%' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div>
-              <SectionLabel color="var(--green)">Strengths</SectionLabel>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-                {(strengths || []).map((s, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 7 }}>
-                    <CheckIcon color="var(--green)" size={13} />
-                    <span style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.5 }}>{s}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div>
-              <SectionLabel color="var(--red)">Weaknesses</SectionLabel>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-                {(weaknesses || []).map((w, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 7 }}>
-                    <XIcon size={13} />
-                    <span style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.5 }}>{w}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Case Studies ── */}
-        <div className="card" style={{ height: '100%' }}>
-          <SectionLabel>Relevant Case Studies</SectionLabel>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-            {(caseStudies || []).map((c, i) => {
-              const col = caseColor(c.type || c.category);
-              return (
-                <div key={i} style={{
-                  background: 'var(--card-bg2)',
-                  border: '1px solid var(--card-border)',
-                  borderTop: `3px solid ${col}`,
-                  borderRadius: 8,
-                  padding: 12,
-                  display: 'flex', flexDirection: 'column', gap: 8,
-                }}>
-                  {/* Header */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{ color: col, flexShrink: 0 }}><CaseStudyIcon type={c.type || c.category} /></div>
-                    <div>
-                      <div style={{ fontSize: 11, fontWeight: 800, color: col, lineHeight: 1.2 }}>{c.customer}</div>
-                      <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600, marginTop: 1 }}>{c.type || c.category}</div>
-                    </div>
-                  </div>
-                  {/* Challenge */}
-                  <div style={{ borderTop: '1px solid var(--card-border)', paddingTop: 8 }}>
-                    <div style={{ fontSize: 9.5, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 3 }}>Challenge</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.5 }}>{c.challenge}</div>
-                  </div>
-                  {/* Result */}
-                  <div style={{ background: `${col}12`, borderRadius: 6, padding: '7px 9px' }}>
-                    <div style={{ fontSize: 9.5, fontWeight: 800, color: col, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 3 }}>Result</div>
-                    <div style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--text)', lineHeight: 1.45 }}>{c.result}</div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* ── Key Customers ── */}
-        <div className="card" style={{ height: '100%' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-              <div style={{ width: 3, height: 14, background: 'var(--blue)', borderRadius: 2 }} />
-              <span style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Key Customers</span>
-            </div>
-            <span style={{
-              fontSize: 10.5, color: 'var(--blue)', cursor: 'pointer', fontWeight: 700,
-              padding: '2px 8px', borderRadius: 5, background: 'var(--blue-lt)',
-            }}>View all</span>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            {(keyCustomers || []).map((c, i) => (
-              <div key={i} style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-                padding: '11px 8px', background: 'var(--card-bg2)',
-                border: '1px solid var(--card-border)', borderRadius: 9,
-                textAlign: 'center',
-              }}>
-                <InitialsBadge name={c.name} color={c.color || 'var(--blue)'} size={38} fontSize={12} />
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text)', lineHeight: 1.25 }}>{c.name}</div>
-                {c.industry && <div style={{ fontSize: 10, color: 'var(--text-muted)', lineHeight: 1.2 }}>{c.industry}</div>}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ══════════════════════════════════════════════════════════════════
-          ROW 3  —  Competitor Summary  |  Feature Matrix  |  TCO
-          ═════════════════════════════════════════════════════════════════ */}
-      <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr 340px', gap: 14, alignItems: 'start' }}>
-
-        {/* ── Competitor Summary ── */}
-        <div className="card" style={{ height: '100%' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-              <div style={{ width: 3, height: 14, background: 'var(--red)', borderRadius: 2 }} />
-              <span style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Competitor Summary</span>
-            </div>
-            <span style={{ fontSize: 10, color: 'var(--blue)', cursor: 'pointer', fontWeight: 700, padding: '2px 7px', background: 'var(--blue-lt)', borderRadius: 5, whiteSpace: 'nowrap' }}>Full analysis</span>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {(competitorSummary || []).map((c, i) => (
-              <div key={i} style={{
-                border: '1px solid var(--card-border)',
-                borderLeft: `3px solid ${c.color}`,
-                borderRadius: 8, padding: 11,
-                background: 'var(--card-bg2)',
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 7 }}>
-                  <InitialsBadge name={c.name} color={c.color} size={32} fontSize={11} radius={6} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: c.color, lineHeight: 1.2 }}>{c.name}</div>
-                    <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 7, background: 'var(--blue-lt)', color: 'var(--blue)' }}>{c.marketPosition}</span>
-                  </div>
-                </div>
-                <div style={{ fontSize: 11.5, color: 'var(--text-muted)', lineHeight: 1.55, marginBottom: 8 }}>{c.overview}</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                  <div>
-                    <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--green)', textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 5 }}>Strengths</div>
-                    {(c.strengths || []).map((s, j) => (
-                      <div key={j} style={{ fontSize: 11, color: 'var(--text)', marginBottom: 3, display: 'flex', gap: 5, alignItems: 'flex-start' }}>
-                        <span style={{ color: 'var(--green)', fontWeight: 800, fontSize: 11, flexShrink: 0 }}>+</span><span>{s}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--red)', textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 5 }}>Weaknesses</div>
-                    {(c.weaknesses || []).map((w, j) => (
-                      <div key={j} style={{ fontSize: 11, color: 'var(--text)', marginBottom: 3, display: 'flex', gap: 5, alignItems: 'flex-start' }}>
-                        <span style={{ color: 'var(--red)', fontWeight: 800, fontSize: 11, flexShrink: 0 }}>−</span><span>{w}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Feature Comparison Matrix ── */}
-        <div className="card" style={{ height: '100%' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-              <div style={{ width: 3, height: 14, background: 'var(--purple)', borderRadius: 2 }} />
-              <span style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Feature Comparison Matrix</span>
-            </div>
-            <div style={{ display: 'flex', gap: 12, fontSize: 11 }}>
-              {[['var(--green)', 'Better'], ['var(--yellow)', 'Similar'], ['var(--red)', 'Weaker']].map(([col, lbl]) => (
-                <span key={lbl} style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--text-muted)', fontWeight: 600 }}>
-                  <svg viewBox="0 0 8 8" style={{ width: 8, height: 8 }}><circle cx="4" cy="4" r="4" fill={col}/></svg>
-                  {lbl}
-                </span>
-              ))}
-            </div>
-          </div>
-          <div className="table-scroll-wrap">
-          <table className="dash-table">
-            <thead>
-              <tr>
-                <th style={{ width: '42%' }}>Feature</th>
-                <th style={{ textAlign: 'center', color: 'var(--blue)', fontWeight: 800 }}>{fmLabels.product}</th>
-                <th style={{ textAlign: 'center', color: 'var(--text-muted)' }}>{fmLabels.comp1}</th>
-                <th style={{ textAlign: 'center', color: 'var(--text-muted)' }}>{fmLabels.comp2}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {fmRows.map((r, i) => (
-                <tr key={i}>
-                  <td style={{ fontWeight: 600, fontSize: 12 }}>{r.feature}</td>
-                  {['product', 'comp1', 'comp2'].map((k) => (
-                    <td key={k} style={{ textAlign: 'center', verticalAlign: 'middle' }}>
-                      <svg viewBox="0 0 12 12" style={{ width: 12, height: 12, display: 'inline-block' }}>
-                        <circle cx="6" cy="6" r="6" fill={DOT_COLOR[r[k]] || 'var(--card-border)'}/>
-                      </svg>
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          </div>
-        </div>
-
-        {/* ── TCO Comparison ── */}
-        <div className="card" style={{ height: '100%' }}>
-          <SectionLabel color="var(--green)">3-Year TCO Comparison</SectionLabel>
-
-          <div style={{ fontSize: 10.5, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 9 }}>Total TCO (3 Years)</div>
-          {[
-            { label: tcoLabels.comp1,   val: parseMoney(tcoData?.totals?.comp1),   amount: tcoData?.totals?.comp1,   color: 'var(--purple)' },
-            { label: tcoLabels.comp2,   val: parseMoney(tcoData?.totals?.comp2),   amount: tcoData?.totals?.comp2,   color: 'var(--blue)' },
-            { label: tcoLabels.product, val: parseMoney(tcoData?.totals?.product), amount: tcoData?.totals?.product, color: 'var(--green)' },
-          ].map((b, i) => (
-            <TcoBar key={i} label={b.label} value={b.val} max={tcoMax} color={b.color} amount={b.amount} />
-          ))}
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9.5, color: 'var(--text-muted)', marginTop: 3 }}>
-            <span>$0</span><span>$200K</span><span>$400K</span><span>$600K</span><span>$800K</span>
-          </div>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 4, marginBottom: 14, fontStyle: 'italic' }}>↓ Lower is Better</div>
-
-          {/* Breakdown table */}
-          <div style={{ fontSize: 10.5, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>TCO Breakdown (3 Years)</div>
-          <div className="table-scroll-wrap">
-          <table className="dash-table" style={{ fontSize: 11 }}>
-            <thead>
-              <tr>
-                <th>Cost Component</th>
-                <th style={{ textAlign: 'right', color: 'var(--green)' }}>{tcoLabels.product}</th>
-                <th style={{ textAlign: 'right', color: 'var(--purple)' }}>{tcoLabels.comp1}</th>
-                <th style={{ textAlign: 'right', color: 'var(--blue)' }}>{tcoLabels.comp2}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(tcoData?.rows || []).map((r, i) => (
-                <tr key={i}>
-                  <td style={{ fontWeight: 600 }}>{r.component}</td>
-                  <td style={{ textAlign: 'right', color: 'var(--green)', fontWeight: 700 }}>{r.product}</td>
-                  <td style={{ textAlign: 'right', color: 'var(--purple)', fontWeight: 600 }}>{r.comp1}</td>
-                  <td style={{ textAlign: 'right', color: 'var(--blue)', fontWeight: 600 }}>{r.comp2}</td>
-                </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr>
-                <td style={{ fontWeight: 800, fontSize: 11, borderTop: '2px solid var(--card-border)', paddingTop: 7 }}>TOTAL TCO</td>
-                <td style={{ textAlign: 'right', color: 'var(--green)', fontWeight: 900, borderTop: '2px solid var(--card-border)', fontSize: 12 }}>{tcoData?.totals?.product}</td>
-                <td style={{ textAlign: 'right', color: 'var(--purple)', fontWeight: 800, borderTop: '2px solid var(--card-border)', fontSize: 12 }}>{tcoData?.totals?.comp1}</td>
-                <td style={{ textAlign: 'right', color: 'var(--blue)', fontWeight: 800, borderTop: '2px solid var(--card-border)', fontSize: 12 }}>{tcoData?.totals?.comp2}</td>
-              </tr>
-            </tfoot>
-          </table>
-          </div>
-        </div>
-      </div>
-
-      {/* ══════════════════════════════════════════════════════════════════
-          ROW 4  —  Objection Handling  |  AI Sales Coach  |  Win/Loss
-          ═════════════════════════════════════════════════════════════════ */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14, alignItems: 'start' }}>
-
-        {/* ── Objection Handling ── */}
-        <div className="card" style={{ height: '100%' }}>
-          <SectionLabel color="var(--orange)">Objection Handling</SectionLabel>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {(objectionHandling || []).map((item, i) => (
-              <div key={i} style={{
-                borderRadius: 8, overflow: 'hidden',
-                border: '1px solid var(--card-border)',
-              }}>
-                {/* Objection — speech-bubble feel */}
-                <div style={{
-                  padding: '9px 12px',
-                  background: 'var(--orange-lt)',
-                  borderLeft: '3px solid var(--orange)',
-                }}>
-                  <div style={{ fontSize: 9.5, fontWeight: 800, color: 'var(--orange)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 3 }}>Customer Objection</div>
-                  <div style={{ fontSize: 12, fontStyle: 'italic', color: 'var(--text)', lineHeight: 1.55 }}>{item.objection}</div>
-                </div>
-                {/* Response */}
-                <div style={{ padding: '9px 12px', background: 'var(--card-bg2)' }}>
-                  <div style={{ display: 'flex', gap: 7, alignItems: 'flex-start' }}>
-                    <CheckIcon color="var(--green)" size={13} />
-                    <div style={{ fontSize: 11.5, color: 'var(--text)', lineHeight: 1.6 }}>{item.response}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── AI Sales Coach ── */}
-        <div className="card" style={{ height: '100%' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-            <span style={{ background: 'var(--blue)', color: '#fff', padding: '2px 7px', borderRadius: 5, fontSize: 9.5, fontWeight: 900, letterSpacing: 0.5 }}>AI</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-              <div style={{ width: 3, height: 14, background: 'var(--blue)', borderRadius: 2 }} />
-              <span style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>AI Sales Coach</span>
-            </div>
-          </div>
-
-          {/* Customer quote */}
-          <div style={{
-            background: 'var(--card-bg2)', borderRadius: 8, padding: '10px 13px', marginBottom: 11,
-            border: '1px solid var(--card-border)',
-            borderLeft: '3px solid var(--blue)',
-          }}>
-            <div style={{ fontSize: 9.5, color: 'var(--blue)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5, fontWeight: 800 }}>Customer says:</div>
-            <div style={{ fontSize: 12.5, fontStyle: 'italic', color: 'var(--text)', lineHeight: 1.55 }}>{aiCoach?.customerSays}</div>
-          </div>
-
-          {/* Suggested response */}
-          <div style={{ marginBottom: 11 }}>
-            <div style={{ fontSize: 9.5, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6, fontWeight: 800 }}>Suggested Response</div>
-            <div style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.65 }}>{aiCoach?.suggestedResponse}</div>
-          </div>
-
-          {aiCoach?.recommendedCaseStudy && (
-            <div style={{ marginBottom: 11, padding: '8px 11px', background: 'var(--yellow-lt)', borderRadius: 7, border: '1px solid var(--yellow)' }}>
-              <div style={{ fontSize: 9.5, color: 'var(--yellow)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4, fontWeight: 800 }}>Recommended Case Study</div>
-              <div style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--text)', lineHeight: 1.5 }}>{aiCoach.recommendedCaseStudy}</div>
-            </div>
-          )}
-
-          {aiCoach?.kvps && (
-            <div style={{ marginBottom: 11 }}>
-              <div style={{ fontSize: 9.5, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8, fontWeight: 800 }}>Key Value Points</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {aiCoach.kvps.map((kv, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 11.5, color: 'var(--text)' }}>
-                    <CheckIcon color="var(--green)" size={13} />
-                    <span style={{ lineHeight: 1.5 }}>{kv}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {aiCoach?.winProbability && (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 10, marginTop: 10,
-              paddingTop: 10, borderTop: '1px solid var(--card-border)',
-            }}>
-              <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600 }}>Win Probability Impact:</span>
-              <span style={{
-                background: aiCoach.winProbability === 'HIGH' ? 'var(--green)' : aiCoach.winProbability === 'MEDIUM' ? 'var(--orange)' : 'var(--red)',
-                color: '#fff', padding: '4px 12px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: 0.5,
-              }}>
-                {aiCoach.winProbability}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* ── Win / Loss Intelligence ── */}
-        <div className="card" style={{ height: '100%' }}>
-          <SectionLabel color="var(--blue)">Win / Loss Intelligence — Last 12 Months</SectionLabel>
-
-          {/* KPI row */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginBottom: 14 }}>
+          {/* Product Overview */}
+          <div style={card}>
+            <SectionLabel>Product Overview</SectionLabel>
+            <p style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.65, marginBottom: 11, paddingBottom: 11, borderBottom: '1px solid var(--card-border)' }}>
+              {overview?.description}
+            </p>
             {[
-              { label: 'Total Opps',  num: winLoss?.total,          color: 'var(--text)',   bg: 'var(--card-bg2)' },
-              { label: 'Won',         num: winLoss?.won,            color: 'var(--green)',  bg: 'var(--green-lt)' },
-              { label: 'Lost',        num: winLoss?.lost,           color: 'var(--red)',    bg: 'var(--red-lt)' },
-              { label: 'Win Rate',    num: `${winLoss?.winRate||0}%`, color: 'var(--blue)',  bg: 'var(--blue-lt)' },
-            ].map((k, i) => (
-              <div key={i} style={{
-                background: k.bg, border: `1px solid ${k.color}33`,
-                borderRadius: 8, padding: '9px 6px', textAlign: 'center',
-              }}>
-                <div style={{ fontSize: 20, fontWeight: 900, color: k.color, lineHeight: 1 }}>{k.num}</div>
-                <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 3, fontWeight: 600 }}>{k.label}</div>
+              { icon: MetaIcons.category,   label: 'Category',        val: overview?.category },
+              { icon: MetaIcons.deployment, label: 'Deployment',      val: overview?.deployment },
+              { icon: MetaIcons.users,      label: 'Target Users',    val: overview?.targetUsers },
+              { icon: MetaIcons.launch,     label: 'Launched',        val: overview?.productLaunch },
+              { icon: MetaIcons.position,   label: 'Market Position', val: overview?.marketPosition },
+              { icon: MetaIcons.gartner,    label: 'Gartner MQ',      val: overview?.gartnerMQ },
+            ].filter(r => r.val).map((r) => (
+              <div key={r.label} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '6px 0', borderBottom: '1px solid var(--card-border)' }}>
+                <span style={{ width: 14, height: 14, flexShrink: 0, color: 'var(--blue)', marginTop: 1 }}>{r.icon}</span>
+                <span style={{ fontSize: 11.5, color: 'var(--text-muted)', fontWeight: 600, minWidth: 94, flexShrink: 0 }}>{r.label}</span>
+                <span style={{ fontSize: 12, color: 'var(--text)', fontWeight: 700, flex: 1 }}>{r.val}</span>
               </div>
             ))}
           </div>
 
-          {/* Competitor donut + legend + win messages */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div>
-              <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 9 }}>Wins vs Competitors</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <WinPie competitors={winLoss?.competitors || []} />
+          {/* Strengths & Weaknesses */}
+          <div style={card}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div>
+                <SectionLabel color="var(--green)">Strengths</SectionLabel>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {(winLoss?.competitors || []).map((c, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11 }}>
-                      <svg viewBox="0 0 8 8" style={{ width: 8, height: 8, flexShrink: 0 }}><circle cx="4" cy="4" r="4" fill={c.color}/></svg>
-                      <span style={{ color: 'var(--text)', fontWeight: 600 }}>{c.label}</span>
-                      <span style={{ fontWeight: 800, color: c.color }}>{c.wins}</span>
-                      <span style={{ color: 'var(--text-muted)' }}>({c.pct}%)</span>
+                  {(strengths || []).map((s, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 7 }}>
+                      <CheckIcon color="var(--green)" size={13} />
+                      <span style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.5 }}>{s}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <SectionLabel color="var(--red)">Weaknesses</SectionLabel>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {(weaknesses || []).map((w, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 7 }}>
+                      <XIcon size={13} />
+                      <span style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.5 }}>{w}</span>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
+          </div>
 
-            <div>
-              <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 9 }}>Top Winning Messages</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {(winLoss?.topMessages || []).map((m, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 7, alignItems: 'flex-start', fontSize: 11.5, color: 'var(--text)' }}>
-                    <CheckIcon color="var(--green)" size={13} />
-                    <span style={{ lineHeight: 1.5 }}>{m}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Win rate donut */}
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 11, marginTop: 12,
-                paddingTop: 12, borderTop: '1px solid var(--card-border)',
-              }}>
-                <WinDonut rate={winLoss?.winRate || 0} />
-                <div>
-                  <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600, marginBottom: 2 }}>Overall Win Rate</div>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--blue)', lineHeight: 1 }}>{winLoss?.winRate}%</div>
+          {/* Key Customers */}
+          <div style={card}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 11 }}>
+              <SectionLabel>Key Customers</SectionLabel>
+              <span style={{ fontSize: 11, color: 'var(--blue)', cursor: 'pointer', fontWeight: 700, padding: '2px 8px', borderRadius: 4, background: 'var(--blue-lt)', marginTop: -11 }}>View all</span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min((keyCustomers||[]).length, 3)}, 1fr)`, gap: 8 }}>
+              {(keyCustomers || []).map((c, i) => (
+                <div key={i} style={{ ...subCard, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '10px 7px', textAlign: 'center' }}>
+                  <InitialsBadge name={c.name} color={c.color || 'var(--blue)'} size={34} fontSize={12} radius={7} />
+                  <div style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--text)', lineHeight: 1.25 }}>{c.name}</div>
+                  {c.industry && <div style={{ fontSize: 10.5, color: 'var(--text-muted)', lineHeight: 1.2 }}>{c.industry}</div>}
                 </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Competitor Summary */}
+          <div style={card}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 11 }}>
+              <SectionLabel color="var(--red)">Competitor Summary</SectionLabel>
+              <span style={{ fontSize: 11, color: 'var(--blue)', cursor: 'pointer', fontWeight: 700, padding: '2px 8px', background: 'var(--blue-lt)', borderRadius: 4, whiteSpace: 'nowrap', marginTop: -11 }}>Full analysis</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+              {(competitorSummary || []).map((c, i) => (
+                <div key={i} style={{ ...subCard, borderLeft: `3px solid ${c.color}`, padding: 11 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 7 }}>
+                    <InitialsBadge name={c.name} color={c.color} size={30} fontSize={11} radius={6} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: c.color, lineHeight: 1.2 }}>{c.name}</div>
+                      <span style={{ fontSize: 10.5, fontWeight: 700, padding: '1px 6px', borderRadius: 5, background: 'var(--blue-lt)', color: 'var(--blue)' }}>{c.marketPosition}</span>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.55, marginBottom: 8 }}>{c.overview}</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7 }}>
+                    <div>
+                      <div style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--green)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Strengths</div>
+                      {(c.strengths || []).map((s, j) => (
+                        <div key={j} style={{ fontSize: 11.5, color: 'var(--text)', marginBottom: 3, display: 'flex', gap: 5, alignItems: 'flex-start' }}>
+                          <span style={{ color: 'var(--green)', fontWeight: 800, flexShrink: 0 }}>+</span><span>{s}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--red)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Weaknesses</div>
+                      {(c.weaknesses || []).map((w, j) => (
+                        <div key={j} style={{ fontSize: 11.5, color: 'var(--text)', marginBottom: 3, display: 'flex', gap: 5, alignItems: 'flex-start' }}>
+                          <span style={{ color: 'var(--red)', fontWeight: 800, flexShrink: 0 }}>−</span><span>{w}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Objection Handling */}
+          <div style={card}>
+            <SectionLabel color="var(--orange)">Objection Handling</SectionLabel>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+              {(objectionHandling || []).map((item, i) => (
+                <div key={i} style={{ ...subCard, overflow: 'hidden' }}>
+                  <div style={{ padding: '8px 11px', background: 'var(--orange-lt)', borderLeft: '3px solid var(--orange)' }}>
+                    <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--orange)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 3 }}>Customer Objection</div>
+                    <div style={{ fontSize: 12.5, fontStyle: 'italic', color: 'var(--text)', lineHeight: 1.55 }}>{item.objection}</div>
+                  </div>
+                  <div style={{ padding: '8px 11px' }}>
+                    <div style={{ display: 'flex', gap: 7, alignItems: 'flex-start' }}>
+                      <CheckIcon color="var(--green)" size={13} />
+                      <div style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.6 }}>{item.response}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+        {/* ════ END LEFT COLUMN ════ */}
+
+        {/* ════ RIGHT COLUMN ════ */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+
+          {/* Key Features — auto-fill so columns expand with content */}
+          <div style={card}>
+            <SectionLabel>Key Features</SectionLabel>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: 8 }}>
+              {(keyFeatures || []).map((f, i) => (
+                <div key={i} style={{
+                  ...subCard,
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                  padding: '11px 9px', textAlign: 'center', cursor: 'default',
+                  transition: 'border-color .15s, background .15s',
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--blue)'; e.currentTarget.style.background = 'var(--blue-lt)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--card-border)'; e.currentTarget.style.background = 'var(--card-bg2)'; }}
+                >
+                  <div style={{ color: 'var(--blue)', width: 20, height: 20 }}>{getFeatureIcon(f.name)}</div>
+                  <span style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--text)', lineHeight: 1.35 }}>{f.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Discovery Questions + Recommended Responses — side by side */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, alignItems: 'start' }}>
+            <div style={card}>
+              <SectionLabel color="var(--blue)">Discovery Questions</SectionLabel>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {(discoveryQuestions || []).map((q, i) => {
+                  const text = typeof q === 'string' ? q : (q?.question || q?.text || JSON.stringify(q));
+                  return (
+                    <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                      <span style={{ width: 19, height: 19, borderRadius: '50%', flexShrink: 0, background: 'var(--blue-lt)', border: '1px solid var(--blue)', color: 'var(--blue)', fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{i + 1}</span>
+                      <span style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.55 }}>{text}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            <div style={card}>
+              <SectionLabel color="var(--green)">Recommended Responses</SectionLabel>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {(recommendedResponses || []).map((r, i) => {
+                  const text = typeof r === 'string' ? r : (r?.answer || r?.response || r?.text || JSON.stringify(r));
+                  return (
+                    <div key={i} style={{ display: 'flex', gap: 7, alignItems: 'flex-start' }}>
+                      <CheckIcon color="var(--green)" size={13} />
+                      <span style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.55 }}>{text}</span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
+
+          {/* Case Studies — auto-fill columns based on count */}
+          <div style={card}>
+            <SectionLabel>Relevant Case Studies</SectionLabel>
+            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min((caseStudies||[]).length, 3)}, 1fr)`, gap: 9 }}>
+              {(caseStudies || []).map((c, i) => {
+                const col = caseColor(c.type || c.category);
+                return (
+                  <div key={i} style={{ ...subCard, borderTop: `3px solid ${col}`, padding: 11, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ color: col, flexShrink: 0 }}><CaseStudyIcon type={c.type || c.category} /></div>
+                      <div>
+                        <div style={{ fontSize: 11.5, fontWeight: 800, color: col, lineHeight: 1.2 }}>{c.customer}</div>
+                        <div style={{ fontSize: 10.5, color: 'var(--text-muted)', fontWeight: 600, marginTop: 2 }}>{c.type || c.category}</div>
+                      </div>
+                    </div>
+                    <div style={{ borderTop: '1px solid var(--card-border)', paddingTop: 8 }}>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 3 }}>Challenge</div>
+                      <div style={{ fontSize: 11.5, color: 'var(--text-muted)', lineHeight: 1.5 }}>{c.challenge}</div>
+                    </div>
+                    <div style={{ background: `${col}12`, borderRadius: 5, padding: '7px 9px' }}>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: col, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 3 }}>Result</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)', lineHeight: 1.45 }}>{c.result}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Feature Matrix + TCO side by side */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 10, alignItems: 'start' }}>
+
+            {/* Feature Matrix */}
+            <div style={card}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 11 }}>
+                <SectionLabel color="var(--purple)">Feature Comparison Matrix</SectionLabel>
+                <div style={{ display: 'flex', gap: 10, fontSize: 11, marginTop: -11 }}>
+                  {[['var(--green)', 'Better'], ['var(--yellow)', 'Similar'], ['var(--red)', 'Weaker']].map(([col, lbl]) => (
+                    <span key={lbl} style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--text-muted)', fontWeight: 600 }}>
+                      <svg viewBox="0 0 8 8" style={{ width: 8, height: 8 }}><circle cx="4" cy="4" r="4" fill={col}/></svg>
+                      {lbl}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="table-scroll-wrap">
+                <table className="dash-table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: '44%' }}>Feature</th>
+                      <th style={{ textAlign: 'center', color: 'var(--blue)', fontWeight: 800 }}>{fmLabels.product}</th>
+                      <th style={{ textAlign: 'center', color: 'var(--text-muted)' }}>{fmLabels.comp1}</th>
+                      <th style={{ textAlign: 'center', color: 'var(--text-muted)' }}>{fmLabels.comp2}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {fmRows.map((r, i) => (
+                      <tr key={i}>
+                        <td style={{ fontWeight: 600, fontSize: 12 }}>{r.feature}</td>
+                        {['product', 'comp1', 'comp2'].map((k) => (
+                          <td key={k} style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+                            <svg viewBox="0 0 12 12" style={{ width: 11, height: 11, display: 'inline-block' }}>
+                              <circle cx="6" cy="6" r="6" fill={DOT_COLOR[r[k]] || 'var(--card-border)'}/>
+                            </svg>
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* TCO */}
+            <div style={card}>
+              <SectionLabel color="var(--green)">3-Year TCO Comparison</SectionLabel>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Total TCO (3 Years)</div>
+              {[
+                { label: tcoLabels.comp1,   val: parseMoney(tcoData?.totals?.comp1),   amount: tcoData?.totals?.comp1,   color: 'var(--purple)' },
+                { label: tcoLabels.comp2,   val: parseMoney(tcoData?.totals?.comp2),   amount: tcoData?.totals?.comp2,   color: 'var(--blue)' },
+                { label: tcoLabels.product, val: parseMoney(tcoData?.totals?.product), amount: tcoData?.totals?.product, color: 'var(--green)' },
+              ].map((b, i) => (
+                <TcoBar key={i} label={b.label} value={b.val} max={tcoMax} color={b.color} amount={b.amount} />
+              ))}
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--text-muted)', marginTop: 3, marginBottom: 3 }}>
+                <span>$0</span><span>$200K</span><span>$400K</span><span>$600K</span><span>$800K</span>
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 11, fontStyle: 'italic' }}>↓ Lower is Better</div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>TCO Breakdown (3 Years)</div>
+              <div className="table-scroll-wrap">
+                <table className="dash-table" style={{ fontSize: 11.5 }}>
+                  <thead>
+                    <tr>
+                      <th>Component</th>
+                      <th style={{ textAlign: 'right', color: 'var(--green)' }}>{tcoLabels.product}</th>
+                      <th style={{ textAlign: 'right', color: 'var(--purple)' }}>{tcoLabels.comp1}</th>
+                      <th style={{ textAlign: 'right', color: 'var(--blue)' }}>{tcoLabels.comp2}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(tcoData?.rows || []).map((r, i) => (
+                      <tr key={i}>
+                        <td style={{ fontWeight: 600 }}>{r.component}</td>
+                        <td style={{ textAlign: 'right', color: 'var(--green)', fontWeight: 700 }}>{r.product}</td>
+                        <td style={{ textAlign: 'right', color: 'var(--purple)', fontWeight: 600 }}>{r.comp1}</td>
+                        <td style={{ textAlign: 'right', color: 'var(--blue)', fontWeight: 600 }}>{r.comp2}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td style={{ fontWeight: 800, fontSize: 11.5, borderTop: '2px solid var(--card-border)', paddingTop: 7 }}>TOTAL TCO</td>
+                      <td style={{ textAlign: 'right', color: 'var(--green)', fontWeight: 900, borderTop: '2px solid var(--card-border)', fontSize: 12 }}>{tcoData?.totals?.product}</td>
+                      <td style={{ textAlign: 'right', color: 'var(--purple)', fontWeight: 800, borderTop: '2px solid var(--card-border)', fontSize: 12 }}>{tcoData?.totals?.comp1}</td>
+                      <td style={{ textAlign: 'right', color: 'var(--blue)', fontWeight: 800, borderTop: '2px solid var(--card-border)', fontSize: 12 }}>{tcoData?.totals?.comp2}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+          {/* AI Sales Coach + Win/Loss side by side */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, alignItems: 'start' }}>
+
+            {/* AI Sales Coach */}
+            <div style={card}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 11 }}>
+                <span style={{ background: 'var(--blue)', color: '#fff', padding: '2px 7px', borderRadius: 4, fontSize: 10, fontWeight: 900, letterSpacing: 0.5 }}>AI</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ width: 3, height: 13, background: 'var(--blue)', borderRadius: 2 }} />
+                  <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.9 }}>AI Sales Coach</span>
+                </div>
+              </div>
+              <div style={{ ...subCard, padding: '9px 11px', marginBottom: 10, borderLeft: '3px solid var(--blue)' }}>
+                <div style={{ fontSize: 10, color: 'var(--blue)', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 4, fontWeight: 800 }}>Customer says:</div>
+                <div style={{ fontSize: 12.5, fontStyle: 'italic', color: 'var(--text)', lineHeight: 1.55 }}>{aiCoach?.customerSays}</div>
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 5, fontWeight: 800 }}>Suggested Response</div>
+                <div style={{ fontSize: 12.5, color: 'var(--text)', lineHeight: 1.65 }}>{aiCoach?.suggestedResponse}</div>
+              </div>
+              {aiCoach?.recommendedCaseStudy && (
+                <div style={{ marginBottom: 10, padding: '8px 10px', background: 'var(--yellow-lt)', borderRadius: 6, border: '1px solid var(--yellow)' }}>
+                  <div style={{ fontSize: 10, color: 'var(--yellow)', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 4, fontWeight: 800 }}>Recommended Case Study</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)', lineHeight: 1.5 }}>{aiCoach.recommendedCaseStudy}</div>
+                </div>
+              )}
+              {aiCoach?.kvps && (
+                <div style={{ marginBottom: 10 }}>
+                  <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 7, fontWeight: 800 }}>Key Value Points</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {aiCoach.kvps.map((kv, i) => (
+                      <div key={i} style={{ display: 'flex', gap: 7, alignItems: 'flex-start', fontSize: 12, color: 'var(--text)' }}>
+                        <CheckIcon color="var(--green)" size={13} />
+                        <span style={{ lineHeight: 1.5 }}>{kv}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {aiCoach?.winProbability && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginTop: 9, paddingTop: 9, borderTop: '1px solid var(--card-border)' }}>
+                  <span style={{ fontSize: 11.5, color: 'var(--text-muted)', fontWeight: 600 }}>Win Probability:</span>
+                  <span style={{ background: aiCoach.winProbability === 'HIGH' ? 'var(--green)' : aiCoach.winProbability === 'MEDIUM' ? 'var(--orange)' : 'var(--red)', color: '#fff', padding: '3px 11px', borderRadius: 5, fontSize: 11.5, fontWeight: 900, letterSpacing: 0.5 }}>
+                    {aiCoach.winProbability}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Win / Loss */}
+            <div style={card}>
+              <SectionLabel color="var(--blue)">Win / Loss — Last 12 Months</SectionLabel>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginBottom: 13 }}>
+                  {[
+                    { label: 'Total Opps', num: winLoss?.total,             color: 'var(--text)',  bg: 'var(--card-bg2)' },
+                    { label: 'Won',        num: winLoss?.won,               color: 'var(--green)', bg: 'var(--green-lt)' },
+                    { label: 'Lost',       num: winLoss?.lost,              color: 'var(--red)',   bg: 'var(--red-lt)' },
+                    { label: 'Win Rate',   num: `${winLoss?.winRate||0}%`,  color: 'var(--blue)',  bg: 'var(--blue-lt)' },
+                  ].map((k, i) => (
+                    <div key={i} style={{ background: k.bg, border: `1px solid ${k.color}33`, borderRadius: 7, padding: '9px 5px', textAlign: 'center' }}>
+                      <div style={{ fontSize: 20, fontWeight: 900, color: k.color, lineHeight: 1 }}>{k.num}</div>
+                      <div style={{ fontSize: 10.5, color: 'var(--text-muted)', marginTop: 3, fontWeight: 600 }}>{k.label}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 11 }}>
+                  <div>
+                    <div style={{ fontSize: 10.5, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 9 }}>Wins vs Competitors</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+                      <WinPie competitors={winLoss?.competitors || []} />
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        {(winLoss?.competitors || []).map((c, i) => (
+                          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11.5 }}>
+                            <svg viewBox="0 0 8 8" style={{ width: 8, height: 8, flexShrink: 0 }}><circle cx="4" cy="4" r="4" fill={c.color}/></svg>
+                            <span style={{ color: 'var(--text)', fontWeight: 600 }}>{c.label}</span>
+                            <span style={{ fontWeight: 800, color: c.color }}>{c.wins}</span>
+                            <span style={{ color: 'var(--text-muted)' }}>({c.pct}%)</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 10.5, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 9 }}>Top Winning Messages</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {(winLoss?.topMessages || []).map((m, i) => (
+                        <div key={i} style={{ display: 'flex', gap: 6, alignItems: 'flex-start', fontSize: 12, color: 'var(--text)' }}>
+                          <CheckIcon color="var(--green)" size={13} />
+                          <span style={{ lineHeight: 1.5 }}>{m}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 11, paddingTop: 11, borderTop: '1px solid var(--card-border)' }}>
+                      <WinDonut rate={winLoss?.winRate || 0} />
+                      <div>
+                        <div style={{ fontSize: 10.5, color: 'var(--text-muted)', fontWeight: 600, marginBottom: 2 }}>Overall Win Rate</div>
+                        <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--blue)', lineHeight: 1 }}>{winLoss?.winRate}%</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+
+          </div>
+          {/* ════ END RIGHT COLUMN ════ */}
         </div>
 
       </div>
-
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, Component, useRef } from 'react';
+import React, { useState, useEffect, useCallback, Component, useRef } from 'react';
 import { PRACTICES, PRODUCTS_BY_PRACTICE } from './dashboardData.js';
 import { DataProvider, useData } from './context/DataContext.jsx';
 import { useSSE } from './hooks/useSSE.js';
@@ -186,31 +186,226 @@ function Sparkline() {
 
 // ── Practice accent colours ───────────────────────────────────────────────
 const PRACTICE_ACCENT = {
-  AWS:      { color: '#ff9900', light: 'rgba(255,153,0,.13)', icon: '☁️' },
-  IBM:      { color: '#3b82d4', light: 'rgba(59,130,212,.13)', icon: '🔷' },
-  'Red Hat':{ color: '#cc0000', light: 'rgba(204,0,0,.11)',   icon: '🎩' },
-  WIZ:      { color: '#7c5cd8', light: 'rgba(124,92,216,.13)', icon: '🔮' },
-  GOOGLE:   { color: '#4285f4', light: 'rgba(66,133,244,.13)', icon: '🔵' },
+  AWS:        { color: '#e07b00', light: 'rgba(224,123,0,.10)' },
+  IBM:        { color: '#1a56a8', light: 'rgba(26,86,168,.10)' },
+  'Red Hat':  { color: '#b30000', light: 'rgba(179,0,0,.09)'   },
+  WIZ:        { color: '#5b3fc4', light: 'rgba(91,63,196,.10)' },
+  GOOGLE:     { color: '#1967d2', light: 'rgba(25,103,210,.10)'},
+  Databricks: { color: '#c0392b', light: 'rgba(192,57,43,.09)' },
+  EDB:        { color: '#336791', light: 'rgba(51,103,145,.10)'},
+  Thales:     { color: '#003189', light: 'rgba(0,49,137,.09)'  },
+  F5:         { color: '#c0392b', light: 'rgba(192,57,43,.09)' },
+  Quest:      { color: '#2e7d32', light: 'rgba(46,125,50,.09)' },
+  Nutanix:    { color: '#024DA1', light: 'rgba(2,77,161,.09)'  },
 };
 function practiceAccent(p) {
-  return PRACTICE_ACCENT[p] || { color: 'var(--blue)', light: 'var(--blue-lt)', icon: '🏢' };
+  return PRACTICE_ACCENT[p] || { color: '#1a56a8', light: 'rgba(26,86,168,.10)' };
 }
 
 // ── Welcome / Selection Screen ────────────────────────────────────────────
+// ── Full-page 3-D particle-network background ─────────────────────────────
+function ParticleBackground({ accent }) {
+  const canvasRef = useRef(null);
+  const mouseRef  = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let raf;
+
+    const COUNT = 120;
+    const LINK  = 180;
+    const SPEED = 0.45;
+    const FL    = 500;
+
+    function resize() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Track mouse for parallax nudge
+    function onMouse(e) {
+      mouseRef.current = { x: e.clientX, y: e.clientY };
+    }
+    window.addEventListener('mousemove', onMouse);
+
+    // Parse hex accent to rgb
+    const hex = (accent || '#1565d8').replace('#', '');
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+
+    // Particles spread across a wide 3-D volume
+    const particles = Array.from({ length: COUNT }, () => ({
+      x:  (Math.random() - .5) * 1200,
+      y:  (Math.random() - .5) * 1200,
+      z:  (Math.random() - .5) * 900,
+      vx: (Math.random() - .5) * SPEED,
+      vy: (Math.random() - .5) * SPEED,
+      vz: (Math.random() - .5) * SPEED,
+      // pulse phase for glow
+      phase: Math.random() * Math.PI * 2,
+    }));
+
+    let angle = 0;
+    let tilt  = 0; // slow tilt around X from mouse
+
+    function project(x, y, z) {
+      // Y-axis rotation
+      const cosY = Math.cos(angle), sinY = Math.sin(angle);
+      let rx = x * cosY - z * sinY;
+      let rz = x * sinY + z * cosY;
+      // X-axis tilt
+      const cosX = Math.cos(tilt), sinX = Math.sin(tilt);
+      let ry = y * cosX - rz * sinX;
+      rz     = y * sinX + rz * cosX;
+
+      const scale = FL / (FL + rz + 600);
+      return {
+        sx: canvas.width  / 2 + rx * scale,
+        sy: canvas.height / 2 + ry * scale,
+        scale,
+        depth: rz,
+      };
+    }
+
+    let frame = 0;
+    function draw() {
+      frame++;
+      // Fade trail — semi-transparent fill gives motion-blur feel
+      ctx.fillStyle = 'rgba(10, 12, 24, 0.18)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      angle += 0.0022;
+      // Gentle tilt toward mouse
+      const mx = mouseRef.current.x / canvas.width  - 0.5;
+      const my = mouseRef.current.y / canvas.height - 0.5;
+      tilt += (my * 0.18 - tilt) * 0.02;
+
+      // Move particles
+      for (const p of particles) {
+        p.x += p.vx; p.y += p.vy; p.z += p.vz;
+        p.phase += 0.018;
+        if (p.x >  600 || p.x < -600) p.vx *= -1;
+        if (p.y >  600 || p.y < -600) p.vy *= -1;
+        if (p.z >  450 || p.z < -450) p.vz *= -1;
+      }
+
+      // Project + sort back-to-front
+      const proj = particles
+        .map((p, i) => ({ ...project(p.x, p.y, p.z), p, i }))
+        .sort((a, b2) => b2.depth - a.depth);
+
+      // Draw lines
+      for (let i = 0; i < proj.length; i++) {
+        for (let j = i + 1; j < proj.length; j++) {
+          const a = proj[i], bP = proj[j];
+          const dx = a.p.x - bP.p.x;
+          const dy = a.p.y - bP.p.y;
+          const dz = a.p.z - bP.p.z;
+          const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+          if (dist < LINK) {
+            const t     = 1 - dist / LINK;
+            const alpha = t * t * 0.55 * Math.min(a.scale, bP.scale) * 2.2;
+            const grd   = ctx.createLinearGradient(a.sx, a.sy, bP.sx, bP.sy);
+            grd.addColorStop(0, `rgba(${r},${g},${b},${alpha})`);
+            grd.addColorStop(1, `rgba(${r},${g},${b},${alpha * 0.4})`);
+            ctx.strokeStyle = grd;
+            ctx.lineWidth   = t * 1.4 * Math.min(a.scale, bP.scale) * 1.8;
+            ctx.beginPath();
+            ctx.moveTo(a.sx, a.sy);
+            ctx.lineTo(bP.sx, bP.sy);
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Draw nodes with glow
+      for (const { sx, sy, scale, p } of proj) {
+        const pulse  = 0.7 + 0.3 * Math.sin(p.phase);
+        const radius = Math.max(1.2, 4.5 * scale * pulse);
+        const alpha  = Math.min(1, scale * 1.4 * pulse);
+
+        // Outer glow
+        const glow = ctx.createRadialGradient(sx, sy, 0, sx, sy, radius * 3.5);
+        glow.addColorStop(0, `rgba(${r},${g},${b},${alpha * 0.35})`);
+        glow.addColorStop(1, `rgba(${r},${g},${b},0)`);
+        ctx.beginPath();
+        ctx.arc(sx, sy, radius * 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = glow;
+        ctx.fill();
+
+        // Core dot
+        ctx.beginPath();
+        ctx.arc(sx, sy, radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${Math.min(255,r+80)},${Math.min(255,g+80)},${Math.min(255,b+120)},${alpha})`;
+        ctx.fill();
+      }
+
+      // Subtle scanline overlay every 80 frames
+      if (frame % 80 === 0) {
+        ctx.fillStyle = `rgba(${r},${g},${b},0.03)`;
+        for (let y = 0; y < canvas.height; y += 4) {
+          ctx.fillRect(0, y, canvas.width, 1);
+        }
+      }
+
+      raf = requestAnimationFrame(draw);
+    }
+
+    // Initial solid background fill
+    ctx.fillStyle = 'rgb(10, 12, 24)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    draw();
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', resize);
+      window.removeEventListener('mousemove', onMouse);
+    };
+  }, [accent]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'fixed', inset: 0,
+        width: '100%', height: '100%',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }}
+    />
+  );
+}
+
 function WelcomeScreen({ theme, setTheme, practice, product, products, onPracticeChange, onProductChange, onLaunch, _loading, practicesList }) {
   const displayPractices = practicesList && practicesList.length ? practicesList : ['IBM', 'AWS'];
   const accent = practiceAccent(practice);
+  const [productSearch, setProductSearch] = useState('');
+
+  // Reset search when practice changes
+  useEffect(() => { setProductSearch(''); }, [practice]);
+
+  const filteredProducts = products.filter(p =>
+    p.toLowerCase().includes(productSearch.toLowerCase())
+  );
 
   return (
     <div style={{
       minHeight: '100vh', width: '100vw',
-      background: 'var(--bg)',
+      background: 'transparent',
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
       fontFamily: 'var(--font)',
-      padding: '24px 16px',
+      padding: '32px 16px',
+      boxSizing: 'border-box',
+      position: 'relative',
     }}>
+      <ParticleBackground accent={accent.color} />
 
-      {/* Theme toggle — top right */}
+      {/* Theme toggle */}
       <button
         className="theme-btn"
         onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
@@ -222,180 +417,296 @@ function WelcomeScreen({ theme, setTheme, practice, product, products, onPractic
         {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
       </button>
 
-      {/* ── Card ── */}
-      <div className="welcome-card" style={{
-        background: 'var(--card-bg)',
-        border: '1px solid var(--card-border)',
+      {/* ── Main card ── */}
+      <div style={{
+        background: 'rgba(10, 12, 24, 0.72)',
+        backdropFilter: 'blur(18px)',
+        WebkitBackdropFilter: 'blur(18px)',
+        border: `1px solid ${accent.color}44`,
         borderRadius: 18,
-        padding: '40px 44px 36px',
         width: '100%',
-        maxWidth: 600,
-        boxShadow: '0 12px 48px rgba(0,0,0,.22)',
+        maxWidth: 680,
+        maxHeight: 'calc(100vh - 64px)',
+        boxShadow: `0 0 0 1px ${accent.color}22, 0 24px 60px rgba(0,0,0,.55), 0 0 80px ${accent.color}18`,
         display: 'flex',
         flexDirection: 'column',
-        gap: 0,
+        overflow: 'hidden',
+        position: 'relative',
+        zIndex: 1,
       }}>
 
-        {/* ── Brand header ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 28 }}>
-          <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--text)', letterSpacing: 5, lineHeight: 1 }}>
-            LAUREN
+        {/* ── Header band ── */}
+        <div style={{
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          padding: '28px 36px 24px',
+          textAlign: 'center',
+          flexShrink: 0,
+        }}>
+          <div style={{
+            fontSize: 11, fontWeight: 700, letterSpacing: 4,
+            color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', marginBottom: 8,
+          }}>
+            Lauren Group
           </div>
-          <div style={{ fontSize: 9.5, color: 'var(--text-muted)', letterSpacing: 3.5, textTransform: 'uppercase', marginTop: 5 }}>
+          <div style={{
+            fontSize: 28, fontWeight: 900, color: '#ffffff',
+            letterSpacing: 1, lineHeight: 1.1,
+          }}>
             Intelligence Dashboard
           </div>
-          {/* Accent bar */}
           <div style={{
             width: 40, height: 3,
             background: accent.color,
             borderRadius: 2,
-            marginTop: 16,
-            transition: 'background .3s',
+            margin: '14px auto 0',
+            transition: 'background .35s',
+            boxShadow: `0 0 12px ${accent.color}99`,
           }}/>
         </div>
 
-        {/* ── Section: Practice ── */}
-        <div style={{ marginBottom: 22 }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12,
-          }}>
-            <div style={{ width: 3, height: 14, background: accent.color, borderRadius: 2, transition: 'background .3s' }}/>
-            <span style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
-              Select Practice
-            </span>
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {displayPractices.map((p) => {
-              const a = practiceAccent(p);
-              const isActive = practice === p;
-              return (
-                <button
-                  key={p}
-                  onClick={() => onPracticeChange(p)}
-                  style={{
-                    display: 'flex', flexDirection: 'column', alignItems: 'center',
-                    gap: 5,
-                    padding: '10px 18px',
-                    borderRadius: 10,
-                    cursor: 'pointer',
-                    minWidth: 72,
-                    border: isActive ? `2px solid ${a.color}` : '2px solid var(--card-border)',
-                    background: isActive ? a.light : 'var(--card-bg2)',
-                    color: isActive ? a.color : 'var(--text-muted)',
-                    transition: 'all .15s',
-                    fontSize: 11,
-                    fontWeight: 800,
-                    letterSpacing: .4,
-                  }}
-                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.borderColor = a.color + '66'; }}
-                  onMouseLeave={e => { if (!isActive) e.currentTarget.style.borderColor = 'var(--card-border)'; }}
-                >
-                  <span style={{ fontSize: 18, lineHeight: 1 }}>{a.icon}</span>
-                  {p}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        {/* ── Body — scrollable middle section ── */}
+        <div style={{ padding: '28px 36px 0', overflowY: 'auto', flex: 1, minHeight: 0 }}>
 
-        {/* ── Divider ── */}
-        <div style={{ height: 1, background: 'var(--card-border)', margin: '4px 0 20px', opacity: .7 }}/>
-
-        {/* ── Section: Product ── */}
-        <div style={{ marginBottom: 28 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-            <div style={{ width: 3, height: 14, background: accent.color, borderRadius: 2, transition: 'background .3s' }}/>
-            <span style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
-              Select Product
-            </span>
-            {product && (
+          {/* ── Practice section ── */}
+          <div style={{ marginBottom: 26 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
               <span style={{
-                marginLeft: 'auto',
-                fontSize: 10.5, fontWeight: 700,
-                padding: '2px 9px', borderRadius: 10,
-                background: accent.light,
-                color: accent.color,
-                border: `1px solid ${accent.color}44`,
-                transition: 'all .3s',
+                fontSize: 10, fontWeight: 800, letterSpacing: 1.5,
+                textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)',
               }}>
-                {product}
+                Practice
               </span>
-            )}
+              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }}/>
+              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 500 }}>
+                {displayPractices.length} available
+              </span>
+            </div>
+
+            {/* Practice pills */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+              {displayPractices.map((p) => {
+                const a = practiceAccent(p);
+                const isActive = practice === p;
+                return (
+                  <button
+                    key={p}
+                    onClick={() => onPracticeChange(p)}
+                    style={{
+                      padding: '6px 16px',
+                      borderRadius: 20,
+                      cursor: 'pointer',
+                      fontSize: 12,
+                      fontWeight: isActive ? 700 : 500,
+                      letterSpacing: .3,
+                      border: isActive ? `1.5px solid ${a.color}` : '1.5px solid rgba(255,255,255,0.15)',
+                      background: isActive ? `${a.color}28` : 'rgba(255,255,255,0.06)',
+                      color: isActive ? a.color : 'rgba(255,255,255,0.65)',
+                      transition: 'all .15s',
+                      whiteSpace: 'nowrap',
+                      boxShadow: isActive ? `0 0 14px ${a.color}44` : 'none',
+                    }}
+                    onMouseEnter={e => {
+                      if (!isActive) {
+                        e.currentTarget.style.borderColor = a.color + '88';
+                        e.currentTarget.style.color = '#fff';
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.11)';
+                      }
+                    }}
+                    onMouseLeave={e => {
+                      if (!isActive) {
+                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
+                        e.currentTarget.style.color = 'rgba(255,255,255,0.65)';
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                      }
+                    }}
+                  >
+                    {p}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Product grid — max 3 per row, scrollable if very many */}
-          <div className="welcome-product-grid" style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: 8,
-            maxHeight: 220,
-            overflowY: products.length > 9 ? 'auto' : 'visible',
-            paddingRight: products.length > 9 ? 4 : 0,
-          }}>
-            {products.map((p) => {
-              const isActive = product === p;
-              return (
-                <button
-                  key={p}
-                  onClick={() => onProductChange(p)}
-                  title={p}
+          {/* ── Divider ── */}
+          <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', marginBottom: 24 }}/>
+
+          {/* ── Product section ── */}
+          <div style={{ marginBottom: 28 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+              <span style={{
+                fontSize: 10, fontWeight: 800, letterSpacing: 1.5,
+                textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)',
+              }}>
+                Product
+              </span>
+              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }}/>
+              {product ? (
+                <span style={{
+                  fontSize: 10.5, fontWeight: 700,
+                  padding: '2px 10px', borderRadius: 10,
+                  background: `${accent.color}28`,
+                  color: accent.color,
+                  border: `1px solid ${accent.color}55`,
+                }}>
+                  {product}
+                </span>
+              ) : (
+                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 500 }}>
+                  {products.length} products
+                </span>
+              )}
+            </div>
+
+            {/* Search box */}
+            {products.length > 6 && (
+              <div style={{ position: 'relative', marginBottom: 12 }}>
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8"
                   style={{
-                    padding: '9px 10px',
+                    position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)',
+                    width: 14, height: 14, color: 'rgba(255,255,255,0.35)', pointerEvents: 'none',
+                  }}>
+                  <circle cx="9" cy="9" r="6"/><path d="M15 15l-3.5-3.5"/>
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search products…"
+                  value={productSearch}
+                  onChange={e => setProductSearch(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px 8px 32px',
                     borderRadius: 8,
-                    cursor: 'pointer',
-                    fontSize: 11.5,
-                    fontWeight: 700,
-                    textAlign: 'left',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    border: isActive ? `2px solid ${accent.color}` : '1.5px solid var(--card-border)',
-                    background: isActive ? accent.light : 'var(--card-bg2)',
-                    color: isActive ? accent.color : 'var(--text-muted)',
-                    transition: 'all .15s',
-                    letterSpacing: .2,
+                    border: '1.5px solid rgba(255,255,255,0.14)',
+                    background: 'rgba(255,255,255,0.07)',
+                    color: '#fff',
+                    fontSize: 12.5,
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    transition: 'border-color .15s',
                   }}
-                  onMouseEnter={e => { if (!isActive) { e.currentTarget.style.borderColor = accent.color + '55'; e.currentTarget.style.color = 'var(--text)'; } }}
-                  onMouseLeave={e => { if (!isActive) { e.currentTarget.style.borderColor = 'var(--card-border)'; e.currentTarget.style.color = 'var(--text-muted)'; } }}
-                >
-                  {p}
-                </button>
-              );
-            })}
+                  onFocus={e => e.currentTarget.style.borderColor = accent.color + 'aa'}
+                  onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)'}
+                />
+                {productSearch && (
+                  <button
+                    onClick={() => setProductSearch('')}
+                    style={{
+                      position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      color: 'rgba(255,255,255,0.4)', padding: 0, lineHeight: 1, fontSize: 14,
+                    }}
+                  >×</button>
+                )}
+              </div>
+            )}
+
+            {/* Product list */}
+            <div style={{
+              border: '1.5px solid rgba(255,255,255,0.1)',
+              borderRadius: 10,
+              overflow: 'hidden',
+              maxHeight: 200,
+              overflowY: 'auto',
+            }}>
+              {filteredProducts.length === 0 ? (
+                <div style={{
+                  padding: '24px 16px', textAlign: 'center',
+                  fontSize: 12, color: 'rgba(255,255,255,0.3)',
+                }}>
+                  No products match "{productSearch}"
+                </div>
+              ) : (
+                filteredProducts.map((p, idx) => {
+                  const isActive = product === p;
+                  return (
+                    <button
+                      key={p}
+                      onClick={() => onProductChange(p)}
+                      title={p}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        width: '100%',
+                        padding: '10px 16px',
+                        borderRadius: 0,
+                        cursor: 'pointer',
+                        fontSize: 13,
+                        fontWeight: isActive ? 700 : 400,
+                        textAlign: 'left',
+                        borderTop: idx === 0 ? 'none' : '1px solid rgba(255,255,255,0.07)',
+                        borderLeft: 'none', borderRight: 'none', borderBottom: 'none',
+                        background: isActive ? `${accent.color}28` : 'transparent',
+                        color: isActive ? accent.color : 'rgba(255,255,255,0.8)',
+                        transition: 'background .12s',
+                        boxSizing: 'border-box',
+                      }}
+                      onMouseEnter={e => {
+                        if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.07)';
+                      }}
+                      onMouseLeave={e => {
+                        if (!isActive) e.currentTarget.style.background = 'transparent';
+                      }}
+                    >
+                      <span style={{
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1,
+                      }}>
+                        {p}
+                      </span>
+                      {isActive && (
+                        <svg viewBox="0 0 16 16" fill="currentColor" style={{ width: 14, height: 14, flexShrink: 0, marginLeft: 8 }}>
+                          <path fillRule="evenodd" d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"/>
+                        </svg>
+                      )}
+                    </button>
+                  );
+                })
+              )}
+            </div>
           </div>
-        </div>
+        </div>{/* end scrollable body */}
 
-        {/* ── Launch button ── */}
-        <button
-          onClick={onLaunch}
-          disabled={!product}
-          style={{
-            width: '100%',
-            padding: '14px 0',
-            borderRadius: 11,
-            border: 'none',
-            cursor: product ? 'pointer' : 'not-allowed',
-            background: product ? accent.color : 'var(--card-border)',
-            color: '#fff',
-            fontSize: 14,
-            fontWeight: 900,
-            letterSpacing: 1,
-            transition: 'all .2s',
-            opacity: product ? 1 : 0.55,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-          }}
-          onMouseEnter={e => { if (product) e.currentTarget.style.opacity = '.86'; }}
-          onMouseLeave={e => { if (product) e.currentTarget.style.opacity = '1'; }}
-        >
-          <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 16, height: 16, flexShrink: 0 }}>
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd"/>
-          </svg>
-          Launch Dashboard
-        </button>
+        {/* ── Launch button — always pinned at bottom of card ── */}
+        <div style={{
+          padding: '16px 36px 24px',
+          borderTop: '1px solid rgba(255,255,255,0.08)',
+          flexShrink: 0,
+          background: 'transparent',
+        }}>
+          <button
+            onClick={onLaunch}
+            disabled={!product}
+            style={{
+              width: '100%',
+              padding: '13px 0',
+              borderRadius: 10,
+              border: 'none',
+              cursor: product ? 'pointer' : 'not-allowed',
+              background: product ? accent.color : 'var(--card-border)',
+              color: '#fff',
+              fontSize: 13.5,
+              fontWeight: 700,
+              letterSpacing: .6,
+              transition: 'all .2s',
+              opacity: product ? 1 : 0.5,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            }}
+            onMouseEnter={e => { if (product) e.currentTarget.style.opacity = '.82'; }}
+            onMouseLeave={e => { if (product) e.currentTarget.style.opacity = '1'; }}
+          >
+            <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 15, height: 15, flexShrink: 0 }}>
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd"/>
+            </svg>
+            Open Dashboard
+          </button>
 
-        {/* ── Footer ── */}
-        <div style={{ marginTop: 18, fontSize: 10, color: 'var(--text-dim)', textAlign: 'center', letterSpacing: .3 }}>
-          For internal use only · © 2025 Lauren Group
+          {/* ── Footer ── */}
+          <div style={{
+            marginTop: 12, textAlign: 'center',
+            fontSize: 10.5, color: 'rgba(255,255,255,0.25)', letterSpacing: .3,
+          }}>
+            For internal use only · © 2025 Lauren Group
+          </div>
         </div>
 
       </div>
