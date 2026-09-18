@@ -198,6 +198,24 @@ const PRACTICE_ACCENT = {
   Quest:      { color: '#2e7d32', light: 'rgba(46,125,50,.09)' },
   Nutanix:    { color: '#024DA1', light: 'rgba(2,77,161,.09)'  },
 };
+
+// Maps a practice name to its brand CSS theme value
+const PRACTICE_THEME = {
+  IBM:        'ibm',
+  'Red Hat':  'redhat',
+  Databricks: 'databricks',
+  Nutanix:    'nutanix',
+};
+
+// All available themes in cycle order
+const THEMES = [
+  { id: 'light',      label: 'Light',      icon: '☀️' },
+  { id: 'dark',       label: 'Dark',       icon: '🌙' },
+  { id: 'ibm',        label: 'IBM Blue',   icon: '🔵' },
+  { id: 'redhat',     label: 'Red Hat',    icon: '🔴' },
+  { id: 'databricks', label: 'Databricks', icon: '🟠' },
+  { id: 'nutanix',    label: 'Nutanix',    icon: '🟢' },
+];
 function practiceAccent(p) {
   return PRACTICE_ACCENT[p] || { color: '#1a56a8', light: 'rgba(26,86,168,.10)' };
 }
@@ -405,17 +423,27 @@ function WelcomeScreen({ theme, setTheme, practice, product, products, onPractic
     }}>
       <ParticleBackground accent={accent.color} />
 
-      {/* Theme toggle */}
-      <button
-        className="theme-btn"
-        onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
-        style={{ position: 'fixed', top: 14, right: 18 }}
+      {/* Theme picker */}
+      <select
+        value={theme}
+        onChange={e => setTheme(e.target.value)}
+        style={{
+          position: 'fixed', top: 14, right: 18,
+          background: 'rgba(10,12,24,0.82)',
+          color: '#fff',
+          border: '1px solid rgba(255,255,255,0.18)',
+          borderRadius: 8,
+          padding: '5px 10px',
+          fontSize: 12,
+          fontWeight: 600,
+          cursor: 'pointer',
+          zIndex: 9999,
+        }}
       >
-        <span style={{ width: 13, height: 13, display: 'flex' }}>
-          {theme === 'dark' ? IC.Sun : IC.Moon}
-        </span>
-        {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-      </button>
+        {THEMES.map(t => (
+          <option key={t.id} value={t.id}>{t.icon} {t.label}</option>
+        ))}
+      </select>
 
       {/* ── Main card ── */}
       <div style={{
@@ -748,8 +776,22 @@ function AppInner() {
 
   // Theme effect
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'dark' : '');
+    document.documentElement.setAttribute('data-theme', theme === 'light' ? '' : theme);
   }, [theme]);
+
+  // Auto-apply brand theme when practice changes (only if user hasn't manually picked a non-default theme)
+  const prevPracticeRef = useRef(null);
+  useEffect(() => {
+    if (prevPracticeRef.current === practice) return;
+    prevPracticeRef.current = practice;
+    const brandTheme = PRACTICE_THEME[practice];
+    if (brandTheme) {
+      setTheme(brandTheme);
+    } else {
+      // For practices without a brand theme, fall back to light
+      setTheme(t => (t === 'dark' ? 'dark' : 'light'));
+    }
+  }, [practice]);
 
   // Load product data whenever practice/product changes.
   // NOTE: getProductData is intentionally excluded from deps — it is a stable
@@ -1106,15 +1148,16 @@ function AppInner() {
               Data as of:
             </span>
             <span className="header-date">{data.dataAsOf || dateStr}</span>
-            <button
+            <select
               className="theme-btn"
-              onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
+              value={theme}
+              onChange={e => setTheme(e.target.value)}
+              style={{ cursor: 'pointer', paddingRight: 8 }}
             >
-              <span style={{ width: 13, height: 13, display: 'flex' }}>
-                {theme === 'dark' ? IC.Sun : IC.Moon}
-              </span>
-              {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-            </button>
+              {THEMES.map(t => (
+                <option key={t.id} value={t.id}>{t.icon} {t.label}</option>
+              ))}
+            </select>
             <button className="refresh-btn">
               <span style={{ width: 13, height: 13, display: 'flex' }}>{IC.Refresh}</span>
               Refresh

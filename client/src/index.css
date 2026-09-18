@@ -61,6 +61,126 @@
   --tco-track:    rgba(255,255,255,.07);
 }
 
+/* ── IBM BLUE THEME ── */
+[data-theme="ibm"] {
+  --bg:           #f4f7fb;
+  --sidebar-bg:   #001141;
+  --header-bg:    #001141;
+  --card-bg:      #ffffff;
+  --card-bg2:     #dde1e7;
+  --card-border:  #a2b0c6;
+  --modal-overlay: rgba(0,0,0,.45);
+  --text:         #161616;
+  --text-muted:   #525252;
+  --text-dim:     #8d8d8d;
+  --blue:         #0f62fe;
+  --blue-lt:      rgba(15,98,254,0.10);
+  --green:        #198038;
+  --green-lt:     rgba(25,128,56,0.10);
+  --red:          #da1e28;
+  --red-lt:       rgba(218,30,40,0.09);
+  --orange:       #d74108;
+  --orange-lt:    rgba(215,65,8,0.09);
+  --yellow:       #b28600;
+  --yellow-lt:    rgba(178,134,0,0.10);
+  --purple:       #7c3dd6;
+  --purple-lt:    rgba(124,61,214,0.10);
+  --navy:         #001141;
+  --accent:       #0f62fe;
+  --feature-bg:   #dde1e7;
+  --tco-track:    rgba(0,0,0,.08);
+}
+
+/* ── RED HAT RED THEME ── */
+[data-theme="redhat"] {
+  --bg:           #faf7f7;
+  --sidebar-bg:   #1a0000;
+  --header-bg:    #1a0000;
+  --card-bg:      #ffffff;
+  --card-bg2:     #f5eded;
+  --card-border:  #e0c8c8;
+  --modal-overlay: rgba(0,0,0,.45);
+  --text:         #151515;
+  --text-muted:   #522020;
+  --text-dim:     #9e7878;
+  --blue:         #ee0000;
+  --blue-lt:      rgba(238,0,0,0.10);
+  --green:        #3e8914;
+  --green-lt:     rgba(62,137,20,0.10);
+  --red:          #ee0000;
+  --red-lt:       rgba(238,0,0,0.09);
+  --orange:       #c46200;
+  --orange-lt:    rgba(196,98,0,0.09);
+  --yellow:       #8c6d00;
+  --yellow-lt:    rgba(140,109,0,0.10);
+  --purple:       #703cad;
+  --purple-lt:    rgba(112,60,173,0.10);
+  --navy:         #1a0000;
+  --accent:       #ee0000;
+  --feature-bg:   #f5eded;
+  --tco-track:    rgba(0,0,0,.08);
+}
+
+/* ── DATABRICKS RED THEME ── */
+[data-theme="databricks"] {
+  --bg:           #fff8f6;
+  --sidebar-bg:   #1b1218;
+  --header-bg:    #1b1218;
+  --card-bg:      #ffffff;
+  --card-bg2:     #f7eeec;
+  --card-border:  #e8d0cb;
+  --modal-overlay: rgba(0,0,0,.45);
+  --text:         #1a1010;
+  --text-muted:   #5c3030;
+  --text-dim:     #a07070;
+  --blue:         #ff3621;
+  --blue-lt:      rgba(255,54,33,0.10);
+  --green:        #20873c;
+  --green-lt:     rgba(32,135,60,0.10);
+  --red:          #ff3621;
+  --red-lt:       rgba(255,54,33,0.09);
+  --orange:       #e05a00;
+  --orange-lt:    rgba(224,90,0,0.09);
+  --yellow:       #9a7200;
+  --yellow-lt:    rgba(154,114,0,0.10);
+  --purple:       #7c3dd6;
+  --purple-lt:    rgba(124,61,214,0.10);
+  --navy:         #1b1218;
+  --accent:       #ff3621;
+  --feature-bg:   #f7eeec;
+  --tco-track:    rgba(0,0,0,.08);
+}
+
+/* ── NUTANIX GREEN THEME ── */
+[data-theme="nutanix"] {
+  --bg:           #f4fbf6;
+  --sidebar-bg:   #012b14;
+  --header-bg:    #012b14;
+  --card-bg:      #ffffff;
+  --card-bg2:     #e4f2e8;
+  --card-border:  #a8d4b4;
+  --modal-overlay: rgba(0,0,0,.45);
+  --text:         #0b1f10;
+  --text-muted:   #2d5c3a;
+  --text-dim:     #6a9a76;
+  --blue:         #024DA1;
+  --blue-lt:      rgba(2,77,161,0.10);
+  --green:        #1a7f3c;
+  --green-lt:     rgba(26,127,60,0.12);
+  --red:          #c0392b;
+  --red-lt:       rgba(192,57,43,0.09);
+  --orange:       #b85c00;
+  --orange-lt:    rgba(184,92,0,0.09);
+  --yellow:       #8a6600;
+  --yellow-lt:    rgba(138,102,0,0.10);
+  --purple:       #6b24c8;
+  --purple-lt:    rgba(107,36,200,0.10);
+  --navy:         #012b14;
+  --accent:       #1a7f3c;
+  --feature-bg:   #e4f2e8;
+  --tco-track:    rgba(0,0,0,.08);
+}
+
 /* ── Global form element theming — fixes light/dark visibility ── */
 input, textarea, select {
   background: var(--card-bg2);
