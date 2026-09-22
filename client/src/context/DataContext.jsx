@@ -124,6 +124,33 @@ export function DataProvider({ children }) {
     invalidateProduct(practice, product);
   }, [invalidateProduct]);
 
+  /** Rename a practice key in the local list (after a successful rename API call) */
+  const renamePracticeInList = useCallback((oldName, newName) => {
+    setPractices((prev) => {
+      if (!prev[oldName]) return prev;
+      const next = { ...prev };
+      next[newName] = next[oldName];
+      delete next[oldName];
+      return next;
+    });
+    // Re-key cached products for this practice
+    const keysToRename = Object.keys(productCacheRef.current).filter(k => k.startsWith(`${oldName}/`));
+    keysToRename.forEach(k => {
+      const newKey = `${newName}/${k.slice(oldName.length + 1)}`;
+      productCacheRef.current[newKey] = { ...productCacheRef.current[k], practice: newName };
+      delete productCacheRef.current[k];
+    });
+    setProductCache((prev) => {
+      const next = { ...prev };
+      keysToRename.forEach(k => {
+        const newKey = `${newName}/${k.slice(oldName.length + 1)}`;
+        next[newKey] = { ...next[k], practice: newName };
+        delete next[k];
+      });
+      return next;
+    });
+  }, []);
+
   /** Remove an entire practice and all its cached products */
   const removePracticeFromList = useCallback((practiceName) => {
     setPractices((prev) => {
@@ -142,7 +169,7 @@ export function DataProvider({ children }) {
   }, []);
 
   return (
-    <DataContext.Provider value={{ practices, loading, error, getProductData, invalidateProduct, addProductToList, addPracticeToList, removeProductFromList, removePracticeFromList }}>
+    <DataContext.Provider value={{ practices, loading, error, getProductData, invalidateProduct, addProductToList, addPracticeToList, removeProductFromList, removePracticeFromList, renamePracticeInList }}>
       {children}
     </DataContext.Provider>
   );

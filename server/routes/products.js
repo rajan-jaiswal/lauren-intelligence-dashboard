@@ -156,6 +156,25 @@ router.post('/practices', async (req, res) => {
   }
 });
 
+// ─── PATCH /api/practices/:name — rename a practice (updates all products) ──────
+router.patch('/practices/:name', async (req, res) => {
+  const { pin, newName } = req.body;
+  if (!process.env.ADMIN_PIN || pin !== process.env.ADMIN_PIN) return res.status(401).json({ error: 'Invalid PIN' });
+  if (!newName || !newName.trim()) return res.status(400).json({ error: 'newName required' });
+  try {
+    const oldName = decodeURIComponent(req.params.name);
+    const updated = newName.trim().toUpperCase();
+    if (oldName === updated) return res.json({ status: 'ok', practice: updated });
+    const conflict = await Product.findOne({ practice: updated }).lean();
+    if (conflict) return res.status(409).json({ error: `Practice "${updated}" already exists` });
+    await Product.updateMany({ practice: oldName }, { $set: { practice: updated } });
+    sse.broadcast('practice_renamed', { oldName, newName: updated });
+    res.json({ status: 'ok', oldName, newName: updated });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ─── DELETE /api/practices/:name — delete a practice and all its products ──────
 router.delete('/practices/:name', async (req, res) => {
   const { pin } = req.query;
@@ -321,8 +340,8 @@ router.post('/products/ai-generate-preview', async (req, res) => {
   }
 });
 
-// ─── POST /api/products/extract-pdf — parse PDF → return field preview (no save) ─
-// Used by the frontend "Extract from PDF" button to pre-fill the form.
+// ─── POST /api/products/extract-pdf — parse file → return field preview (no save) ─
+// Two-pass strategy for large docs: chunk → summarise → synthesise final JSON.
 router.post('/products/extract-pdf', upload.single('file'), async (req, res) => {
   if (!process.env.ADMIN_PIN || req.body.pin !== process.env.ADMIN_PIN) {
     return res.status(401).json({ error: 'Invalid PIN' });
@@ -332,90 +351,159 @@ router.post('/products/extract-pdf', upload.single('file'), async (req, res) => 
   try {
     const parsed = await fileParser.parseFile(req.file.buffer, req.file.mimetype, req.file.originalname);
 
-    // Build a text representation for Gemini
-    let text = '';
-    if (parsed && parsed.text)          text = parsed.text;
-    else if (parsed && parsed.combined) text = parsed.combined;
-    else                                text = JSON.stringify(parsed, null, 2);
+    // Build the full text representation without truncation
+    let fullText = '';
+    if (parsed && parsed.text)          fullText = parsed.text;
+    else if (parsed && parsed.combined) fullText = parsed.combined;
+    else                                fullText = JSON.stringify(parsed, null, 2);
 
-    // Reduce to a safe limit so the total prompt + JSON response fits within
-    // Gemini's output token window.  The prompt template itself is ~2 KB, so
-    // leave 16 000 chars for the document and ~8 000 tokens for the response.
-    const MAX_CHARS = 16000;
-    if (text.length > MAX_CHARS) {
-      // Take the first 10 000 chars (intro / overview) + last 6 000 (summary / conclusions)
-      // This preserves context from both ends of large documents.
-      const head = text.slice(0, 10000);
-      const tail = text.slice(-6000);
-      text = head + '\n\n...[middle truncated for length]...\n\n' + tail;
-    }
-
-    const extractPrompt = `You are a senior product intelligence analyst specialising in B2B technology sales enablement. Read the following document carefully and extract EVERY piece of product information into the JSON structure below.
-
-DOCUMENT:
----
-${text}
----
-
-EXTRACTION RULES:
-- Extract ALL information present — never leave a field empty if data exists in the document
-- keyFeatures: extract every feature, module, capability, use case, or section heading as { icon, name } objects. Minimum 6 if present
-- strengths: advantages, value propositions, differentiators, "why us", benefits. Minimum 4 if present
-- weaknesses: limitations, requirements, constraints, known gaps
-- discoveryQuestions: sales questions a rep should ask — extract from any Q&A or discovery sections
-- recommendedResponses: matching sales responses — extract from any "response", "answer", or talking-points sections
-- objectionHandling: extract any objection/response pairs as { objection, response } objects
-- caseStudies: extract any customer examples as { icon, customer, type, challenge, result } objects
-- keyCustomers: extract any customer or reference names as { logo, name, industry, color } objects
-- competitors: any product or company names mentioned as competitors
-- featureMatrix: if a comparison table exists, extract as { labels: {product, comp1, comp2}, rows: [{feature, product, comp1, comp2}] } using "green"/"yellow"/"red"
-- tcoData: if pricing/TCO data exists, extract as { labels, totals, rows } with dollar values
-- winLoss: if win rates or deal stats exist, extract total/won/lost/winRate numbers and topMessages
-- aiCoach: extract a typical customer objection and suggested response as { customerSays, suggestedResponse, recommendedCaseStudy, winProbability, kvps }
-- gartnerMQ: extract any Gartner Magic Quadrant position mentioned
-- Return null for a field ONLY if it truly cannot be found — do not return empty arrays
-- Keep string values concise (max 2 sentences each) to avoid truncation
-- CRITICAL: Your entire response must be a single valid JSON object. Do NOT wrap it in markdown. Do NOT add any text before or after the JSON.
-
-START YOUR RESPONSE WITH { AND END WITH }:
-
-{
+    // ── Extraction prompt template ────────────────────────────────────────────
+    const EXTRACTION_SCHEMA = `{
   "productName": "<exact product name, or null>",
-  "description": "<2-3 sentence product description, or null>",
+  "description": "<2-3 sentence product description capturing the core value proposition, or null>",
   "category": "<product category e.g. Identity Management / APM / SIEM, or null>",
   "deployment": "<SaaS / On-Prem / Hybrid / Cloud-native, or null>",
   "targetUsers": "<comma-separated roles/teams, or null>",
   "productLaunch": "<year launched, or null>",
   "marketPosition": "<e.g. Leader (Gartner MQ 2024), or null>",
   "gartnerMQ": "<Gartner MQ position e.g. Leader / Visionary / Challenger, or null>",
-  "keyFeatures": [{ "icon": "<emoji>", "name": "<feature name>" }],
-  "strengths": ["<strength>"],
-  "weaknesses": ["<weakness>"],
-  "discoveryQuestions": ["<question a sales rep should ask>"],
-  "recommendedResponses": ["<matching sales response>"],
-  "objectionHandling": [{ "objection": "<customer objection>", "response": "<sales response>" }],
-  "caseStudies": [{ "icon": "<emoji>", "customer": "<name/type>", "type": "<industry>", "challenge": "<challenge>", "result": "<result>" }],
-  "keyCustomers": [{ "logo": "<emoji>", "name": "<company>", "industry": "<industry>", "color": "<hex>" }],
-  "competitors": ["<competitor name>"],
+  "keyFeatures": [{ "icon": "<relevant emoji>", "name": "<feature name>", "description": "<one concise line>" }],
+  "strengths": ["<specific strength or differentiator>"],
+  "weaknesses": ["<specific limitation or constraint>"],
+  "discoveryQuestions": ["<question a sales rep should ask prospects>"],
+  "recommendedResponses": ["<matching sales response or talking point>"],
+  "objectionHandling": [{ "objection": "<verbatim or paraphrased customer objection>", "response": "<effective sales response>" }],
+  "caseStudies": [{ "icon": "<emoji>", "customer": "<company or type>", "type": "<industry>", "challenge": "<the problem>", "result": "<quantified outcome>" }],
+  "keyCustomers": [{ "logo": "<emoji>", "name": "<company name>", "industry": "<industry>", "color": "<brand hex color>" }],
+  "competitors": ["<competitor product or company name>"],
   "featureMatrix": { "labels": { "product": "<name>", "comp1": "<name>", "comp2": "<name>" }, "rows": [{ "feature": "<feature>", "product": "green", "comp1": "yellow", "comp2": "red" }] },
-  "tcoData": { "labels": { "product": "<name>", "comp1": "<name>", "comp2": "<name>" }, "maxValue": 800, "totals": { "product": "<val>", "comp1": "<val>", "comp2": "<val>" }, "rows": [{ "component": "<name>", "product": "<val>", "comp1": "<val>", "comp2": "<val>" }] },
-  "winLoss": { "total": 0, "won": 0, "lost": 0, "winRate": 0, "competitors": [], "topMessages": ["<message>"] },
-  "aiCoach": { "customerSays": "<objection>", "suggestedResponse": "<response>", "recommendedCaseStudy": "<case>", "winProbability": "HIGH", "kvps": ["<point>"] },
-  "pricingInfo": "<any pricing info found, or null>"
+  "tcoData": { "labels": { "product": "<name>", "comp1": "<name>", "comp2": "<name>" }, "maxValue": 800, "totals": { "product": "<val>", "comp1": "<val>", "comp2": "<val>" }, "rows": [{ "component": "<cost component>", "product": "<val>", "comp1": "<val>", "comp2": "<val>" }] },
+  "winLoss": { "total": 0, "won": 0, "lost": 0, "winRate": 0, "competitors": [{ "label": "<name>", "wins": 0, "pct": 0, "color": "<hex>" }], "topMessages": ["<winning message>"] },
+  "aiCoach": { "customerSays": "<typical objection>", "suggestedResponse": "<response>", "recommendedCaseStudy": "<case>", "winProbability": "HIGH", "kvps": ["<key value point>"] },
+  "pricingInfo": "<any pricing, tier, or licensing info found, or null>"
 }`;
 
-    const rawText = await gemini.generateWithFallback(extractPrompt);
+    const EXTRACTION_RULES = `EXTRACTION RULES — follow every rule precisely:
+1. Extract EVERY piece of information present — never omit data that exists in the document
+2. keyFeatures: extract EVERY feature, capability, module, use case, and section heading — include ALL of them
+3. strengths: extract ALL advantages, value propositions, differentiators, "why us", competitive benefits
+4. weaknesses: extract ALL limitations, prerequisites, constraints, known gaps, requirements
+5. discoveryQuestions: extract from Q&A, discovery, or qualification sections; generate sales-relevant questions from product context if none exist
+6. recommendedResponses: extract from "response", "answer", "talking points", "messaging" sections; match to discoveryQuestions
+7. objectionHandling: extract ALL objection/response pairs; infer from competitive sections if not explicit
+8. caseStudies: extract ALL customer examples, case studies, success stories, reference accounts
+9. keyCustomers: extract ALL customer logos, reference accounts, named companies, partner names
+10. competitors: extract EVERY competitor, alternative solution, or "compared to" product mentioned
+11. featureMatrix: if any comparison table exists, extract it fully; use "green"=advantage, "yellow"=partial, "red"=disadvantage
+12. tcoData: extract ALL pricing, cost, ROI, or TCO data with dollar values
+13. winLoss: extract win rates, deal volumes, conversion stats, competitive win/loss data
+14. aiCoach: synthesise the most impactful objection/response pair from the document
+15. Return null ONLY if data genuinely does not exist — never return empty arrays when data is present
+16. Preserve exact numbers, percentages, and quoted text from the document
+17. CRITICAL: Return ONLY a valid JSON object. No markdown, no backticks, no explanation text.
+18. START your response with { and END with }`;
+
+    // ── STRATEGY ─────────────────────────────────────────────────────────────
+    // Gemini 2.5-flash supports ~1M token context (~3M chars).
+    // Single-pass for docs ≤ 60 000 chars (covers 95%+ of real files).
+    // Two-pass PARALLEL chunking only for very large docs — all chunks fire
+    // concurrently via Promise.all, then one synthesis call merges them.
+    const CHUNK_SIZE = 60000;  // ~15 000 tokens — fits in one Gemini call easily
+    const OVERLAP    = 400;    // chars overlap at chunk boundaries
 
     let extractedData;
-    try {
-      extractedData = robustParseJSON(rawText);
-    } catch (parseErr) {
-      // Log the raw response to server console so it's debuggable
-      console.error('[extract-pdf] JSON parse failed. Raw Gemini output (first 800 chars):\n', rawText?.slice(0, 800));
-      return res.status(422).json({
-        error: 'Could not parse AI response — the AI returned malformed output. Please try again or upload a different file.',
-        detail: parseErr.message,
-      });
+
+    const buildSinglePassPrompt = (text) =>
+      `You are a senior product intelligence analyst specialising in B2B technology sales enablement.
+Read the following document carefully and extract EVERY piece of product information in ONE pass.
+
+${EXTRACTION_RULES}
+
+DOCUMENT:
+---
+${text}
+---
+
+Return this exact JSON structure populated with ALL extracted data:
+${EXTRACTION_SCHEMA}`;
+
+    if (fullText.length <= CHUNK_SIZE) {
+      // ── Single-pass: entire document in one call ──────────────────────────────
+      const rawText = await gemini.generateAccurate(buildSinglePassPrompt(fullText));
+      try {
+        extractedData = robustParseJSON(rawText);
+      } catch (parseErr) {
+        console.error('[extract-pdf] single-pass parse failed:\n', rawText?.slice(0, 800));
+        return res.status(422).json({ error: 'Could not parse AI response. Please try again.', detail: parseErr.message });
+      }
+
+    } else {
+      // ── Two-pass PARALLEL: all chunks fire at the same time ───────────────────
+      const chunks = [];
+      for (let i = 0; i < fullText.length; i += CHUNK_SIZE - OVERLAP) {
+        chunks.push(fullText.slice(i, i + CHUNK_SIZE));
+        if (i + CHUNK_SIZE >= fullText.length) break;
+      }
+      console.log(`[extract-pdf] parallel chunked extraction: ${chunks.length} chunks, ${fullText.length} chars`);
+
+      // Pass 1 — all chunks in parallel (fast model — speed matters here)
+      const chunkResults = await Promise.all(
+        chunks.map(async (chunk, ci) => {
+          const chunkPrompt = `Extract all product intelligence facts from this chunk (part ${ci + 1}/${chunks.length}).
+Be exhaustive — miss nothing. Return ONLY a JSON object (no markdown) with any fields present:
+{ "productName":"<if found>", "description":"<if found>", "category":"<if found>",
+  "deployment":"<if found>", "targetUsers":"<if found>", "productLaunch":"<if found>",
+  "marketPosition":"<if found>", "gartnerMQ":"<if found>",
+  "keyFeatures":[{"icon":"⚡","name":"<name>","description":"<desc>"}],
+  "strengths":["<s>"], "weaknesses":["<w>"],
+  "discoveryQuestions":["<q>"], "recommendedResponses":["<r>"],
+  "objectionHandling":[{"objection":"<o>","response":"<r>"}],
+  "caseStudies":[{"icon":"📖","customer":"<c>","type":"<ind>","challenge":"<ch>","result":"<res>"}],
+  "keyCustomers":[{"logo":"🏢","name":"<n>","industry":"<ind>","color":"#4a9eff"}],
+  "competitors":["<name>"],
+  "pricingInfo":"<pricing text if any>",
+  "winLossStats":"<win/loss stats if any>",
+  "comparisonData":"<comparison or TCO text if any>" }
+
+CHUNK:
+---
+${chunk}
+---`;
+          try {
+            // Use fast model for chunk passes — they run in parallel so speed wins
+            const raw = await gemini.generateWithFallback(chunkPrompt);
+            return robustParseJSON(raw);
+          } catch (e) {
+            console.warn(`[extract-pdf] chunk ${ci + 1} failed, skipping:`, e.message);
+            return null;
+          }
+        })
+      );
+
+      const validChunks = chunkResults.filter(Boolean);
+
+      // Pass 2 — one synthesis call with the accurate model
+      const synthesisInput = JSON.stringify(validChunks, null, 2);
+      const synthesisPrompt =
+        `You are a senior product intelligence analyst. Synthesise these ${validChunks.length} chunk extractions from a product document into one complete, deduplicated intelligence record.
+
+${EXTRACTION_RULES}
+
+CHUNK EXTRACTIONS:
+---
+${synthesisInput}
+---
+
+Merge all arrays (remove exact duplicates), pick the most complete scalar values, and return:
+${EXTRACTION_SCHEMA}`;
+
+      const synthRaw = await gemini.generateAccurate(synthesisPrompt);
+      try {
+        extractedData = robustParseJSON(synthRaw);
+      } catch (parseErr) {
+        console.error('[extract-pdf] synthesis parse failed:\n', synthRaw?.slice(0, 800));
+        return res.status(422).json({ error: 'Could not parse AI synthesis response. Please try again.', detail: parseErr.message });
+      }
     }
 
     res.json({ status: 'ok', data: extractedData });

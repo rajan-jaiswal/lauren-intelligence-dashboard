@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSettings } from '../../context/SettingsContext.jsx';
 
 function parseMoney(str) {
   return parseInt((str || '0').replace(/[^0-9]/g, ''), 10) || 0;
@@ -190,6 +191,7 @@ function SectionLabel({ children, color = 'var(--blue)' }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function OverviewPage({ data }) {
+  const { settings } = useSettings();
   if (!data) return null;
   const {
     overview, keyFeatures, discoveryQuestions, recommendedResponses,
@@ -249,7 +251,7 @@ export default function OverviewPage({ data }) {
         </div>
         <div style={{ display: 'flex', gap: 9, flexShrink: 0, flexWrap: 'wrap' }}>
           {[
-            { label: 'Win Rate',            val: winRate ? `${winRate}%` : '—',              color: 'var(--blue)',   bg: 'var(--blue-lt)' },
+            ...(settings.winLossEnabled ? [{ label: 'Win Rate', val: winRate ? `${winRate}%` : '—', color: 'var(--blue)', bg: 'var(--blue-lt)' }] : []),
             { label: 'Customers',           val: (keyCustomers||[]).length || '—',            color: 'var(--green)',  bg: 'var(--green-lt)' },
             { label: 'TCO Advantage',       val: tcoAdvantage || '—',                         color: 'var(--orange)', bg: 'var(--orange-lt)' },
             { label: 'Competitors Tracked', val: (competitorSummary||[]).length || '—',       color: 'var(--purple)', bg: 'var(--purple-lt)' },
@@ -579,7 +581,7 @@ export default function OverviewPage({ data }) {
           </div>
 
           {/* AI Sales Coach + Win/Loss side by side */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, alignItems: 'start' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: settings.winLossEnabled ? '1fr 1fr' : '1fr', gap: 10, alignItems: 'start' }}>
 
             {/* AI Sales Coach */}
             <div style={card}>
@@ -628,7 +630,7 @@ export default function OverviewPage({ data }) {
             </div>
 
             {/* Win / Loss */}
-            <div style={card}>
+            {settings.winLossEnabled && <div style={card}>
               <SectionLabel color="var(--blue)">Win / Loss — Last 12 Months</SectionLabel>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginBottom: 13 }}>
                   {[
@@ -679,7 +681,7 @@ export default function OverviewPage({ data }) {
                     </div>
                   </div>
                 </div>
-            </div>
+            </div>}
 
           </div>
           {/* ════ END RIGHT COLUMN ════ */}

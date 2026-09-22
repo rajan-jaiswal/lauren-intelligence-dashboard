@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useData } from '../../context/DataContext.jsx';
-import { createPractice, fetchProducts, deleteProduct, deletePractice, verifyPin } from '../../api/products.js';
+import { createPractice, fetchProducts, deleteProduct, deletePractice, renamePractice, verifyPin } from '../../api/products.js';
 import { useSSE } from '../../hooks/useSSE.js';
 
 const PRACTICE_COLORS = [
@@ -35,6 +35,69 @@ function ConfirmDialog({ message, onConfirm, onCancel }) {
             border: '1px solid var(--card-border)', background: 'var(--card-bg2)', color: 'var(--text)',
           }}>Cancel</button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Rename Practice Modal ────────────────────────────────────────────────────
+function RenamePracticeModal({ pin, practiceName, onClose, onRenamed }) {
+  const [name, setName] = useState(practiceName);
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    const trimmed = name.trim();
+    if (!trimmed || trimmed.toUpperCase() === practiceName) { onClose(); return; }
+    setSaving(true);
+    setError('');
+    try {
+      const res = await renamePractice(practiceName, trimmed, pin);
+      onRenamed(practiceName, res.newName);
+    } catch (err) {
+      setError(err?.response?.data?.error || err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, background: 'var(--modal-overlay)', zIndex: 1000,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+    }}>
+      <div style={{
+        background: 'var(--card-bg)', border: '1px solid var(--card-border)',
+        borderRadius: 12, padding: '28px 32px', width: 380,
+      }}>
+        <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)', marginBottom: 16 }}>✏️ Rename Practice</div>
+        <form onSubmit={handleSubmit}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: .6 }}>New Name</label>
+            <input
+              autoFocus value={name} onChange={e => setName(e.target.value)}
+              placeholder="e.g. Google, Salesforce"
+              style={{
+                padding: '10px 12px', borderRadius: 8, fontSize: 13,
+                border: '1px solid var(--card-border)', background: 'var(--card-bg2)',
+                color: 'var(--text)', outline: 'none',
+              }}
+            />
+            <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>Will be converted to uppercase. All products inside will be updated.</div>
+          </div>
+          {error && <div style={{ fontSize: 12, color: '#ff5a5a', marginBottom: 10 }}>{error}</div>}
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button type="submit" disabled={saving} style={{
+              flex: 1, padding: '9px', borderRadius: 7, border: 'none', cursor: saving ? 'not-allowed' : 'pointer',
+              background: saving ? 'var(--card-border)' : 'var(--blue)', color: '#fff', fontSize: 13, fontWeight: 700,
+            }}>{saving ? 'Saving…' : 'Rename'}</button>
+            <button type="button" onClick={onClose} style={{
+              flex: 1, padding: '9px', borderRadius: 7, cursor: 'pointer', fontSize: 13,
+              border: '1px solid var(--card-border)', background: 'var(--card-bg2)', color: 'var(--text)',
+            }}>Cancel</button>
+          </div>
+        </form>
       </div>
     </div>
   );
@@ -150,9 +213,10 @@ function ProductRow({ doc, pin, onDelete, onEdit, onNavigate }) {
 }
 
 // ─── Practice Card ────────────────────────────────────────────────────────────
-function PracticeCard({ practiceName, products, pin, color, onAddProduct, onDelete, onEdit, onDeletePractice }) {
+function PracticeCard({ practiceName, products, pin, color, onAddProduct, onDelete, onEdit, onDeletePractice, onRenamePractice }) {
   const [expanded, setExpanded] = useState(true);
   const [deletingPractice, setDeletingPractice] = useState(false);
+  const [renamingPractice, setRenamingPractice] = useState(false);
 
   return (
     <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
@@ -184,6 +248,13 @@ function PracticeCard({ practiceName, products, pin, color, onAddProduct, onDele
           }}
         >+ Add Product</button>
         <button
+          onClick={e => { e.stopPropagation(); setRenamingPractice(true); }}
+          style={{
+            padding: '5px 10px', borderRadius: 7, border: '1px solid var(--card-border)',
+            background: 'var(--card-bg2)', color: 'var(--text)', fontSize: 11, cursor: 'pointer', fontWeight: 700,
+          }}
+        >✏️ Edit</button>
+        <button
           onClick={e => { e.stopPropagation(); setDeletingPractice(true); }}
           style={{
             padding: '5px 10px', borderRadius: 7, border: '1px solid #ff5a5a33',
@@ -197,6 +268,14 @@ function PracticeCard({ practiceName, products, pin, color, onAddProduct, onDele
           message={`Delete practice "${practiceName}" and all ${products.length} product(s) inside it? This cannot be undone.`}
           onConfirm={async () => { setDeletingPractice(false); await onDeletePractice(practiceName); }}
           onCancel={() => setDeletingPractice(false)}
+        />
+      )}
+      {renamingPractice && (
+        <RenamePracticeModal
+          pin={pin}
+          practiceName={practiceName}
+          onClose={() => setRenamingPractice(false)}
+          onRenamed={(oldName, newName) => { setRenamingPractice(false); onRenamePractice(oldName, newName); }}
         />
       )}
 
@@ -271,7 +350,7 @@ export default function ManagePracticePage({ pin: externalPin, onPinSet, onAddPr
   const [loading, setLoading]           = useState(true);
   const [showAddPractice, setShowAddPractice] = useState(false);
 
-  const { practices, addPracticeToList, addProductToList, removeProductFromList, removePracticeFromList } = useData();
+  const { practices, addPracticeToList, addProductToList, removeProductFromList, removePracticeFromList, renamePracticeInList } = useData();
 
   // Load all products once (skip if PIN not yet set — prevents 401 noise)
   useEffect(() => {
@@ -281,7 +360,7 @@ export default function ManagePracticePage({ pin: externalPin, onPinSet, onAddPr
       .catch(() => setLoading(false));
   }, [pin]);   // re-runs when PIN becomes available
 
-  // SSE — refresh on product_added / product_deleted / practice_deleted
+  // SSE — refresh on product_added / product_deleted / practice_deleted / practice_renamed
   useSSE({
     product_added: ({ practice, product: prod }) => {
       addProductToList(practice, prod);
@@ -293,6 +372,10 @@ export default function ManagePracticePage({ pin: externalPin, onPinSet, onAddPr
     practice_deleted: ({ practice: name }) => {
       if (removePracticeFromList) removePracticeFromList(name);
       setAllProducts(prev => prev.filter(d => d.practice !== name));
+    },
+    practice_renamed: ({ oldName, newName }) => {
+      if (renamePracticeInList) renamePracticeInList(oldName, newName);
+      setAllProducts(prev => prev.map(d => d.practice === oldName ? { ...d, practice: newName } : d));
     },
   });
 
@@ -309,6 +392,11 @@ export default function ManagePracticePage({ pin: externalPin, onPinSet, onAddPr
     } catch (err) {
       alert('Delete failed: ' + (err?.response?.data?.error || err.message));
     }
+  }
+
+  async function handleRenamePractice(oldName, newName) {
+    if (renamePracticeInList) renamePracticeInList(oldName, newName);
+    setAllProducts(prev => prev.map(d => d.practice === oldName ? { ...d, practice: newName } : d));
   }
 
   async function handleDeletePractice(practiceName) {
@@ -397,6 +485,7 @@ export default function ManagePracticePage({ pin: externalPin, onPinSet, onAddPr
               onDelete={handleDelete}
               onEdit={(doc) => onNavigate('product-form', { editDoc: doc, defaultPractice: doc.practice })}
               onDeletePractice={handleDeletePractice}
+              onRenamePractice={handleRenamePractice}
             />
           ))}
         </div>

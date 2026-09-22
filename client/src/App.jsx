@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, Component, useRef } from 'react';
 import { PRACTICES, PRODUCTS_BY_PRACTICE } from './dashboardData.js';
 import { DataProvider, useData } from './context/DataContext.jsx';
+import { SettingsProvider, useSettings } from './context/SettingsContext.jsx';
 import { useSSE } from './hooks/useSSE.js';
 
 // ── Error Boundary — catches render crashes and shows a recovery UI ───────────
@@ -742,6 +743,71 @@ function WelcomeScreen({ theme, setTheme, practice, product, products, onPractic
   );
 }
 
+// ── Admin Dashboard — landing panel shown when admin is unlocked ──────────────
+function AdminDashboard({ onAddProduct, onManagePractices, onLogout }) {
+  const { settings, setSetting } = useSettings();
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 420, gap: 20 }}>
+      <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--card-bg2)', border: '1.5px solid #2dca6e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 26, height: 26, color: '#2dca6e' }}>
+          <path d="M10 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a2 2 0 002 2h10a2 2 0 002-2v-5a2 2 0 00-2-2H7V7a3 3 0 015.905-.75 1 1 0 001.937-.5A5.002 5.002 0 0010 2z"/>
+        </svg>
+      </div>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--text)', marginBottom: 6 }}>Admin Unlocked</div>
+        <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>Select an option below or from the sidebar to continue.</div>
+      </div>
+      <div style={{ display: 'flex', gap: 14 }}>
+        <button onClick={onAddProduct} style={{ padding: '12px 24px', borderRadius: 10, border: 'none', cursor: 'pointer', background: 'var(--blue)', color: '#fff', fontSize: 14, fontWeight: 700 }}>
+          ➕ Add Product
+        </button>
+        <button onClick={onManagePractices} style={{ padding: '12px 24px', borderRadius: 10, border: 'none', cursor: 'pointer', background: '#b47fff', color: '#fff', fontSize: 14, fontWeight: 700 }}>
+          ⚙ Manage Practices
+        </button>
+      </div>
+
+      {/* ── Dashboard Settings ── */}
+      <div style={{ width: '100%', maxWidth: 420, background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 12, padding: '18px 22px' }}>
+        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text)', marginBottom: 14, textTransform: 'uppercase', letterSpacing: 0.7 }}>
+          Dashboard Settings
+        </div>
+        {/* Win / Loss toggle */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', marginBottom: 2 }}>Win / Loss Section</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+              Show Win/Loss in the Overview page and sidebar navigation.
+            </div>
+          </div>
+          {/* Toggle switch */}
+          <button
+            onClick={() => setSetting('winLossEnabled', !settings.winLossEnabled)}
+            aria-pressed={settings.winLossEnabled}
+            style={{
+              width: 46, height: 26, borderRadius: 13, border: 'none', cursor: 'pointer', flexShrink: 0,
+              background: settings.winLossEnabled ? '#2dca6e' : 'var(--card-border)',
+              position: 'relative', transition: 'background .2s',
+            }}
+          >
+            <span style={{
+              position: 'absolute', top: 3, left: settings.winLossEnabled ? 23 : 3,
+              width: 20, height: 20, borderRadius: '50%', background: '#fff',
+              transition: 'left .2s', boxShadow: '0 1px 3px rgba(0,0,0,.25)',
+            }} />
+          </button>
+        </div>
+      </div>
+
+      <button
+        onClick={onLogout}
+        style={{ marginTop: 4, padding: '9px 22px', borderRadius: 8, border: '1px solid var(--card-border)', cursor: 'pointer', background: 'transparent', color: 'var(--text-muted)', fontSize: 13, fontWeight: 600 }}
+      >
+        🔒 Logout Admin
+      </button>
+    </div>
+  );
+}
+
 // ── Inner app — has access to DataContext ──────────────────────────────────
 function AppInner() {
   const [activeNav, setActiveNav]   = useState('overview');
@@ -853,7 +919,10 @@ function AppInner() {
   const practicesList = Object.keys(practices).length ? Object.keys(practices) : PRACTICES;
 
   const isAws = practice === 'AWS';
-  const NAV_ITEMS = isAws ? NAV_ITEMS_AWS : NAV_ITEMS_IBM;
+  const { settings } = useSettings();
+  const NAV_ITEMS = (isAws ? NAV_ITEMS_AWS : NAV_ITEMS_IBM).filter(
+    item => item.id !== 'winloss' || settings.winLossEnabled
+  );
 
   // ── Welcome / Selection screen ────────────────────────────────────────
   if (!launched) {
@@ -909,31 +978,11 @@ function AppInner() {
       }
       // Already unlocked: show a simple landing with links to sub-pages
       return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 420, gap: 20 }}>
-          <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--card-bg2)', border: '1.5px solid #2dca6e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 26, height: 26, color: '#2dca6e' }}>
-              <path d="M10 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a2 2 0 002 2h10a2 2 0 002-2v-5a2 2 0 00-2-2H7V7a3 3 0 015.905-.75 1 1 0 001.937-.5A5.002 5.002 0 0010 2z"/>
-            </svg>
-          </div>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--text)', marginBottom: 6 }}>Admin Unlocked</div>
-            <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>Select an option from the sidebar to continue.</div>
-          </div>
-          <div style={{ display: 'flex', gap: 14 }}>
-            <button onClick={() => setActiveNav('add-product')} style={{ padding: '12px 24px', borderRadius: 10, border: 'none', cursor: 'pointer', background: 'var(--blue)', color: '#fff', fontSize: 14, fontWeight: 700 }}>
-              ➕ Add Product
-            </button>
-            <button onClick={() => setActiveNav('manage-practice')} style={{ padding: '12px 24px', borderRadius: 10, border: 'none', cursor: 'pointer', background: '#b47fff', color: '#fff', fontSize: 14, fontWeight: 700 }}>
-              ⚙ Manage Practices
-            </button>
-          </div>
-          <button
-            onClick={() => { setAdminPin(null); setActiveNav('overview'); }}
-            style={{ marginTop: 4, padding: '9px 22px', borderRadius: 8, border: '1px solid var(--card-border)', cursor: 'pointer', background: 'transparent', color: 'var(--text-muted)', fontSize: 13, fontWeight: 600 }}
-          >
-            🔒 Logout Admin
-          </button>
-        </div>
+        <AdminDashboard
+          onAddProduct={() => setActiveNav('add-product')}
+          onManagePractices={() => setActiveNav('manage-practice')}
+          onLogout={() => { setAdminPin(null); setActiveNav('overview'); }}
+        />
       );
     }
 
@@ -1100,27 +1149,6 @@ function AppInner() {
           })}
         </nav>
 
-        {/* AI Insights panel */}
-        <div className="ai-insights-box">
-          <div className="ai-title">
-            <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 13, height: 13 }}>
-              <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd"/>
-            </svg>
-            AI Insights
-          </div>
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,.45)', marginBottom: 5 }}>This week</div>
-          <Sparkline />
-          <div className="data-health" style={{ marginTop: 9 }}>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,.45)', marginBottom: 3 }}>Data Health</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <svg viewBox="0 0 8 8" style={{ width: 8, height: 8, flexShrink: 0 }}>
-                <circle cx="4" cy="4" r="4" fill="#2dca6e"/>
-              </svg>
-              <span className="health-val">Excellent</span>
-              <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', marginLeft: 2 }}>98%</span>
-            </div>
-          </div>
-        </div>
       </aside>
 
       {/* ── Main Area ── */}
@@ -1232,8 +1260,10 @@ function AppInner() {
 
 export default function App() {
   return (
-    <DataProvider>
-      <AppInner />
-    </DataProvider>
+    <SettingsProvider>
+      <DataProvider>
+        <AppInner />
+      </DataProvider>
+    </SettingsProvider>
   );
 }

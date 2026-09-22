@@ -133,6 +133,12 @@ export async function deleteProduct(productId, pin) {
   return data;
 }
 
+/** PATCH rename a practice (updates all products in that practice) */
+export async function renamePractice(oldName, newName, pin) {
+  const { data } = await axios.patch(`${API_BASE}/practices/${encodeURIComponent(oldName)}`, { newName, pin });
+  return data; // { status: 'ok', oldName, newName }
+}
+
 /** DELETE a practice and all its products */
 export async function deletePractice(practiceName, pin) {
   const { data } = await axios.delete(`${API_BASE}/practices/${encodeURIComponent(practiceName)}`, { params: { pin } });

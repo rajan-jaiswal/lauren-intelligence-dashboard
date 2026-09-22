@@ -17,24 +17,32 @@ function getApiKey() {
   return key;
 }
 
-// ── Model priority — fastest/cheapest first, fallback on quota / 503 ─────────
+// ── Model priority — most capable first for accuracy, fallback on quota / 503 ─
 const MODELS = [
-  'gemini-2.5-flash-lite',
   'gemini-2.5-flash',
   'gemini-2.0-flash',
+  'gemini-2.5-flash-lite',
   'gemini-2.0-flash-lite',
   'gemini-1.5-flash',
+];
+
+// ── High-accuracy model list — used for file extraction (quality over speed) ──
+const MODELS_ACCURATE = [
+  'gemini-2.5-flash',
+  'gemini-2.0-flash',
+  'gemini-1.5-flash',
+  'gemini-2.5-flash-lite',
 ];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // ─── Single Gemini REST call ──────────────────────────────────────────────────
 // POST https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={KEY}
-function callGemini(model, prompt, timeoutMs = 120000) {
+function callGemini(model, prompt, timeoutMs = 180000, maxOutputTokens = 65536) {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0, maxOutputTokens: 16384 },
+      generationConfig: { temperature: 0, maxOutputTokens },
     });
 
     const path = `/v1beta/models/${model}:generateContent?key=${getApiKey()}`;
@@ -88,11 +96,11 @@ function callGemini(model, prompt, timeoutMs = 120000) {
 
 // ─── Retry across models on quota / transient errors ─────────────────────────
 // Also handles "model no longer available, use X instead" redirects
-async function generateWithFallback(prompt) {
+async function generateWithFallback(prompt, modelList) {
   // Build a dynamic list: start with our priority list, then add any
   // models suggested in redirect error messages
   const tried   = new Set();
-  const queue   = [...MODELS];
+  const queue   = [...(modelList || MODELS)];
   let   lastErr;
 
   while (queue.length > 0) {
@@ -344,4 +352,9 @@ async function generateCompetitorProfile(competitorName, productName, practice) 
   return parseAiJSON(text);
 }
 
-module.exports = { generateProductData, generateCompetitorProfile, generateWithFallback };
+// ─── High-accuracy extraction — uses MODELS_ACCURATE list ────────────────────
+async function generateAccurate(prompt) {
+  return generateWithFallback(prompt, MODELS_ACCURATE);
+}
+
+module.exports = { generateProductData, generateCompetitorProfile, generateWithFallback, generateAccurate };
