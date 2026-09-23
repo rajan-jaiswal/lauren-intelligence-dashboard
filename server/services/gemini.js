@@ -215,6 +215,7 @@ Return ONLY a valid JSON object (no markdown, no explanation, just raw JSON) wit
       "overview": "<2 sentence overview>",
       "strengths": ["<s1>", "<s2>", "<s3>"],
       "weaknesses": ["<w1>", "<w2>", "<w3>"],
+      "ourEdge": ["<how ${productName} leads vs this competitor — point 1>", "<point 2>", "<point 3>", "<point 4>", "<point 5>"],
       "pricingSummary": "<pricing overview>"
     }
   ],
@@ -272,6 +273,7 @@ Rules:
 - Include at least 8 keyFeatures items
 - Include at least 8 featureMatrix rows
 - Include all ${competitorNames.length > 1 ? competitorNames.length : 2} competitors in competitorSummary
+- Each competitorSummary entry MUST include an "ourEdge" array with 4-6 specific, actionable points explaining exactly how ${productName} leads or wins against that competitor — focus on real differentiators (TCO, features, ecosystem, support, deployment model, etc.)
 - Use realistic, accurate data based on your knowledge of ${productName}
 - featureMatrix values must be exactly "green", "yellow", or "red"
 - All monetary values in tcoData represent 3-year totals
@@ -294,8 +296,15 @@ Return ONLY a valid JSON object (no markdown, no backticks):
   "overview": "<2-3 sentence company and product overview>",
   "strengths": ["<strength 1>", "<strength 2>", "<strength 3>", "<strength 4>"],
   "weaknesses": ["<weakness 1>", "<weakness 2>", "<weakness 3>"],
+  "ourEdge": ["<how ${productName} leads vs ${competitorName} — specific differentiator 1>", "<differentiator 2>", "<differentiator 3>", "<differentiator 4>", "<differentiator 5>"],
   "pricingSummary": "<indicative pricing e.g. $X/unit/mo, enterprise starting $XXK/yr>"
-}`;
+}
+
+Rules:
+- ourEdge must contain 4-6 specific, actionable points explaining exactly how ${productName} wins against ${competitorName}
+- Focus on real, verifiable differentiators: TCO, features, ecosystem, support depth, deployment flexibility, performance, etc.
+- Each point should be usable by a salesperson in a customer conversation
+- Return ONLY the JSON, no backticks, no markdown`;
 }
 
 // ─── Main product generation (broadcasts SSE progress) ───────────────────────

@@ -376,6 +376,7 @@ router.post('/products/extract-pdf', upload.single('file'), async (req, res) => 
   "caseStudies": [{ "icon": "<emoji>", "customer": "<company or type>", "type": "<industry>", "challenge": "<the problem>", "result": "<quantified outcome>" }],
   "keyCustomers": [{ "logo": "<emoji>", "name": "<company name>", "industry": "<industry>", "color": "<brand hex color>" }],
   "competitors": ["<competitor product or company name>"],
+  "competitorSummary": [{ "name": "<competitor name>", "logo": "<emoji>", "color": "<hex>", "marketPosition": "<Leader/Challenger/Niche>", "overview": "<2 sentence overview>", "strengths": ["<s1>", "<s2>"], "weaknesses": ["<w1>", "<w2>"], "ourEdge": ["<how this product leads vs competitor — specific point 1>", "<point 2>", "<point 3>", "<point 4>"] }],
   "featureMatrix": { "labels": { "product": "<name>", "comp1": "<name>", "comp2": "<name>" }, "rows": [{ "feature": "<feature>", "product": "green", "comp1": "yellow", "comp2": "red" }] },
   "tcoData": { "labels": { "product": "<name>", "comp1": "<name>", "comp2": "<name>" }, "maxValue": 800, "totals": { "product": "<val>", "comp1": "<val>", "comp2": "<val>" }, "rows": [{ "component": "<cost component>", "product": "<val>", "comp1": "<val>", "comp2": "<val>" }] },
   "winLoss": { "total": 0, "won": 0, "lost": 0, "winRate": 0, "competitors": [{ "label": "<name>", "wins": 0, "pct": 0, "color": "<hex>" }], "topMessages": ["<winning message>"] },
@@ -394,14 +395,15 @@ router.post('/products/extract-pdf', upload.single('file'), async (req, res) => 
 8. caseStudies: extract ALL customer examples, case studies, success stories, reference accounts
 9. keyCustomers: extract ALL customer logos, reference accounts, named companies, partner names
 10. competitors: extract EVERY competitor, alternative solution, or "compared to" product mentioned
-11. featureMatrix: if any comparison table exists, extract it fully; use "green"=advantage, "yellow"=partial, "red"=disadvantage
-12. tcoData: extract ALL pricing, cost, ROI, or TCO data with dollar values
-13. winLoss: extract win rates, deal volumes, conversion stats, competitive win/loss data
-14. aiCoach: synthesise the most impactful objection/response pair from the document
-15. Return null ONLY if data genuinely does not exist — never return empty arrays when data is present
-16. Preserve exact numbers, percentages, and quoted text from the document
-17. CRITICAL: Return ONLY a valid JSON object. No markdown, no backticks, no explanation text.
-18. START your response with { and END with }`;
+11. competitorSummary: for each competitor found, generate a full profile including strengths, weaknesses, and an "ourEdge" array of 4-6 specific points explaining how this product leads vs that competitor
+12. featureMatrix: if any comparison table exists, extract it fully; use "green"=advantage, "yellow"=partial, "red"=disadvantage
+13. tcoData: extract ALL pricing, cost, ROI, or TCO data with dollar values
+14. winLoss: extract win rates, deal volumes, conversion stats, competitive win/loss data
+15. aiCoach: synthesise the most impactful objection/response pair from the document
+16. Return null ONLY if data genuinely does not exist — never return empty arrays when data is present
+17. Preserve exact numbers, percentages, and quoted text from the document
+18. CRITICAL: Return ONLY a valid JSON object. No markdown, no backticks, no explanation text.
+19. START your response with { and END with }`;
 
     // ── STRATEGY ─────────────────────────────────────────────────────────────
     // Gemini 2.5-flash supports ~1M token context (~3M chars).
