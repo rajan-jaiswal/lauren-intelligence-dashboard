@@ -43,6 +43,7 @@ const CompetitorSummarySchema = new mongoose.Schema({
   overview: String,
   strengths: [String],
   weaknesses: [String],
+  ourEdge: [String],        // How our product leads against this competitor
   pricingSummary: String,
   bestFit: String,          // AWS competitive snapshot
 }, { _id: false });
