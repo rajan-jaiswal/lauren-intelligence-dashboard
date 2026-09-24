@@ -154,21 +154,44 @@ export default function CompetitiveAnalysisPage({ data }) {
               <th style={{ textAlign: 'center', color: 'var(--blue)' }}>{labels.product}</th>
               <th style={{ textAlign: 'center' }}>{labels.comp1}</th>
               <th style={{ textAlign: 'center' }}>{labels.comp2}</th>
+              <th style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Focus</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((r, i) => (
-              <tr key={i}>
-                <td style={{ fontWeight: 500 }}>{r.feature}</td>
-                {['product', 'comp1', 'comp2'].map((k) => (
-                  <td key={k} style={{ textAlign: 'center' }}>
-                    <svg viewBox="0 0 10 10" style={{ width: 11, height: 11 }}>
-                      <circle cx="5" cy="5" r="5" fill={DOT_COLOR[r[k]]}/>
-                    </svg>
+            {rows.map((r, i) => {
+              // Derive per-row verdict based on our product dot vs competitors
+              let focusLabel, focusBg, focusText;
+              if (r.product === 'green') {
+                focusLabel = '🏆 We Lead';   focusBg = 'var(--green)';  focusText = '#fff';
+              } else if (r.product === 'red') {
+                focusLabel = '⚠ We\'re Weak'; focusBg = 'var(--red)';    focusText = '#fff';
+              } else {
+                focusLabel = '🎯 Focus Here'; focusBg = 'var(--yellow)'; focusText = '#1a1a1a';
+              }
+              return (
+                <tr key={i}>
+                  <td style={{ fontWeight: 500 }}>{r.feature}</td>
+                  {['product', 'comp1', 'comp2'].map((k) => (
+                    <td key={k} style={{ textAlign: 'center' }}>
+                      <svg viewBox="0 0 10 10" style={{ width: 11, height: 11 }}>
+                        <circle cx="5" cy="5" r="5" fill={DOT_COLOR[r[k]]}/>
+                      </svg>
+                    </td>
+                  ))}
+                  <td style={{ textAlign: 'center', padding: '6px 6px' }}>
+                    <span style={{
+                      display: 'inline-block',
+                      padding: '3px 9px', borderRadius: 20,
+                      background: focusBg, color: focusText,
+                      fontSize: 10, fontWeight: 800, letterSpacing: 0.4,
+                      whiteSpace: 'nowrap',
+                    }}>
+                      {focusLabel}
+                    </span>
                   </td>
-                ))}
-              </tr>
-            ))}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
         </div>

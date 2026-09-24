@@ -907,12 +907,10 @@ function AppInner() {
     setPractice(p);
     const list = practices[p] || PRODUCTS_BY_PRACTICE[p] || [];
     setProduct(list[0] || '');
-    setActiveNav('overview');
   }, [practices]);
 
   const handleProductChange = useCallback((p) => {
     setProduct(p);
-    setActiveNav('overview');
   }, []);
 
   const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -979,7 +977,7 @@ function AppInner() {
       // Already unlocked: show a simple landing with links to sub-pages
       return (
         <AdminDashboard
-          onAddProduct={() => setActiveNav('add-product')}
+          onAddProduct={() => navToForm(practice, null, adminPin)}
           onManagePractices={() => setActiveNav('manage-practice')}
           onLogout={() => { setAdminPin(null); setActiveNav('overview'); }}
         />
@@ -1103,8 +1101,8 @@ function AppInner() {
                   {adminPin && (
                     <div style={{ background: 'rgba(0,0,0,.15)', borderLeft: '2px solid rgba(74,158,255,.3)', marginLeft: 14, borderRadius: '0 0 6px 6px' }}>
                       <div
-                        className={`nav-item${activeNav === 'add-product' ? ' active' : ''}`}
-                        onClick={() => { setActiveNav('add-product'); setSidebarOpen(false); }}
+                        className={`nav-item${activeNav === 'product-form' ? ' active' : ''}`}
+                        onClick={() => { navToForm(practice, null, adminPin); setSidebarOpen(false); }}
                         style={{ paddingLeft: 14, paddingRight: 10, fontSize: 12 }}
                       >
                         <span className="nav-icon" style={{ width: 14, height: 14 }}>{AddIcon}</span>

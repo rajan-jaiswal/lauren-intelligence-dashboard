@@ -1,0 +1,212 @@
+==============================================================
+  LAUREN INTELLIGENCE DASHBOARD — LINUX SERVER DEPLOYMENT
+==============================================================
+
+STACK OVERVIEW
+--------------
+  Frontend  : React + Vite (SPA)       → Served by Nginx as static files
+  Backend   : Node.js + Express        → Managed by PM2 process manager
+  Database  : MongoDB                  → MongoDB Atlas (cloud)
+
+
+==============================================================
+PREREQUISITES — Install on the Linux Server
+==============================================================
+
+  # Update packages
+  sudo apt update && sudo apt upgrade -y
+
+  # Install Node.js 20 (LTS)
+  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+  sudo apt install -y nodejs
+
+  # Install Nginx
+  sudo apt install -y nginx
+
+  # Install PM2 (process manager for the backend)
+  sudo npm install -g pm2
+
+  # Install Git
+  sudo apt install -y git
+
+
+==============================================================
+STEP 1 — Clone the Repository
+==============================================================
+
+  cd /var/www
+  sudo git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git lauren-dashboard
+  sudo chown -R $USER:$USER /var/www/lauren-dashboard
+  cd /var/www/lauren-dashboard
+
+
+==============================================================
+STEP 2 — Configure Backend Environment
+==============================================================
+
+  cd /var/www/lauren-dashboard/server
+  cp .env.example .env
+  nano .env
+
+  Fill in the following values:
+
+    MONGO_URI=mongodb+srv://<user>:<password>@cluster0.xxxx.mongodb.net/lauren-dashboard?retryWrites=true&w=majority
+    GEMINI_API_KEY=AIzaXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    PORT=5000
+    ADMIN_PIN=Lauren@2025
+    FRONTEND_URL=http://YOUR_SERVER_IP_OR_DOMAIN
+
+  NOTE — MongoDB Atlas:
+    Make sure your server's public IP is whitelisted under:
+    Atlas → Network Access
+    If you don't have a fixed IP, use 0.0.0.0/0 (allow all) temporarily.
+
+
+==============================================================
+STEP 3 — Install Backend Dependencies & Start with PM2
+==============================================================
+
+  cd /var/www/lauren-dashboard/server
+  npm install
+
+  # Start the server with PM2 (keeps it alive after logout/reboot)
+  pm2 start index.js --name "lauren-api"
+  pm2 save          # persist across reboots
+  pm2 startup       # follow the printed command to enable on boot
+
+  Verify it's running:
+    pm2 status
+    pm2 logs lauren-api
+
+
+==============================================================
+STEP 4 — Build the React Frontend
+==============================================================
+
+  cd /var/www/lauren-dashboard/client
+
+  # Set the production API URL (points to your server's backend)
+  echo "VITE_API_URL=http://YOUR_SERVER_IP_OR_DOMAIN/api" > .env.local
+
+  npm install
+  npm run build
+  # Output goes to: client/dist/
+
+
+==============================================================
+STEP 5 — Configure Nginx
+==============================================================
+
+  sudo nano /etc/nginx/sites-available/lauren-dashboard
+
+  Paste the following (replace YOUR_SERVER_IP_OR_DOMAIN):
+
+  -------------------------------------------------------
+  server {
+      listen 80;
+      server_name YOUR_SERVER_IP_OR_DOMAIN;
+
+      # Serve the React SPA (built static files)
+      root /var/www/lauren-dashboard/client/dist;
+      index index.html;
+
+      # For React Router — send all non-file requests to index.html
+      location / {
+          try_files $uri $uri/ /index.html;
+      }
+
+      # Proxy /api requests to the Express backend on port 5000
+      location /api {
+          proxy_pass         http://localhost:5000;
+          proxy_http_version 1.1;
+          proxy_set_header   Upgrade $http_upgrade;
+          proxy_set_header   Connection 'upgrade';
+          proxy_set_header   Host $host;
+          proxy_set_header   X-Real-IP $remote_addr;
+          proxy_cache_bypass $http_upgrade;
+      }
+  }
+  -------------------------------------------------------
+
+  Enable the config and restart Nginx:
+
+    sudo ln -s /etc/nginx/sites-available/lauren-dashboard /etc/nginx/sites-enabled/
+    sudo nginx -t          # test config — must say "syntax is ok"
+    sudo systemctl restart nginx
+    sudo systemctl enable nginx
+
+
+==============================================================
+STEP 6 — Open Firewall Ports
+==============================================================
+
+  sudo ufw allow 'Nginx Full'
+  sudo ufw allow OpenSSH
+  sudo ufw enable
+  sudo ufw status
+
+
+==============================================================
+STEP 7 — Verify Everything Works
+==============================================================
+
+  Check                  Command
+  --------               -------
+  Backend running      : pm2 status  (lauren-api should show "online")
+  Backend responds     : curl http://localhost:5000/api/products
+  Nginx running        : sudo systemctl status nginx
+  Full app in browser  : http://YOUR_SERVER_IP_OR_DOMAIN
+
+
+==============================================================
+STEP 8 — (Optional) Add HTTPS with Let's Encrypt
+==============================================================
+
+  Requires a domain name pointing to your server.
+
+  sudo apt install -y certbot python3-certbot-nginx
+  sudo certbot --nginx -d yourdomain.com
+
+  # Enable auto-renewal
+  sudo systemctl enable certbot.timer
+
+  Then update environment variables:
+
+    server/.env
+      FRONTEND_URL=https://yourdomain.com
+
+    client/.env.local
+      VITE_API_URL=https://yourdomain.com/api
+
+  Rebuild the frontend and reload Nginx:
+    cd /var/www/lauren-dashboard/client && npm run build
+    sudo systemctl reload nginx
+
+
+==============================================================
+DEPLOYING UPDATES (After Code Changes)
+==============================================================
+
+  cd /var/www/lauren-dashboard
+  git pull
+
+  # Rebuild frontend
+  cd client && npm install && npm run build && cd ..
+
+  # Restart backend
+  cd server && npm install && pm2 restart lauren-api
+
+
+==============================================================
+ARCHITECTURE SUMMARY
+==============================================================
+
+  [Browser] → Nginx :80 → /       → client/dist/  (React SPA)
+                        → /api/*  → PM2 → Express :5000 → MongoDB Atlas
+
+  Key environment variables:
+    MONGO_URI      — MongoDB Atlas connection string        (server)
+    FRONTEND_URL   — your server's domain/IP for CORS      (server)
+    VITE_API_URL   — http(s)://YOUR_DOMAIN/api             (client build)
+
+==============================================================
