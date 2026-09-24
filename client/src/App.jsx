@@ -1031,11 +1031,12 @@ function AppInner() {
       );
     }
 
-    // AWS: always show the full dashboard
-    if (isAws && !isAdminPage) {
-      return <AwsDashboardPage data={data} />;
-    }
     switch (activeNav) {
+      // ── AWS-specific nav IDs ──────────────────────────────────────────
+      case 'aws-dashboard': return <AwsDashboardPage data={data} />;
+      case 'objections2':   return <ObjectionHandlingPage data={data} />;
+      case 'aws-exec':      return <OverviewPage data={data} />;
+      // ── Shared nav IDs (IBM + AWS) ────────────────────────────────────
       case 'overview':    return <OverviewPage data={data} />;
       case 'product':     return <ProductDetailsPage data={data} />;
       case 'competitive': return <CompetitiveAnalysisPage data={data} />;
@@ -1045,7 +1046,7 @@ function AppInner() {
       case 'objections':  return <ObjectionHandlingPage data={data} />;
       case 'winloss':     return <WinLossPage data={data} />;
       case 'coach':       return <AiSalesCoachPage data={data} onNavigate={setActiveNav} />;
-      default:            return <OverviewPage data={data} />;
+      default:            return isAws ? <AwsDashboardPage data={data} /> : <OverviewPage data={data} />;
     }
   }
 
