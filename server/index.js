@@ -14,16 +14,18 @@ const PORT = process.env.PORT || 5000;
 const ALLOWED_ORIGINS = [
   'http://localhost:5173',
   'http://localhost:3000',
-  process.env.FRONTEND_URL,           // set this on Render → your Vercel URL
+  process.env.FRONTEND_URL,  // set this on Render → your Vercel URL
 ].filter(Boolean);
 
 app.use(cors({
   origin: (origin, cb) => {
-    // allow server-to-server / curl (no origin) and whitelisted origins
+    // Allow server-to-server / curl (no origin header)
     if (!origin) return cb(null, true);
     if (ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
-    // allow any Vercel preview/production deployment automatically
+    // Allow any Vercel deployment automatically
     if (/\.vercel\.app$/.test(origin)) return cb(null, true);
+    // Allow Render's own health-check pings
+    if (/\.onrender\.com$/.test(origin)) return cb(null, true);
     cb(new Error(`CORS: origin ${origin} not allowed`));
   },
   credentials: true,
@@ -44,18 +46,24 @@ app.get('/api/health', (_req, res) => {
 });
 
 // ─── MongoDB Connection ────────────────────────────────────────────────────────
+// Use Google DNS (8.8.8.8) to resolve SRV records — bypasses corporate DNS
+// that may block _mongodb._tcp SRV lookups on port 53.
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
+
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 15000,
+    family: 4, // Force IPv4
+  })
   .then(() => {
-    console.log('✅ MongoDB connected:', process.env.MONGO_URI);
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log('✅ MongoDB connected');
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🚀 Server running on port ${PORT}`);
       // ── Keep-alive self-ping — prevents Render free tier cold starts ──────────
-      // Render spins down the server after 15 min of inactivity.
-      // Pinging ourselves every 10 min keeps the process warm so the first
-      // request after a long idle period doesn't take 30+ seconds.
-      if (process.env.NODE_ENV === 'production' && process.env.RENDER_EXTERNAL_URL) {
-        const pingUrl = `${process.env.RENDER_EXTERNAL_URL}/api/health`;
+      const renderUrl = process.env.RENDER_EXTERNAL_URL;
+      if (process.env.NODE_ENV === 'production' && renderUrl) {
+        const pingUrl = renderUrl.startsWith('http') ? `${renderUrl}/api/health` : `https://${renderUrl}/api/health`;
         const transport = pingUrl.startsWith('https') ? https : http;
         setInterval(() => {
           transport.get(pingUrl, (res) => {
