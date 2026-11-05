@@ -302,7 +302,8 @@ router.post('/products/ai-fill', async (req, res) => {
     sse.broadcast('product_added', { jobId, productId: doc._id, practice: doc.practice, oem: doc.oem || doc.practice, product: doc.product, percent: 100 });
     sse.broadcast('ai_progress', { jobId, stage: 'complete', percent: 100, message: 'Missing fields filled by AI!' });
   } catch (err) {
-    sse.broadcast('ai_progress', { jobId, stage: 'error', percent: 0, message: err.message });
+    console.error('[ai-fill] ERROR:', err.message);
+    sse.broadcast('ai_progress', { jobId, stage: 'error', percent: 0, message: `AI Error: ${err.message}` });
   }
 });
 
@@ -342,7 +343,8 @@ router.post('/products/ai-generate-preview', async (req, res) => {
     // NOT saved to DB — client calls /products/manual when user clicks Save.
     sse.broadcast('ai_preview', { jobId, practice, product: productName, data: generated });
   } catch (err) {
-    sse.broadcast('ai_progress', { jobId, stage: 'error', percent: 0, message: err.message });
+    console.error('[ai-generate-preview] ERROR:', err.message);
+    sse.broadcast('ai_progress', { jobId, stage: 'error', percent: 0, message: `AI Error: ${err.message}` });
   }
 });
 
